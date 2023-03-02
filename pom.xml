@@ -12,7 +12,7 @@
     <artifactId>appdome-build-2secure</artifactId>
     <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
-    <name>TODO Plugin</name>
+    <name>Appdome Build-2secure</name>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     <licenses>
         <license>
