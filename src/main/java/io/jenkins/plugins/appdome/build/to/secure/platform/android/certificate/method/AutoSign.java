@@ -13,6 +13,7 @@ import org.kohsuke.stapler.verb.POST;
 
 public class AutoSign extends CertificateMethod {
 
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private final String keystorePath;
     private final Secret keystorePassword;
     private final Secret keystoreAlias;

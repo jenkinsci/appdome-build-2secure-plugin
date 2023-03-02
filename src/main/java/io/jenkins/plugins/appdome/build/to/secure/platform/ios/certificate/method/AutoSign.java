@@ -16,6 +16,7 @@ import java.util.List;
 
 public class AutoSign extends CertificateMethod {
 
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private final String keystorePath;
     private final Secret keystorePassword;
     private List<StringWarp> provisioningProfiles;
