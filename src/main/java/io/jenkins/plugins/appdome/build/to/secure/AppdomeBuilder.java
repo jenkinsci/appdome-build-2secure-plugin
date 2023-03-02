@@ -164,6 +164,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
             command.append(OUTPUT_FLAG)
                     .append(this.outputLocation);
+            command.append(CERTIFIED_SECURE_FLAG).append(this.outputLocation).append(File.separator).append("Certified_Secure.pdf");
+
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
             launcher.launch()
@@ -179,6 +181,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(File.separator)
                     .append("Appdome_Protected_")
                     .append(basename);
+
+            command.append(CERTIFIED_SECURE_FLAG).append(output_location.getRemote()).append(File.separator).append("Certified_Secure.pdf");
         }
 
         return command.toString();
