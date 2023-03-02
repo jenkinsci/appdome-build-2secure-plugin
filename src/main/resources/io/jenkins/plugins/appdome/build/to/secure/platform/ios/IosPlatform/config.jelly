@@ -3,7 +3,7 @@
 
 
     <f:entry title="${%iOS application}" field="appPath"
-             description="Default: environment variable {IOS_APP_PATH} ${IOS_APP_PATH}">
+             description="or use environment variable {APP_PATH} ${APP_PATH}">
         <f:textbox placeholder="IOS_APP_PATH"/>
     </f:entry>
 

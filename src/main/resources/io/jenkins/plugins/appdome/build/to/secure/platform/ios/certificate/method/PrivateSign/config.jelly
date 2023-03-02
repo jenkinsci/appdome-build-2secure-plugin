@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry title="${%Provisioning Profile}" field="provisioningProfiles" description="Mobileprovision files only.">
+    <f:entry title="${%Provisioning Profile}" field="provisioningProfiles"  description="Mobileprovision files only. Or use environment variable {MOBILE_PROVISION_PROFILE_PATHS} ${MOBILE_PROVISION_PROFILE_PATHS}">
         <f:repeatable field="provisioningProfiles" minimum="1">
             <div style="display: flex; align-items: center;">
                 <f:textbox placeholder="mobileprovision file" name="item" value="${AutoSign.provisioningProfiles}"/>
