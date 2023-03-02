@@ -1,0 +1,18 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+
+
+    <f:entry title="${%iOS application}" field="appPath"
+             description="Default: environment variable {IOS_APP_PATH} ${IOS_APP_PATH}">
+        <f:textbox placeholder="IOS_APP_PATH"/>
+    </f:entry>
+
+    <f:entry title="${%Fusion-set-id}" field="fusionSetId">
+        <div style="display: flex; align-items: center;">
+            <f:textbox placeholder="IOS Fusion-set-id"/>
+        </div>
+    </f:entry>
+
+    <f:dropdownDescriptorSelector field="certificateMethod" title="Certificate Method" descriptors="${it.CertificateMethodDescriptor}"/>
+
+</j:jelly>

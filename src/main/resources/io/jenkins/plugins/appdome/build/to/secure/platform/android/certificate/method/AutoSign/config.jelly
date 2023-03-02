@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+
+    <f:entry title="${%Keystore file}" field="keystorePath">
+        <div style="display: flex; align-items: center;">
+            <f:textbox placeholder="keystore file"/>
+        </div>
+
+    </f:entry>
+
+    <f:entry title="${%Keystore Pass}" field="keystorePassword">
+        <div style="display: flex; align-items: center;">
+            <f:password/>
+        </div>
+    </f:entry>
+    <f:entry title="${%Keystore Alias}" field="keystoreAlias">
+        <div style="display: flex; align-items: center;">
+            <f:password/>
+        </div>
+    </f:entry>
+    <f:entry title="${%Key Pass}" field="keyPass">
+        <div style="display: flex; align-items: center;">
+            <f:password/>
+        </div>
+    </f:entry>
+    <f:block>
+        <table>
+            <f:optionalBlock name="googleSignFingerPrint" title="Enable Google signing" field="isEnableGoogleSign">
+                <f:entry  title="${%Fingerprint}" field="googleSignFingerPrint">
+                    <f:textbox field="googleSignFingerPrint" name="googleSignFingerPrint" placeholder="Fingerprint SHA1 for Google Signing"/>
+                </f:entry>
+            </f:optionalBlock>
+        </table>
+    </f:block>
+    <hr/>
+    <br/>
+
+</j:jelly>

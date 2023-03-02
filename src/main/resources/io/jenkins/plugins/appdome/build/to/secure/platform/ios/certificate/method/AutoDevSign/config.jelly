@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="${%Provisioning Profile}" field="provisioningProfiles" description="Mobileprovision files only.">
+        <f:repeatable field="provisioningProfiles" minimum="1">
+            <div style="display: flex; align-items: center;">
+                <f:textbox placeholder="mobileprovision file" name="item" value="${AutoSign.provisioningProfiles}"/>
+            </div>
+            <div align="right">
+                <f:repeatableDeleteButton/>
+            </div>
+        </f:repeatable>
+    </f:entry>
+
+    <f:entry title="${%Entitlements}" field="entitlements" description="Plist files only.">
+        <f:repeatable field="entitlements" minimum="1">
+            <div style="display: flex; align-items: center;">
+                <f:textbox placeholder="mobileprovision file" name="item" value="${AutoSign.entitlements}"/>
+            </div>
+            <div align="right">
+                <f:repeatableDeleteButton/>
+            </div>
+        </f:repeatable>
+    </f:entry>
+
+</j:jelly>
