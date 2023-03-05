@@ -113,6 +113,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .envs(env)
                 .stdout(listener.getLogger())
                 .stderr(listener.getLogger())
+                .quiet(true)
                 .join();
     }
 
@@ -175,6 +176,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .pwd(agentWorkspace)
                     .stdout(listener.getLogger())
                     .stderr(listener.getLogger())
+                    .quiet(true)
                     .join();
 
             output_location = agentWorkspace.child("output");
@@ -343,7 +345,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return launcher.launch()
                 .cmds(gitCloneCommand)
                 .pwd(appdomeWorkspace)
-                .stderr(listener.getLogger())
+                .quiet(true)
                 .join();
     }
 
