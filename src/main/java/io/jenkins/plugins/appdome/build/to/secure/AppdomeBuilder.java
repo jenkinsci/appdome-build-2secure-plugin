@@ -2,10 +2,7 @@ package io.jenkins.plugins.appdome.build.to.secure;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.*;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
@@ -73,27 +70,28 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (exitCode == 0) {
             listener
                     .getLogger()
-                    .println("Cloned Appdome engine Successfully");
+                    .println("Appdome engine updated successfully");
             try {
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);
             } catch (Exception e) {
+                listener.error("Couldn't run Appdome Builder, read logs for more information. error:" + e);
+                run.setResult(Result.FAILURE);
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-                throw new RuntimeException("Couldn't run Appdome Builder, read logs for more information. error: " + e);
             }
             if (exitCode == 0) {
                 listener
                         .getLogger()
                         .println("Executed Build successfully");
             } else {
+
+                listener.error("Couldn't run Appdome Builder, exitcode " + exitCode + ".\nCouldn't run Appdome Builder, read logs for more information.");
+                run.setResult(Result.FAILURE);
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-                listener
-                        .getLogger()
-                        .println("Couldn't run Appdome Builder, exitcode " + exitCode);
-                throw new RuntimeException("Couldn't run Appdome Builder, read logs for more information.");
             }
         } else {
+            listener.error("Couldn't Update Appdome engine, read logs for more information.");
+            run.setResult(Result.FAILURE);
             deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-            throw new RuntimeException("Couldn't Update Appdome engine, read logs for more information.");
         }
         deleteAppdomeWorkspacce(listener, appdomeWorkspace);
     }
@@ -345,7 +343,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return launcher.launch()
                 .cmds(gitCloneCommand)
                 .pwd(appdomeWorkspace)
-                .stdout(listener.getLogger())
                 .stderr(listener.getLogger())
                 .join();
     }
