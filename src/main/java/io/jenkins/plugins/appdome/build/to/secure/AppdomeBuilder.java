@@ -26,6 +26,7 @@ import org.kohsuke.stapler.verb.POST;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -164,7 +165,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
             command.append(OUTPUT_FLAG)
                     .append(this.outputLocation);
-            command.append(CERTIFIED_SECURE_FLAG).append(this.outputLocation).append(File.separator).append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Certified_Secure.pdf");
+
 
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
