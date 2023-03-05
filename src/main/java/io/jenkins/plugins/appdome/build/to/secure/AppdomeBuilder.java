@@ -106,7 +106,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
 
-        listener.getLogger().println("Executing Appdome API");
+        listener.getLogger().println("Launching Appdome engine");
         return launcher.launch()
                 .cmds(filteredCommandList)
                 .pwd(scriptPath)
@@ -184,7 +184,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append("Appdome_Protected_")
                     .append(basename);
 
-            command.append(CERTIFIED_SECURE_FLAG).append(output_location.getRemote()).append(File.separator).append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Certified_Secure.pdf");
         }
 
         return command.toString();
