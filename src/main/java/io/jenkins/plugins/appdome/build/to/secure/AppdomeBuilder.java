@@ -2,10 +2,7 @@ package io.jenkins.plugins.appdome.build.to.secure;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.*;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
@@ -26,6 +23,7 @@ import org.kohsuke.stapler.verb.POST;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,27 +70,28 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (exitCode == 0) {
             listener
                     .getLogger()
-                    .println("Cloned Appdome engine Successfully");
+                    .println("Appdome engine updated successfully");
             try {
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);
             } catch (Exception e) {
+                listener.error("Couldn't run Appdome Builder, read logs for more information. error:" + e);
+                run.setResult(Result.FAILURE);
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-                throw new RuntimeException("Couldn't run Appdome Builder, read logs for more information. error: " + e);
             }
             if (exitCode == 0) {
                 listener
                         .getLogger()
                         .println("Executed Build successfully");
             } else {
+
+                listener.error("Couldn't run Appdome Builder, exitcode " + exitCode + ".\nCouldn't run Appdome Builder, read logs for more information.");
+                run.setResult(Result.FAILURE);
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-                listener
-                        .getLogger()
-                        .println("Couldn't run Appdome Builder, exitcode " + exitCode);
-                throw new RuntimeException("Couldn't run Appdome Builder, read logs for more information.");
             }
         } else {
+            listener.error("Couldn't Update Appdome engine, read logs for more information.");
+            run.setResult(Result.FAILURE);
             deleteAppdomeWorkspacce(listener, appdomeWorkspace);
-            throw new RuntimeException("Couldn't Update Appdome engine, read logs for more information.");
         }
         deleteAppdomeWorkspacce(listener, appdomeWorkspace);
     }
@@ -107,13 +106,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
 
-        listener.getLogger().println("Executing Appdome API");
+        listener.getLogger().println("Launching Appdome engine");
         return launcher.launch()
                 .cmds(filteredCommandList)
                 .pwd(scriptPath)
                 .envs(env)
                 .stdout(listener.getLogger())
                 .stderr(listener.getLogger())
+                .quiet(true)
                 .join();
     }
 
@@ -164,15 +164,17 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
             command.append(OUTPUT_FLAG)
                     .append(this.outputLocation);
-            command.append(CERTIFIED_SECURE_FLAG).append(this.outputLocation).append(File.separator).append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Certified_Secure.pdf");
+
 
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
             launcher.launch()
                     .cmds(args)
                     .pwd(agentWorkspace)
-                    .stdout(listener.getLogger())
-                    .stderr(listener.getLogger())
+                    .quiet(true)
                     .join();
 
             output_location = agentWorkspace.child("output");
@@ -182,7 +184,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append("Appdome_Protected_")
                     .append(basename);
 
-            command.append(CERTIFIED_SECURE_FLAG).append(output_location.getRemote()).append(File.separator).append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Certified_Secure.pdf");
         }
 
         return command.toString();
@@ -341,8 +346,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return launcher.launch()
                 .cmds(gitCloneCommand)
                 .pwd(appdomeWorkspace)
-                .stdout(listener.getLogger())
-                .stderr(listener.getLogger())
+                .quiet(true)
                 .join();
     }
 
