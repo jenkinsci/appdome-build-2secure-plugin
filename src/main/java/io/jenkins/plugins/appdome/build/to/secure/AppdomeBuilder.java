@@ -174,8 +174,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             launcher.launch()
                     .cmds(args)
                     .pwd(agentWorkspace)
-                    .stdout(listener.getLogger())
-                    .stderr(listener.getLogger())
                     .quiet(true)
                     .join();
 
