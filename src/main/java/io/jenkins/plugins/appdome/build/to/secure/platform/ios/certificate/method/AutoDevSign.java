@@ -2,6 +2,7 @@ package io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.meth
 
 import hudson.Extension;
 import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
 import java.util.List;
@@ -34,6 +35,7 @@ public class AutoDevSign extends CertificateMethod {
     }
 
 
+    @Symbol("iOS_AutoDevSign")
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
         @Override

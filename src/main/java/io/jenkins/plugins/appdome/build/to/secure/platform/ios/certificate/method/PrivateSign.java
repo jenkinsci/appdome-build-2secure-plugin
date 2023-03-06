@@ -3,6 +3,7 @@ package io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.meth
 import hudson.Extension;
 import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
 import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class PrivateSign extends CertificateMethod {
         return concatenateStrings(provisioningProfiles);
     }
 
+    @Symbol("iOS_PrivateSign")
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
         @Override

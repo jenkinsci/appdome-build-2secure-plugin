@@ -6,6 +6,7 @@ import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -82,6 +83,7 @@ public class AutoSign extends CertificateMethod {
         this.googleSignFingerPrint = googleSignFingerPrint;
     }
 
+    @Symbol("Android_AutoSign")
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
 
