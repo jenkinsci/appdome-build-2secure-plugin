@@ -6,6 +6,7 @@ import hudson.util.FormValidation;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethodDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -36,6 +37,7 @@ public class AutoDevSign extends CertificateMethod {
         this.googleSigning = googleSigning;
     }
 
+    @Symbol("Android_AutoDevSign")
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
 

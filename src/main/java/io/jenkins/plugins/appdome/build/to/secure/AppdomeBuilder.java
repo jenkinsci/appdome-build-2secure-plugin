@@ -16,6 +16,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.metho
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.PrivateSign;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -378,6 +379,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return Jenkins.get().getDescriptorList(Platform.class);
     }
 
+    @Symbol("AppdomeBuilder")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
         @POST

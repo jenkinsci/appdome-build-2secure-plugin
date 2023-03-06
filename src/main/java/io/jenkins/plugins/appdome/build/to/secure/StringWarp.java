@@ -6,6 +6,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
@@ -31,6 +32,7 @@ public class StringWarp extends AbstractDescribableImpl<StringWarp> {
         return this.item;
     }
 
+    @Symbol("StringWarp")
     @Extension
     public static class DescriptorImpl extends Descriptor<StringWarp> {
 

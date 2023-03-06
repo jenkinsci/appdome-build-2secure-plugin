@@ -10,6 +10,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ePlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.CertificateMethod;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -51,7 +52,7 @@ public class IosPlatform extends Platform {
     public DescriptorExtensionList<CertificateMethod, Descriptor<CertificateMethod>> getCertificateMethodDescriptors() {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
     }
-
+    @Symbol("IosPlatform")
     @Extension
     public static final class DescriptorImpl extends PlatformDescriptor {
 

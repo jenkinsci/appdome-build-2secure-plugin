@@ -10,6 +10,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ePlatformType;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -51,6 +52,7 @@ public class AndroidPlatform extends Platform {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
     }
 
+    @Symbol("AndroidPlatform")
     @Extension
     public static final class DescriptorImpl extends PlatformDescriptor {
 
