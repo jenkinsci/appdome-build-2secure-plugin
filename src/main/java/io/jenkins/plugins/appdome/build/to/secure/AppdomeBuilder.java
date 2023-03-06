@@ -34,19 +34,19 @@ import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants
 
 public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
-    private final Secret token;
+    private final String token;
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform) {
+    public AppdomeBuilder(String token, String teamId, Platform platform) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
     }
 
-    public Secret getToken() {
+    public String getToken() {
         return token;
     }
 
