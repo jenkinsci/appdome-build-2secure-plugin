@@ -13,6 +13,6 @@
         </div>
     </f:entry>
 
-    <f:dropdownDescriptorSelector field="certificateMethod" title="Certificate Method" descriptors="${it.CertificateMethodDescriptor}"/>
+    <f:dropdownDescriptorSelector field="certificateMethod" title="Sign Method" descriptors="${it.CertificateMethodDescriptor}"/>
 
 </j:jelly>

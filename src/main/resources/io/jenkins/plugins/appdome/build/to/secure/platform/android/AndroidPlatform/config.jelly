@@ -11,7 +11,7 @@
         </div>
     </f:entry>
 
-    <f:dropdownDescriptorSelector field="certificateMethod" title="Certificate Method" descriptors="${it.CertificateMethodDescriptors}"/>
+    <f:dropdownDescriptorSelector field="certificateMethod" title="Sign Method" descriptors="${it.CertificateMethodDescriptors}"/>
 
 
 
