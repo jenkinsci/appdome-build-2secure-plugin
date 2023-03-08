@@ -52,6 +52,7 @@ public class IosPlatform extends Platform {
     public DescriptorExtensionList<CertificateMethod, Descriptor<CertificateMethod>> getCertificateMethodDescriptors() {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
     }
+
     @Symbol("IosPlatform")
     @Extension
     public static final class DescriptorImpl extends PlatformDescriptor {
@@ -64,8 +65,7 @@ public class IosPlatform extends Platform {
                         "Please ensure that a valid path is provided for non-protected applications in the environment variable called 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
-            } else if (appPath != null && !(appPath.lastIndexOf(".") != -1
-                    && appPath.substring(appPath.lastIndexOf(".")).equals(".ipa"))) {
+            } else if (appPath != null && !(appPath.endsWith(".ipa"))) {
                 return FormValidation.error("iOS app - File extension is not allowed," +
                         " allowed extensions are: '.ipa'. Please rename your file or upload a different file.");
             }
@@ -78,7 +78,7 @@ public class IosPlatform extends Platform {
             Jenkins.get().checkPermission(Jenkins.READ);
             if (fusionSetId != null && Util.fixEmptyAndTrim(fusionSetId) == null) {
                 return FormValidation.error("FusionSet-ID must be provided.");
-            }else if (fusionSetId != null && fusionSetId.contains(" ")) {
+            } else if (fusionSetId != null && fusionSetId.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in FusionSetId.");
             }
             // Perform any additional validation here
