@@ -135,18 +135,18 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String appPath = "";
         //concatenate the app path if it is not empty:
         if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
-            appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher, listener);
+            appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
         } else {
             appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
-                    appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher, listener);
+                    appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
         }
 
         switch (platform.getPlatformType()) {
             case ANDROID:
-                ComposeAndroidCommand(command, env);
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
                 break;
             case IOS:
-                ComposeIosCommand(command, env);
+                ComposeIosCommand(command, env, appdomeWorkspace, launcher);
                 break;
             default:
                 return null;
@@ -194,6 +194,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return command.toString();
     }
 
+
     private String UseEnvironmentVariable(EnvVars env, String envName, String fieldValue, String filedName) {
         if (fieldValue == null || fieldValue.isEmpty() && (env.get(envName) != null && !(Util.fixEmptyAndTrim(env.get(envName)) == null))) {
             return env.get(envName, fieldValue);
@@ -203,7 +204,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
 
-    private void ComposeIosCommand(StringBuilder command, EnvVars env) {
+    private void ComposeIosCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) {
         IosPlatform iosPlatform = ((IosPlatform) platform);
 
 
@@ -265,7 +266,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env) {
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws IOException, InterruptedException {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
         switch (androidPlatform.getCertificateMethod().getSignType()) {
@@ -279,9 +280,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 command.append(SIGN_ON_APPDOME_FLAG)
                         .append(KEYSTORE_FLAG)
                         .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
-                                ? UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
-                                KEYSTORE_FLAG.trim().substring(2))
-                                : autoSign.getKeystorePath())
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
                         .append(KEYSTORE_PASS_FLAG)
                         .append(autoSign.getKeystorePassword())
                         .append(KEYSOTRE_ALIAS_FLAG)
@@ -332,7 +333,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return urlString.matches(regex);
     }
 
-    private static String DownloadFilesOrContinue(String path, FilePath agentWorkspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+    private static String DownloadFilesOrContinue(String path, FilePath agentWorkspace, Launcher launcher) throws IOException, InterruptedException {
         ArgumentListBuilder args;
         FilePath userFilesPath;
 
@@ -346,15 +347,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .quiet(true)
                     .join();
             userFilesPath = agentWorkspace.child("user_files");
-            return DownloadFiles(userFilesPath, launcher, path, listener);
+            return DownloadFiles(userFilesPath, launcher, path);
         }
     }
 
-    private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url, TaskListener listener) throws IOException, InterruptedException {
+    private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url) throws IOException, InterruptedException {
         ArgumentListBuilder args = new ArgumentListBuilder("curl", "-LO", url);
         String fileName = url.substring(url.lastIndexOf('/') + 1);
         String outputPath = userFilesPath.getRemote() + File.separator + fileName;
-        listener.getLogger().println(args);
         launcher.launch()
                 .cmds(args)
                 .pwd(userFilesPath)
