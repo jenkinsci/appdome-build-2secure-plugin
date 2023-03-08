@@ -65,9 +65,7 @@ public class AndroidPlatform extends Platform {
                         " in the environment variable named 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
-            } else if (appPath != null && !(appPath.lastIndexOf(".") != -1
-                    && appPath.substring(appPath.lastIndexOf(".")).equals(".aab") ||
-                    appPath.substring(appPath.lastIndexOf(".")).equals(".apk"))) {
+            } else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
                 return FormValidation.error("Android app - File extension is not allowed," +
                         " allowed extensions are: '.apk' or '.aab'. Please rename your file or upload a different file.");
             }
@@ -80,7 +78,7 @@ public class AndroidPlatform extends Platform {
             Jenkins.get().checkPermission(Jenkins.READ);
             if (fusionSetId != null && Util.fixEmptyAndTrim(fusionSetId) == null) {
                 return FormValidation.error("FusionSet-ID must be provided.");
-            }else if (fusionSetId != null && fusionSetId.contains(" ")) {
+            } else if (fusionSetId != null && fusionSetId.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in FusionSetId.");
             }
             // Perform any additional validation here
