@@ -18,4 +18,4 @@ How to Use Appdome Build-2secure plugin for Jenkins
 
 ## Issues
 
-Please report issues and enhancements through the [Github issue tracker](https://github.com/Appdome/Jenkins_Build-2secure-plugin/issues).
+Please report issues and enhancements through the [Github issue tracker](https://github.com/jenkinsci/appdome-build-2secure-plugin/issues/new/choose).
