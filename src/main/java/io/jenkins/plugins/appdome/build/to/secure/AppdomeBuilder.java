@@ -204,7 +204,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
 
-    private void ComposeIosCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) {
+    private void ComposeIosCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws IOException, InterruptedException {
         IosPlatform iosPlatform = ((IosPlatform) platform);
 
 
@@ -215,24 +215,24 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(KEYSTORE_FLAG)
                         .append(autoSign.getKeystorePath() == null
                                 || autoSign.getKeystorePath().isEmpty()
-                                ? UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
-                                KEYSTORE_FLAG.trim().substring(2))
-                                : autoSign.getKeystorePath())
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
                         .append(KEYSTORE_PASS_FLAG)
                         .append(autoSign.getKeystorePassword())
                         .append(PROVISION_PROFILES_FLAG)
                         .append(autoSign.getProvisioningProfilesPath() == null
                                 || autoSign.getProvisioningProfilesPath().isEmpty()
-                                ? UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 autoSign.getProvisioningProfilesPath(),
-                                PROVISION_PROFILES_FLAG.trim().substring(2))
-                                : autoSign.getProvisioningProfilesPath())
+                                PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
                         .append(ENTITLEMENTS_FLAG)
                         .append(autoSign.getEntitlementsPath() == null
                                 || autoSign.getEntitlementsPath().isEmpty()
-                                ? UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoSign.getEntitlementsPath(),
-                                ENTITLEMENTS_FLAG.trim().substring(2))
-                                : autoSign.getEntitlementsPath());
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoSign.getEntitlementsPath(),
+                                ENTITLEMENTS_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoSign.getEntitlementsPath(), appdomeWorkspace, launcher));
                 break;
             case PRIVATE:
                 PrivateSign privateSign = (PrivateSign) iosPlatform.getCertificateMethod();
@@ -240,25 +240,25 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(PROVISION_PROFILES_FLAG)
                         .append(privateSign.getProvisioningProfilesPath() == null
                                 || privateSign.getProvisioningProfilesPath().isEmpty()
-                                ? UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 privateSign.getProvisioningProfilesPath(),
-                                PROVISION_PROFILES_FLAG.trim().substring(2))
-                                : privateSign.getProvisioningProfilesPath());
+                                PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(privateSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher));
                 break;
             case AUTODEV:
                 AutoDevSign autoDevSign = (AutoDevSign) iosPlatform.getCertificateMethod();
                 command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                         .append(PROVISION_PROFILES_FLAG).append(autoDevSign.getProvisioningProfilesPath() == null
                                 || autoDevSign.getProvisioningProfilesPath().isEmpty()
-                                ? UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 autoDevSign.getProvisioningProfilesPath(),
-                                PROVISION_PROFILES_FLAG.trim().substring(2))
-                                : autoDevSign.getProvisioningProfilesPath())
+                                PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoDevSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
                         .append(ENTITLEMENTS_FLAG).append(autoDevSign.getEntitlementsPath() == null
                                 || autoDevSign.getEntitlementsPath().isEmpty()
-                                ? UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoDevSign.getEntitlementsPath(),
-                                ENTITLEMENTS_FLAG.trim().substring(2))
-                                : autoDevSign.getEntitlementsPath());
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoDevSign.getEntitlementsPath(),
+                                ENTITLEMENTS_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoDevSign.getEntitlementsPath(), appdomeWorkspace, launcher));
                 break;
             case NONE:
             default:
@@ -333,22 +333,27 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return urlString.matches(regex);
     }
 
-    private static String DownloadFilesOrContinue(String path, FilePath agentWorkspace, Launcher launcher) throws IOException, InterruptedException {
+    private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws IOException, InterruptedException {
         ArgumentListBuilder args;
         FilePath userFilesPath;
+        StringBuilder pathsToFilesOnAgent = new StringBuilder();
+        String[] splitPathFiles = paths.split(",");
 
-        if (!isHttpUrl(path)) {
-            return path;
-        } else {
-            args = new ArgumentListBuilder("mkdir", "user_files");
-            launcher.launch()
-                    .cmds(args)
-                    .pwd(agentWorkspace)
-                    .quiet(true)
-                    .join();
-            userFilesPath = agentWorkspace.child("user_files");
-            return DownloadFiles(userFilesPath, launcher, path);
+        for (String singlePath : splitPathFiles) {
+            if (!isHttpUrl(singlePath)) {
+                pathsToFilesOnAgent.append(singlePath).append(',');
+            } else {
+                args = new ArgumentListBuilder("mkdir", "user_files");
+                launcher.launch()
+                        .cmds(args)
+                        .pwd(agentWorkspace)
+                        .quiet(true)
+                        .join();
+                userFilesPath = agentWorkspace.child("user_files");
+                pathsToFilesOnAgent.append(DownloadFiles(userFilesPath, launcher, singlePath)).append(',');
+            }
         }
+        return pathsToFilesOnAgent.substring(0, pathsToFilesOnAgent.length() - 1).trim();
     }
 
     private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url) throws IOException, InterruptedException {

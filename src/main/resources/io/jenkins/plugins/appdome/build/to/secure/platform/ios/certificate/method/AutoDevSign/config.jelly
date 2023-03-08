@@ -15,7 +15,7 @@
     <f:entry title="${%Entitlements}" field="entitlements" description="Plist files only. Or use environment variable {ENTITLEMENTS_PATHS} ${ENTITLEMENTS_PATHS}">
         <f:repeatable field="entitlements" minimum="1">
             <div style="display: flex; align-items: center;">
-                <f:textbox placeholder="mobileprovision file" name="item" value="${AutoSign.entitlements}"/>
+                <f:textbox placeholder="plist file" name="item" value="${AutoSign.entitlements}"/>
             </div>
             <div align="right">
                 <f:repeatableDeleteButton/>
