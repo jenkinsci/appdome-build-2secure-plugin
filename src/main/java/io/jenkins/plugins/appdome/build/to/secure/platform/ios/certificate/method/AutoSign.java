@@ -24,7 +24,7 @@ public class AutoSign extends CertificateMethod {
     private final List<StringWarp> entitlements;
 
     @DataBoundConstructor
-    public AutoSign(String name, String keystorePath, Secret keystorePassword, List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
+    public AutoSign(String keystorePath, Secret keystorePassword, List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
         super(eSignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
