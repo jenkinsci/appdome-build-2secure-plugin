@@ -23,7 +23,7 @@ public class AutoSign extends CertificateMethod {
     private Boolean isEnableGoogleSign;
 
     @DataBoundConstructor
-    public AutoSign(String keystorePath, Secret keystorePassword, Secret keystoreAlias, Secret keyPass, Boolean isEnableGoogleSign, AutoGoogleSign googleSignFingerPrint) {
+    public AutoSign(String keystorePath, Secret keystorePassword, Secret keystoreAlias, Secret keyPass, AutoGoogleSign googleSignFingerPrint) {
         super(eSignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
