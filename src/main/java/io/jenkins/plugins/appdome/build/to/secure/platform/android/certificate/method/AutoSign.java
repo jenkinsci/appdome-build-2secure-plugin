@@ -23,12 +23,13 @@ public class AutoSign extends CertificateMethod {
     private Boolean isEnableGoogleSign;
 
     @DataBoundConstructor
-    public AutoSign(String keystorePath, String keystorePassword, String keystoreAlias, String keyPass) {
+    public AutoSign(String keystorePath, String keystorePassword, String keystoreAlias, String keyPass, AutoGoogleSign googleSignFingerPrint) {
         super(eSignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
         this.keystoreAlias = keystoreAlias;
         this.keyPass = keyPass;
+        this.googleSignFingerPrint = googleSignFingerPrint;
 
     }
 
@@ -76,7 +77,6 @@ public class AutoSign extends CertificateMethod {
         }
         return false;
     }
-
 
 
     public void setGoogleSign(AutoGoogleSign googleSignFingerPrint) {
@@ -136,7 +136,7 @@ public class AutoSign extends CertificateMethod {
             Jenkins.get().checkPermission(Jenkins.READ);
             if (googleSignFingerPrint != null && Util.fixEmptyAndTrim(googleSignFingerPrint) == null) {
                 return FormValidation.error("If Google Sign is enabled, fingerprint must be provided.");
-            }else if (googleSignFingerPrint != null && googleSignFingerPrint.contains(" ")) {
+            } else if (googleSignFingerPrint != null && googleSignFingerPrint.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in FingerPrint.");
             }
             // Perform any additional validation here
