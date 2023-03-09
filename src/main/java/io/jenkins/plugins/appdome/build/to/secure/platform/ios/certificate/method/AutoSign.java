@@ -19,12 +19,12 @@ public class AutoSign extends CertificateMethod {
 
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private final String keystorePath;
-    private final Secret keystorePassword;
+    private final String keystorePassword;
     private List<StringWarp> provisioningProfiles;
     private final List<StringWarp> entitlements;
 
     @DataBoundConstructor
-    public AutoSign(String name, String keystorePath, Secret keystorePassword, List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
+    public AutoSign(String keystorePath, String keystorePassword, List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
         super(eSignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
@@ -36,7 +36,7 @@ public class AutoSign extends CertificateMethod {
         return keystorePath;
     }
 
-    public Secret getKeystorePassword() {
+    public String getKeystorePassword() {
         return keystorePassword;
     }
 

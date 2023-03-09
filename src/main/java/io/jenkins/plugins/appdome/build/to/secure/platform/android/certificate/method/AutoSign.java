@@ -16,24 +16,23 @@ public class AutoSign extends CertificateMethod {
 
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private final String keystorePath;
-    private final Secret keystorePassword;
-    private final Secret keystoreAlias;
-    private final Secret keyPass;
+    private final String keystorePassword;
+    private final String keystoreAlias;
+    private final String keyPass;
     private AutoGoogleSign googleSignFingerPrint;
     private Boolean isEnableGoogleSign;
 
     @DataBoundConstructor
-    public AutoSign(String keystorePath, Secret keystorePassword, Secret keystoreAlias, Secret keyPass, Boolean isEnableGoogleSign, AutoGoogleSign googleSignFingerPrint) {
+    public AutoSign(String keystorePath, String keystorePassword, String keystoreAlias, String keyPass) {
         super(eSignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
         this.keystoreAlias = keystoreAlias;
         this.keyPass = keyPass;
-        this.googleSignFingerPrint = googleSignFingerPrint;
-        this.isEnableGoogleSign = isEnableGoogleSign;
+
     }
 
-    @DataBoundSetter
+
     public void setGoogleSignFingerPrint(AutoGoogleSign googleSignFingerPrint) {
         this.googleSignFingerPrint = googleSignFingerPrint;
     }
@@ -41,6 +40,7 @@ public class AutoSign extends CertificateMethod {
     public Boolean getEnableGoogleSign() {
         return isEnableGoogleSign;
     }
+
 
     public void setEnableGoogleSign(Boolean enableGoogleSign) {
         isEnableGoogleSign = enableGoogleSign;
@@ -50,15 +50,15 @@ public class AutoSign extends CertificateMethod {
         return keystorePath;
     }
 
-    public Secret getKeystorePassword() {
+    public String getKeystorePassword() {
         return keystorePassword;
     }
 
-    public Secret getKeystoreAlias() {
+    public String getKeystoreAlias() {
         return keystoreAlias;
     }
 
-    public Secret getKeyPass() {
+    public String getKeyPass() {
         return keyPass;
     }
 
@@ -78,7 +78,7 @@ public class AutoSign extends CertificateMethod {
     }
 
 
-    @DataBoundSetter
+
     public void setGoogleSign(AutoGoogleSign googleSignFingerPrint) {
         this.googleSignFingerPrint = googleSignFingerPrint;
     }
