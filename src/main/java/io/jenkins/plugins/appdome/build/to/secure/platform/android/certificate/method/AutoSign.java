@@ -30,7 +30,6 @@ public class AutoSign extends CertificateMethod {
         this.keystoreAlias = keystoreAlias;
         this.keyPass = keyPass;
         this.googleSignFingerPrint = googleSignFingerPrint;
-        this.isEnableGoogleSign = isEnableGoogleSign;
     }
 
     @DataBoundSetter
