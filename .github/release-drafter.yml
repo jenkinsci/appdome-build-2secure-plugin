@@ -1,2 +1,0 @@
-_extends: .github
-tag-template: appdome-build-2secure-$NEXT_MINOR_VERSION
