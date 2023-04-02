@@ -3,8 +3,7 @@ package io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.
 import hudson.Extension;
 import hudson.Util;
 import hudson.util.FormValidation;
-import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethodDescriptor;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -20,7 +19,7 @@ public class AutoDevSign extends CertificateMethod {
     @DataBoundConstructor
     public AutoDevSign(String fingerprint) {
 
-        super(eSignType.AUTODEV);
+        super(SignType.AUTODEV);
         this.fingerprint = fingerprint;
     }
 

@@ -4,7 +4,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -24,7 +24,7 @@ public class AutoSign extends CertificateMethod {
 
     @DataBoundConstructor
     public AutoSign(String keystorePath, Secret keystorePassword, Secret keystoreAlias, Secret keyPass, AutoGoogleSign googleSignFingerPrint) {
-        super(eSignType.AUTO);
+        super(SignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
         this.keystoreAlias = keystoreAlias;

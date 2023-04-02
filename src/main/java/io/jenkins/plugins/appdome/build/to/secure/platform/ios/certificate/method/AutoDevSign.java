@@ -4,7 +4,7 @@ import hudson.Extension;
 import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import java.util.List;
 
 public class AutoDevSign extends CertificateMethod {
@@ -13,7 +13,7 @@ public class AutoDevSign extends CertificateMethod {
 
     @DataBoundConstructor
     public AutoDevSign(List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
-        super(eSignType.AUTODEV);
+        super(SignType.AUTODEV);
         this.provisioningProfiles = provisioningProfiles;
         this.entitlements = entitlements;
     }

@@ -7,7 +7,7 @@ import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
-import io.jenkins.plugins.appdome.build.to.secure.platform.ePlatformType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.CertificateMethod;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
@@ -22,7 +22,7 @@ public class IosPlatform extends Platform {
 
     @DataBoundConstructor
     public IosPlatform(CertificateMethod certificateMethod) {
-        super(ePlatformType.IOS);
+        super(PlatformType.IOS);
         this.certificateMethod = certificateMethod;
     }
 

@@ -1,32 +1,26 @@
 package io.jenkins.plugins.appdome.build.to.secure.platform;
 
-import hudson.Extension;
 import hudson.ExtensionPoint;
-import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.verb.POST;
 
 public abstract class Platform implements Describable<Platform>, ExtensionPoint {
 
     private String appPath;
     private String fusionSetId;
-    private ePlatformType platformType;
+    private PlatformType platformType;
 
 
-    public Platform(ePlatformType platformType) {
+    public Platform(PlatformType platformType) {
         this.platformType = platformType;
     }
 
-    public ePlatformType getPlatformType() {
+    public PlatformType getPlatformType() {
         return platformType;
     }
 
-    public void setPlatformType(ePlatformType platformType) {
+    public void setPlatformType(PlatformType platformType) {
         this.platformType = platformType;
     }
 

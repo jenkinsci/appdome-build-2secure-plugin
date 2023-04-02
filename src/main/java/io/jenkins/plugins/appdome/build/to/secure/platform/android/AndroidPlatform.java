@@ -8,7 +8,7 @@ import hudson.util.FormValidation;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
-import io.jenkins.plugins.appdome.build.to.secure.platform.ePlatformType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -22,7 +22,7 @@ public class AndroidPlatform extends Platform {
 
     @DataBoundConstructor
     public AndroidPlatform(CertificateMethod certificateMethod) {
-        super(ePlatformType.ANDROID);
+        super(PlatformType.ANDROID);
         this.certificateMethod = certificateMethod;
     }
 

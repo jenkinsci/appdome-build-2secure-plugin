@@ -3,7 +3,7 @@ package io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.
 import hudson.Extension;
 import hudson.Util;
 import hudson.util.FormValidation;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -18,7 +18,7 @@ public class PrivateSign extends CertificateMethod {
 
     @DataBoundConstructor
     public PrivateSign(String fingerprint) {
-        super(eSignType.PRIVATE);
+        super(SignType.PRIVATE);
         this.fingerprint = fingerprint;
     }
 

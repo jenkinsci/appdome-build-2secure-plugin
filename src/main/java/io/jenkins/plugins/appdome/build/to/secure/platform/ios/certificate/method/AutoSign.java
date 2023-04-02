@@ -5,7 +5,7 @@ import hudson.Util;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -25,7 +25,7 @@ public class AutoSign extends CertificateMethod {
 
     @DataBoundConstructor
     public AutoSign(String keystorePath, Secret keystorePassword, List<StringWarp> provisioningProfiles, List<StringWarp> entitlements) {
-        super(eSignType.AUTO);
+        super(SignType.AUTO);
         this.keystorePath = keystorePath;
         this.keystorePassword = keystorePassword;
         this.provisioningProfiles = provisioningProfiles;

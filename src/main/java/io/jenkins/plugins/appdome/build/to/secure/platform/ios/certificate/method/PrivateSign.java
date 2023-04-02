@@ -2,7 +2,7 @@ package io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.meth
 
 import hudson.Extension;
 import io.jenkins.plugins.appdome.build.to.secure.StringWarp;
-import io.jenkins.plugins.appdome.build.to.secure.platform.eSignType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.SignType;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -13,7 +13,7 @@ public class PrivateSign extends CertificateMethod {
 
     @DataBoundConstructor
     public PrivateSign(List<StringWarp> provisioningProfiles) {
-        super(eSignType.PRIVATE);
+        super(SignType.PRIVATE);
         this.provisioningProfiles = provisioningProfiles;
     }
 
