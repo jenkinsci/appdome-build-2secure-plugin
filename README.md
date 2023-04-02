@@ -12,10 +12,6 @@ Additionally, sign your app with your own enterprise certificate for added flexi
 
 For full usage guidelines, see the Jenkins plugin registry listing.
 
-Resources
-
-How to Use Appdome Build-2secure plugin for Jenkins
-
 ## Issues
 
 Please report issues and enhancements through the [Github issue tracker](https://github.com/jenkinsci/appdome-build-2secure-plugin/issues/new/choose).
