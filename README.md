@@ -10,7 +10,7 @@ Additionally, sign your app with your own enterprise certificate for added flexi
 
 ## Getting started
 
-For full usage guidelines, see the Jenkins plugin registry listing.
+For full usage guidelines, see the [Jenkins plugin registry listing](https://www.appdome.com/how-to/appsec-release-orchestration/testing-protected-mobile-apps/use-appdome-build-2secure-plugin-for-jenkins/).
 
 ## Issues
 
