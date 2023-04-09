@@ -144,7 +144,7 @@ public class AutoSign extends CertificateMethod {
 
         @Override
         public String getDisplayName() {
-            return "Auto Signing";
+            return "Sign On Appdome";
         }
     }
 }
