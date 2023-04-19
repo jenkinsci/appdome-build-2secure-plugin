@@ -16,4 +16,4 @@ For documentation on how to use the plugin, see the [Appdome Build-2secure plugi
 
 ## Issues
 
-Please report issues and enhancements through the [Github issue tracker](https://github.com/jenkinsci/appdome-build-2secure-plugin/issues/new/choose).
+Please report issues and enhancements through the [Github issue tracker](https://github.com/jenkinsci/appdome-build-2secure-plugin/issues/new/choose)..
