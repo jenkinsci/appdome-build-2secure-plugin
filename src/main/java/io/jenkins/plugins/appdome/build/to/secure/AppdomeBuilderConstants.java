@@ -31,7 +31,8 @@ public interface AppdomeBuilderConstants {
     String AUTO_DEV_PRIVATE_SIGN_FLAG = " --auto_dev_private_signing ";
     String GOOGLE_PLAY_SIGN_FLAG = " --google_play_signing ";
     String FINGERPRINT_FLAG = " --signing_fingerprint ";
-    String CERTIFIED_SECURE_FLAG =" --certificate_output ";
+    String CERTIFIED_SECURE_FLAG = " --certificate_output ";
+    String BUILD_WITH_LOGS = " -bl ";
 
 
 }

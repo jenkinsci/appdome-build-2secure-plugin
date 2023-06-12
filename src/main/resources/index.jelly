@@ -2,6 +2,4 @@
 <div>
     Appdome Build-2secure integrates Jenkins with
     <a href="https://www.appdome.com/devsecops-release-management/">Appdome</a>
-    or anything implementing
-    the APPDOME API's.
 </div>

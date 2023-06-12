@@ -25,4 +25,9 @@
         <f:textbox placeholder="workspace/output/Appdome_Protected_YOURAPPNAME"/>
     </f:entry>
 
+
+    <f:entry title="Build with logs" description="Build with logs are used for troubleshooting application errors.">
+        <f:checkbox name="buildwithlogs" field="buildwithlogs" default="false" />
+    </f:entry>
+
 </j:jelly>

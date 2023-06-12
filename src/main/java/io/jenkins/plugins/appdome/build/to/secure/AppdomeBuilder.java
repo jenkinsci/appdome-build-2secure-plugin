@@ -37,12 +37,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
+    private Boolean buildwithlogs;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildwithlogs) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
+        this.buildwithlogs = buildwithlogs;
     }
 
     public Secret getToken() {
@@ -57,6 +59,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return outputLocation;
     }
 
+    public Boolean getBuildwithlogs() {
+        return buildwithlogs;
+    }
+
+    public void setBuildwithlogs(Boolean buildwithlogs) {
+        this.buildwithlogs = buildwithlogs;
+    }
+
     @DataBoundSetter
     public void setOutputLocation(String outputLocation) {
         this.outputLocation = outputLocation;
@@ -64,7 +74,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
     public void perform(@NonNull Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         int exitCode;
-
         FilePath appdomeWorkspace = workspace.createTempDir("AppdomeBuild", "Build");
         exitCode = CloneAppdomeApi(listener, appdomeWorkspace, launcher);
         if (exitCode == 0) {
@@ -157,6 +166,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         } else {
             command.append(APP_FLAG)
                     .append(appPath);
+        }
+
+        if (this.buildwithlogs) {
+            command.append(BUILD_WITH_LOGS);
         }
 
         String basename = new File(appPath).getName();
