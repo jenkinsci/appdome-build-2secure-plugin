@@ -32,7 +32,7 @@ public interface AppdomeBuilderConstants {
     String GOOGLE_PLAY_SIGN_FLAG = " --google_play_signing ";
     String FINGERPRINT_FLAG = " --signing_fingerprint ";
     String CERTIFIED_SECURE_FLAG = " --certificate_output ";
-    String BUILD_WITH_LOGS = " -bl ";
+    String BUILD_WITH_LOGS = " --build_logs ";
 
 
 }
