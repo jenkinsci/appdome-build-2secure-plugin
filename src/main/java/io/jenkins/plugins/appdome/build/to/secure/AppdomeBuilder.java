@@ -7,6 +7,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
@@ -37,14 +38,17 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
-    private Boolean buildwithlogs;
+    private Boolean buildWithLogs;
+
+    private BuildToTest buildToTest;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildwithlogs) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildWithLogs, BuildToTest buildToTest) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
-        this.buildwithlogs = buildwithlogs;
+        this.buildWithLogs = buildWithLogs;
+        this.buildToTest = buildToTest;
     }
 
     public Secret getToken() {
@@ -59,12 +63,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return outputLocation;
     }
 
-    public Boolean getBuildwithlogs() {
-        return buildwithlogs;
+    public Boolean getbuildWithLogs() {
+        return buildWithLogs;
     }
 
-    public void setBuildwithlogs(Boolean buildwithlogs) {
-        this.buildwithlogs = buildwithlogs;
+    @DataBoundSetter
+    public void setbuildWithLogs(Boolean buildWithLogs) {
+        this.buildWithLogs = buildWithLogs;
     }
 
     @DataBoundSetter
@@ -168,7 +173,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(appPath);
         }
 
-        if (this.buildwithlogs) {
+        if (this.buildWithLogs) {
             command.append(BUILD_WITH_LOGS);
         }
 
@@ -433,6 +438,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return Jenkins.get().getDescriptorList(Platform.class);
     }
 
+    public BuildToTest getBuildToTest() {
+        return buildToTest;
+    }
+
+    @DataBoundSetter
+    public void setBuildToTest(BuildToTest buildToTest) {
+        this.buildToTest = buildToTest;
+    }
+
     @Symbol("AppdomeBuilder")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
@@ -447,6 +461,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             // Perform any additional validation here
             return FormValidation.ok();
         }
+
+
+
+
 
         @POST
         public FormValidation doCheckTeamId(@QueryParameter String teamId) {

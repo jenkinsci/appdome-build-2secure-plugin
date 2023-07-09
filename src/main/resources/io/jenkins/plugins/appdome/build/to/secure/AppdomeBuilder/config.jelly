@@ -25,9 +25,21 @@
         <f:textbox placeholder="workspace/output/Appdome_Protected_YOURAPPNAME"/>
     </f:entry>
 
+    <f:block>
+        <table>
+            <f:optionalBlock name="secondOutput" title="Second Output" field="isSecondOutput">
+                <f:entry field="vendors">
+                    <f:select/>
+                </f:entry>
+            </f:optionalBlock>
+        </table>
+    </f:block>
 
     <f:entry title="Build with logs" description="Build with logs are used for troubleshooting application errors.">
-        <f:checkbox name="buildwithlogs" field="buildwithlogs" default="false" />
+        <f:checkbox name="buildwithlogs" field="buildwithlogs" default="false"/>
     </f:entry>
+
+
+    <!--    I WANT IT TO APPEAR HERE!!!! -->
 
 </j:jelly>
