@@ -38,17 +38,34 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
+    private SecondOutput secondOutput;
     private Boolean buildWithLogs;
-
     private BuildToTest buildToTest;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildWithLogs, BuildToTest buildToTest) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildWithLogs, BuildToTest buildToTest, SecondOutput secondOutput) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
         this.buildWithLogs = buildWithLogs;
         this.buildToTest = buildToTest;
+        this.secondOutput = secondOutput;
+    }
+
+    @DataBoundSetter
+    public void setSelectedVendor(BuildToTest buildToTest) {
+        this.buildToTest = buildToTest;
+    }
+
+    public BuildToTest getBuildToTest() {
+        return buildToTest;
+    }
+
+    public String getSelectedVendor() {
+        if (this.buildToTest != null) {
+            return buildToTest.getSelectedVendor();
+        }
+        return null;
     }
 
     public Secret getToken() {
@@ -63,12 +80,12 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return outputLocation;
     }
 
-    public Boolean getbuildWithLogs() {
+    public Boolean getBuildWithLogs() {
         return buildWithLogs;
     }
 
     @DataBoundSetter
-    public void setbuildWithLogs(Boolean buildWithLogs) {
+    public void setBuildWithLogs(Boolean buildWithLogs) {
         this.buildWithLogs = buildWithLogs;
     }
 
@@ -173,8 +190,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(appPath);
         }
 
-        if (this.buildWithLogs) {
+        if (this.buildWithLogs != null && this.buildWithLogs) {
             command.append(BUILD_WITH_LOGS);
+        }
+
+        if (this.buildToTest != null) {
+            command.append(BUILD_TO_TEST)
+                    .append(this.buildToTest.getSelectedVendor());
         }
 
         String basename = new File(appPath).getName();
@@ -186,7 +208,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(CERTIFIED_SECURE_FLAG)
                     .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
-
 
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
@@ -207,6 +228,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Certified_Secure.pdf");
+        }
+
+        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null))
+        {
+            command.append(SECOND_OUTPUT).append(this.getSecondOutput());
         }
 
         return command.toString();
@@ -438,18 +464,23 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return Jenkins.get().getDescriptorList(Platform.class);
     }
 
-    public BuildToTest getBuildToTest() {
-        return buildToTest;
+    public String getSecondOutput() {
+        if (secondOutput != null) {
+            return secondOutput.getSecondOutput();
+        }
+        return null;
     }
 
     @DataBoundSetter
-    public void setBuildToTest(BuildToTest buildToTest) {
-        this.buildToTest = buildToTest;
+    public void setSecondOutput(SecondOutput secondOutput) {
+        this.secondOutput = secondOutput;
     }
+
 
     @Symbol("AppdomeBuilder")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+
         @POST
         public FormValidation doCheckToken(@QueryParameter Secret token) {
             Jenkins.get().checkPermission(Jenkins.READ);
@@ -462,8 +493,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             return FormValidation.ok();
         }
 
-
-
+        public ListBoxModel doFillSelectedVendorItems() {
+            return VendorManager.getInstance().getVendors();
+        }
 
 
         @POST

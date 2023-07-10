@@ -27,19 +27,35 @@
 
     <f:block>
         <table>
-            <f:optionalBlock name="secondOutput" title="Second Output" field="isSecondOutput">
-                <f:entry field="vendors">
-                    <f:select/>
+            <f:optionalBlock name="secondOutput" title="Second Output" field="secondOutput">
+                <f:entry field="secondOutput">
+                    <f:textbox/>
                 </f:entry>
             </f:optionalBlock>
         </table>
     </f:block>
 
+
+    <f:block>
+        <table>
+            <f:optionalBlock name="buildToTest" title="Build To Test" field="selectedVendor">
+                <f:entry field="buildToTest">
+                    <f:entry title="Vendors" field="selectedVendor">
+                        <f:select/>
+                    </f:entry>
+                </f:entry>
+            </f:optionalBlock>
+        </table>
+    </f:block>
+
+
+
     <f:entry title="Build with logs" description="Build with logs are used for troubleshooting application errors.">
-        <f:checkbox name="buildwithlogs" field="buildwithlogs" default="false"/>
+        <f:checkbox name="buildWithLogs" field="buildWithLogs" default="false"/>
     </f:entry>
 
 
-    <!--    I WANT IT TO APPEAR HERE!!!! -->
+
+
 
 </j:jelly>
