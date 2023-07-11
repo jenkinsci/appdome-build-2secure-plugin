@@ -7,6 +7,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
@@ -37,14 +38,34 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
-    private Boolean buildwithlogs;
+    private SecondOutput secondOutput;
+    private Boolean buildWithLogs;
+    private BuildToTest buildToTest;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildwithlogs) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildWithLogs, BuildToTest buildToTest, SecondOutput secondOutput) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
-        this.buildwithlogs = buildwithlogs;
+        this.buildWithLogs = buildWithLogs;
+        this.buildToTest = buildToTest;
+        this.secondOutput = secondOutput;
+    }
+
+    @DataBoundSetter
+    public void setSelectedVendor(BuildToTest buildToTest) {
+        this.buildToTest = buildToTest;
+    }
+
+    public BuildToTest getBuildToTest() {
+        return buildToTest;
+    }
+
+    public String getSelectedVendor() {
+        if (this.buildToTest != null) {
+            return buildToTest.getSelectedVendor();
+        }
+        return null;
     }
 
     public Secret getToken() {
@@ -59,12 +80,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return outputLocation;
     }
 
-    public Boolean getBuildwithlogs() {
-        return buildwithlogs;
+    public Boolean getBuildWithLogs() {
+        return buildWithLogs;
     }
 
-    public void setBuildwithlogs(Boolean buildwithlogs) {
-        this.buildwithlogs = buildwithlogs;
+    @DataBoundSetter
+    public void setBuildWithLogs(Boolean buildWithLogs) {
+        this.buildWithLogs = buildWithLogs;
     }
 
     @DataBoundSetter
@@ -168,8 +190,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(appPath);
         }
 
-        if (this.buildwithlogs) {
+        if (this.buildWithLogs != null && this.buildWithLogs) {
             command.append(BUILD_WITH_LOGS);
+        }
+
+        if (this.buildToTest != null) {
+            command.append(BUILD_TO_TEST)
+                    .append(this.buildToTest.getSelectedVendor());
         }
 
         String basename = new File(appPath).getName();
@@ -181,7 +208,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(CERTIFIED_SECURE_FLAG)
                     .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
-
 
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
@@ -202,6 +228,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Certified_Secure.pdf");
+        }
+
+        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null))
+        {
+            command.append(SECOND_OUTPUT).append(this.getSecondOutput());
         }
 
         return command.toString();
@@ -433,9 +464,23 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return Jenkins.get().getDescriptorList(Platform.class);
     }
 
+    public String getSecondOutput() {
+        if (secondOutput != null) {
+            return secondOutput.getSecondOutput();
+        }
+        return null;
+    }
+
+    @DataBoundSetter
+    public void setSecondOutput(SecondOutput secondOutput) {
+        this.secondOutput = secondOutput;
+    }
+
+
     @Symbol("AppdomeBuilder")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+
         @POST
         public FormValidation doCheckToken(@QueryParameter Secret token) {
             Jenkins.get().checkPermission(Jenkins.READ);
@@ -447,6 +492,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             // Perform any additional validation here
             return FormValidation.ok();
         }
+
+        public ListBoxModel doFillSelectedVendorItems() {
+            return VendorManager.getInstance().getVendors();
+        }
+
 
         @POST
         public FormValidation doCheckTeamId(@QueryParameter String teamId) {

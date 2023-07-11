@@ -33,6 +33,7 @@ public interface AppdomeBuilderConstants {
     String FINGERPRINT_FLAG = " --signing_fingerprint ";
     String CERTIFIED_SECURE_FLAG = " --certificate_output ";
     String BUILD_WITH_LOGS = " --build_logs ";
-
+    String BUILD_TO_TEST = " --build_to_test_vendor ";
+    String SECOND_OUTPUT = " --second_output ";
 
 }
