@@ -12,7 +12,7 @@ The Build-2Secure plugin for Jenkins automates three important steps in deliveri
 
 ## Getting started
 
-For documentation on how to use the plugin, see the [Appdome Build-2secure plugin](https://www.appdome.com/how-to/appsec-release-orchestration/testing-protected-mobile-apps/use-appdome-build-2secure-plugin-for-jenkins/).
+For documentation on how to use the plugin, see the [Appdome Build-2secure plugin](https://www.appdome.com/how-to/devsecops-automation-mobile-cicd/mobile-app-security-anti-fraud-cicd/use-appdome-build-2secure-plugin-for-jenkins/).
 
 ## Issues
 
