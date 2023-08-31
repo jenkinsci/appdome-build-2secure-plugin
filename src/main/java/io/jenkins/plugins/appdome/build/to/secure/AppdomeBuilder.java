@@ -38,22 +38,21 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final String teamId;
     private final Platform platform;
     private String outputLocation;
-    private SecondOutput secondOutput;
+    private StringWarp secondOutput;
     private Boolean buildWithLogs;
     private BuildToTest buildToTest;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform, Boolean buildWithLogs, BuildToTest buildToTest, SecondOutput secondOutput) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, StringWarp secondOutput) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
-        this.buildWithLogs = buildWithLogs;
-        this.buildToTest = buildToTest;
         this.secondOutput = secondOutput;
+
     }
 
     @DataBoundSetter
-    public void setSelectedVendor(BuildToTest buildToTest) {
+    public void setBuildToTest(BuildToTest buildToTest) {
         this.buildToTest = buildToTest;
     }
 
@@ -230,8 +229,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append("Certified_Secure.pdf");
         }
 
-        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null))
-        {
+        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
             command.append(SECOND_OUTPUT).append(this.getSecondOutput());
         }
 
@@ -472,7 +470,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setSecondOutput(SecondOutput secondOutput) {
+    public void setSecondOutput(StringWarp secondOutput) {
         this.secondOutput = secondOutput;
     }
 
