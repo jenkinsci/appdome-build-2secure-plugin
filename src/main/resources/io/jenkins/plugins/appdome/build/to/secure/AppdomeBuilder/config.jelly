@@ -28,7 +28,8 @@
     <f:block>
         <table>
             <f:optionalBlock name="secondOutput" title="Second Output" field="secondOutput">
-                <f:entry field="item">
+                <f:entry field="item" description="To generate a Universal.apk file,
+                please note that this applies exclusively to .aab app formats.">
                     <f:textbox/>
                 </f:entry>
             </f:optionalBlock>
