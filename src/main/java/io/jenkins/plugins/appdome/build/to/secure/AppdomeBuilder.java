@@ -207,6 +207,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(CERTIFIED_SECURE_FLAG)
                     .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
+            command.append(DEOBFUSCATION_OUTPUT)
+                    .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Deobfuscation_Mapping_Files.zip");
 
         } else {
             args = new ArgumentListBuilder("mkdir", "output");
@@ -227,6 +230,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Certified_Secure.pdf");
+
+            command.append(DEOBFUSCATION_OUTPUT)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Deobfuscation_Mapping_Files.zip");
         }
 
         if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
