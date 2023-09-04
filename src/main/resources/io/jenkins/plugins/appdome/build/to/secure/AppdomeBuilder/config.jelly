@@ -3,7 +3,7 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
     <f:entry title="Token" field="token">
-        <div style="display: flex; align-items: center;">
+        <div style="align-items: center;">
             <f:password/>
         </div>
 
@@ -28,7 +28,8 @@
     <f:block>
         <table>
             <f:optionalBlock name="secondOutput" title="Second Output" field="secondOutput">
-                <f:entry field="secondOutput">
+                <f:entry field="item" description="To generate a Universal.apk file,
+                please note that this applies exclusively to .aab app formats.">
                     <f:textbox/>
                 </f:entry>
             </f:optionalBlock>

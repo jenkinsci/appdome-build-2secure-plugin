@@ -32,6 +32,12 @@ public class StringWarp extends AbstractDescribableImpl<StringWarp> {
         return this.item;
     }
 
+    public String getSecondOutput() {
+        return this.item;
+    }
+
+
+
     @Symbol("StringWarp")
     @Extension
     public static class DescriptorImpl extends Descriptor<StringWarp> {
