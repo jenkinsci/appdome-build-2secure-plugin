@@ -144,7 +144,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
 
         listener.getLogger().println("Launching Appdome engine");
-        listener.getLogger().println(filteredCommandList);
         return launcher.launch()
                 .cmds(filteredCommandList)
                 .pwd(scriptPath)
