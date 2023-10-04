@@ -295,7 +295,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (outputLocation.endsWith("/")) {
             finalOutputLocation = outputLocation + basenameWithoutExtension + "." + extension;
         } else {
-            if (outputName != "") {
+            if (!outputName.isEmpty()) {
                 finalOutputLocation = outputLocation + "/" + outputName + "/" + basenameWithoutExtension + "." + extension;
             } else {
                 finalOutputLocation = outputLocation + "." + extension;
