@@ -12,7 +12,8 @@ public class AppdomeBuilderTest {
 
     @Test
     public void testConfigRoundtrip()  {
-        assertTrue(true);
+
+        assertTrue(false);
 
 
     }
