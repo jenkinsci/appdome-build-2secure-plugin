@@ -12,13 +12,15 @@ public class AppdomeBuilderTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
+    // Set global timeout to 10 minutes (600000 milliseconds)
     @Rule
-    public Timeout globalTimeout = new Timeout(600000);
+    public Timeout globalTimeout = new Timeout(600000, TimeUnit.MILLISECONDS);
+
 
     @Test
     public void testConfigRoundtrip() throws InterruptedException {
         int i = 0;
-        while (i < 100)
+        while (i < 3)
         {
             System.out.println("TEST TEST TEST TEST TEST");
             System.out.println("TEST TEST TEST TEST TEST");
