@@ -10,6 +10,7 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
+import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign;
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
+import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.ANDROID;
+import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.IOS;
 
 public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
@@ -41,6 +44,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private StringWarp secondOutput;
     private Boolean buildWithLogs;
     private BuildToTest buildToTest;
+
+    private boolean isAutoDevPrivateSign = false;
 
     @DataBoundConstructor
     public AppdomeBuilder(Secret token, String teamId, Platform platform, StringWarp secondOutput) {
@@ -76,7 +81,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public String getOutputLocation() {
-        return outputLocation;
+        return this.outputLocation;
     }
 
     public Boolean getBuildWithLogs() {
@@ -96,6 +101,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     public void perform(@NonNull Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         int exitCode;
         FilePath appdomeWorkspace = workspace.createTempDir("AppdomeBuild", "Build");
+        listener.getLogger().println("Appdome Build2Secure " + APPDOME_BUILDE2SECURE_VERSION);
         exitCode = CloneAppdomeApi(listener, appdomeWorkspace, launcher);
         if (exitCode == 0) {
             listener
@@ -170,7 +176,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
                     appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
         }
-
         switch (platform.getPlatformType()) {
             case ANDROID:
                 ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
@@ -201,14 +206,19 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String basename = new File(appPath).getName();
         ArgumentListBuilder args;
         FilePath output_location;
+
+
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
+            //Need to check it
+            setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
+
             command.append(OUTPUT_FLAG)
-                    .append(this.outputLocation);
+                    .append(getOutputLocation());
             command.append(CERTIFIED_SECURE_FLAG)
-                    .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
             command.append(DEOBFUSCATION_OUTPUT)
-                    .append(this.outputLocation.substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Deobfuscation_Mapping_Files.zip");
 
         } else {
@@ -220,11 +230,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .join();
 
             output_location = agentWorkspace.child("output");
+
+            //Need to check it
+            setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
+
+
+            //Need to check it
             command.append(OUTPUT_FLAG)
-                    .append(output_location.getRemote())
-                    .append(File.separator)
-                    .append("Appdome_Protected_")
-                    .append(basename);
+                    .append(getOutputLocation());
 
             command.append(CERTIFIED_SECURE_FLAG)
                     .append(output_location.getRemote())
@@ -238,10 +251,58 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
         if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
-            command.append(SECOND_OUTPUT).append(this.getSecondOutput());
+            String secondOutputVar = this.getSecondOutput();
+            secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
+            command.append(SECOND_OUTPUT).append(secondOutputVar);
+
         }
 
         return command.toString();
+    }
+
+    private String checkExtension(String outputLocation, String basename, Boolean isThisAutoDevPrivate, Boolean isThisSecondOutput) {
+        int dotIndex = basename.lastIndexOf('.');
+
+        // Extract the extension from basename, if present
+        String extensionFromBaseName = (dotIndex != -1) ? basename.substring(dotIndex + 1) : "";
+
+        // Extract the basename without the extension
+        String basenameWithoutExtension = (dotIndex != -1) ? basename.substring(0, dotIndex) : basename;
+
+        String extension = extensionFromBaseName;
+        String outputName = "";
+
+
+        // Check if outputLocation ends with a known extension and if so, remove that extension from outputLocation
+        if (outputLocation.endsWith(".ipa") || outputLocation.endsWith(".aab") || outputLocation.endsWith(".apk") || outputLocation.endsWith(".sh")) {
+            dotIndex = outputLocation.lastIndexOf('.');
+            outputLocation = outputLocation.substring(0, dotIndex); // Remove the extension from outputLocation
+        } else if (!outputLocation.endsWith("/")){
+            outputName = new File(outputLocation).getName().toString();
+            outputLocation = new File(outputLocation).getParent().toString();
+        }
+
+        // Overwrite the extension based on the provided booleans
+        if (isThisSecondOutput) {
+            extension = "apk";
+        } else if (isThisAutoDevPrivate) {
+            extension = "sh";
+        }
+
+        // Construct the final output location string
+        String finalOutputLocation;
+        if (outputLocation.endsWith("/")) {
+            finalOutputLocation = outputLocation + basenameWithoutExtension + "." + extension;
+        } else {
+            if (!outputName.isEmpty()) {
+                finalOutputLocation = outputLocation + "/" + outputName + "/" + basenameWithoutExtension + "." + extension;
+            } else {
+                finalOutputLocation = outputLocation + "." + extension;
+
+            }
+        }
+
+        return finalOutputLocation;
     }
 
 
@@ -296,6 +357,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                                 : DownloadFilesOrContinue(privateSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher));
                 break;
             case AUTODEV:
+                isAutoDevPrivateSign = true;
                 AutoDevSign autoDevSign = (AutoDevSign) iosPlatform.getCertificateMethod();
                 command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                         .append(PROVISION_PROFILES_FLAG).append(autoDevSign.getProvisioningProfilesPath() == null
@@ -360,6 +422,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 }
                 break;
             case AUTODEV:
+                this.isAutoDevPrivateSign = true;
                 io.jenkins.plugins.appdome.build.to.secure.platform
                         .android.certificate.method.AutoDevSign autoDev =
                         (io.jenkins.plugins.appdome.build.to.secure.platform
