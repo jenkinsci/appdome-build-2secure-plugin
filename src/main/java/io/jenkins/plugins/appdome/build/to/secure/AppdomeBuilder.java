@@ -105,7 +105,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .getLogger()
                     .println("Appdome engine updated successfully");
             try {
-
+                System.out.println("Current Working Directory (pwd): " + appdomeWorkspace.getRemote());
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);
             } catch (Exception e) {
                 listener.error("Couldn't run Appdome Builder, read logs for more information. error:" + e);
