@@ -1,9 +1,11 @@
 package io.jenkins.plugins.appdome.build.to.secure;
 
+import hudson.EnvVars;
 import hudson.model.Descriptor;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
@@ -35,7 +37,10 @@ public class AppdomeBuilderTest {
     @Test(timeout = 600000)
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-
+        EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
+        EnvVars env = prop.getEnvVars();
+        env.put("APPDOME_SERVER_BASE_URL", "https://qamaster.dev.appdome.com");
+        jenkins.jenkins.getGlobalNodeProperties().add(prop);
         // Create configuration objects
         PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
         privateSign.setGoogleSigning(false);
