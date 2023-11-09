@@ -117,13 +117,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             if (files != null && files.length > 0) {
                 // Print the names of the files and folders
                 for (FilePath file : files) {
-                    System.out.println("File/Folder: " + file.getName());
+                    listener.getLogger().println("File/Folder: " + file.getName());
 
                     // If it's a directory, print its contents
                     if (file.isDirectory()) {
                         FilePath[] contents = file.list().toArray(new FilePath[0]);
                         for (FilePath content : contents) {
-                            System.out.println("  - " + content.getName());
+                            listener.getLogger().println("  - " + content.getName());
                         }
                     }
                 }
