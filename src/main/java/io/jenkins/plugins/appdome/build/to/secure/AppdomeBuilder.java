@@ -10,7 +10,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
-import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign;
@@ -32,8 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
-import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.ANDROID;
-import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.IOS;
 
 public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
@@ -107,28 +104,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             listener
                     .getLogger()
                     .println("Appdome engine updated successfully");
-//            // Get the current working directory
-//            FilePath[] files = appdomeWorkspace.list().toArray(new FilePath[0]);
-//            System.out.println("Current Working Directory (pwd): " + appdomeWorkspace.getRemote());
-//
-//            // Create a File object for the current working directory
-//
-//            // Check if there are any files
-//            if (files != null && files.length > 0) {
-//                // Print the names of the files and folders
-//                for (FilePath file : files) {
-//                    listener.getLogger().println("File/Folder: " + file.getName());
-//
-//                    // If it's a directory, print its contents
-//                    if (file.isDirectory()) {
-//                        FilePath[] contents = file.list().toArray(new FilePath[0]);
-//                        for (FilePath content : contents) {
-//                            listener.getLogger().println("  - " + content.getName());
-//                        }
-//                    }
-//                }
-//            }
-
             try {
 
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);
@@ -159,8 +134,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
         String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
 
-        List<String> filteredCommandList = Stream.of(command.split(" "))
-                .filter(s -> !s.isEmpty())
+        List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
+                .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
                 .collect(Collectors.toList());
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
@@ -213,7 +188,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             throw new RuntimeException("App path was not provided.");
         } else {
             command.append(APP_FLAG)
-                    .append(appPath);
+                    .append("\"" + appPath + "\"");
         }
 
         if (this.buildWithLogs != null && this.buildWithLogs) {
@@ -299,7 +274,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (outputLocation.endsWith(".ipa") || outputLocation.endsWith(".aab") || outputLocation.endsWith(".apk") || outputLocation.endsWith(".sh")) {
             dotIndex = outputLocation.lastIndexOf('.');
             outputLocation = outputLocation.substring(0, dotIndex); // Remove the extension from outputLocation
-        } else if (!outputLocation.endsWith("/")){
+        } else if (!outputLocation.endsWith("/")) {
             outputName = new File(outputLocation).getName().toString();
             outputLocation = new File(outputLocation).getParent().toString();
         }
