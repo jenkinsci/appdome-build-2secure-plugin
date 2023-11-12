@@ -104,28 +104,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             listener
                     .getLogger()
                     .println("Appdome engine updated successfully");
-                        // Get the current working directory
-            FilePath[] files = appdomeWorkspace.list().toArray(new FilePath[0]);
-            System.out.println("Current Working Directory (pwd): " + appdomeWorkspace.getRemote());
-
-            // Create a File object for the current working directory
-
-            // Check if there are any files
-            if (files != null && files.length > 0) {
-                // Print the names of the files and folders
-                for (FilePath file : files) {
-                    listener.getLogger().println("File/Folder: " + file.getName());
-
-                    // If it's a directory, print its contents
-                    if (file.isDirectory()) {
-                        FilePath[] contents = file.list().toArray(new FilePath[0]);
-                        for (FilePath content : contents) {
-                            listener.getLogger().println("  - " + content.getName());
-                        }
-                    }
-                }
-            }
-
             try {
                 System.out.println("Current Working Directory (pwd): " + appdomeWorkspace.getRemote());
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);

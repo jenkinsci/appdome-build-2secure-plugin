@@ -52,14 +52,13 @@ public class AppdomeBuilderTest {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
 
         // Assert the results
-//        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
 
 
         String consoleOutput = build.getLog();
-//        assertTrue(consoleOutput.contains("appdome")); // Check console output
-
-        System.out.println("build status = " + build.getResult().toString());
+// Check console output
         System.out.println("build console output = " + consoleOutput);
-        assertTrue(true);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        assertTrue(consoleOutput.contains("Executed Build successfully"));
     }
 }
