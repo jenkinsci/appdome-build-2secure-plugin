@@ -168,6 +168,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String appPath = "";
         //concatenate the app path if it is not empty:
         if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
+            listener.getLogger().println("Going to mkdir the next path:");
+            listener.getLogger().println("appdomeWorkspace/user_files " + appdomeWorkspace + "/user_files/");
             appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
         } else {
             appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
@@ -453,6 +455,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             if (!isHttpUrl(singlePath)) {
                 pathsToFilesOnAgent.append(singlePath).append(',');
             } else {
+
                 args = new ArgumentListBuilder("mkdir", "user_files");
                 launcher.launch()
                         .cmds(args)
