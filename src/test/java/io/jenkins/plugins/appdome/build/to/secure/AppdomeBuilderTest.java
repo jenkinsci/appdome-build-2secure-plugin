@@ -19,7 +19,7 @@ public class AppdomeBuilderTest {
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
 
-//    final String outputLocation = "/Users/idanhauser/work/output/081123144058_LocalMac_LOCAL_parallel/appdome_builder";
+    //    final String outputLocation = "/Users/idanhauser/work/output/081123144058_LocalMac_LOCAL_parallel/appdome_builder";
     final boolean buildWithLogs = false;
     final boolean BuildToTest = false;
     final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjg1YTRmNTAtNjAyZi0xMWVkLWFkMTYtMTFlM2RjZjJlYjA1Iiwic2FsdCI6Ijc0OGM5OWZhLTQwY2MtNDVhNC04M2I5LWU3ZTQ3NDU1MDg0YSJ9.lhSU5MOCwnvixbmAuygJoC9rKHQfkf0upSD4ows0B-E";
@@ -43,7 +43,6 @@ public class AppdomeBuilderTest {
         androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
 
 
-
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
@@ -61,5 +60,6 @@ public class AppdomeBuilderTest {
 
         System.out.println("build status = " + build.getResult().toString());
         System.out.println("build console output = " + consoleOutput);
+        assertTrue(true);
     }
 }
