@@ -44,9 +44,10 @@ public class AppdomeBuilderTest {
     public void setUp() throws Exception {
         System.out.println("I AM IN SETUP");
         System.out.println("Jenkins Test Timeout: " + System.getProperty("jenkins.test.timeout"));
+        setCommonEnvironmentVariables();
         printEnvironmentVariables();
 //        getpassword();
-        setCommonEnvironmentVariables();
+
 //        downloadFilesForTestBuilds();
 
     }
