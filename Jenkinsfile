@@ -1,33 +1,19 @@
-/*
- See the documentation for more options:
- https://github.com/jenkins-infra/pipeline-library/
-*/
-
 pipeline {
-    agent any
-
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+    agent {
+        label 'linux'
+    }
     stages {
-        stage('Build') {
-            options {
-                timeout(time: 15, unit: 'MINUTES') // Set timeout to 15 minutes
-            }
+        stage('build') {
             steps {
-                script {
-                    echo "Starting build!"
-
-                    // Call the buildPlugin step
-                    buildPlugin(
-                        useContainerAgent: true,
-                        configurations: [
-                            [platform: 'linux', jdk: 17], // use 'docker' if you have containerized tests
-                            // [platform: 'windows', jdk: 11],
-                        ]
-                    )
-                    echo "Build completed successfully!"
+                timeout(time: 10, unit: 'MINUTES') {
+                    sh '''
+                        mvn -B -ntp clean verify package
+                    '''
                 }
             }
         }
-
-        // Add more stages as needed
     }
 }
