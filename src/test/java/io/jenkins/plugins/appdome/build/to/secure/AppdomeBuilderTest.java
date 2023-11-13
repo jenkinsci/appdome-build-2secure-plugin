@@ -92,6 +92,7 @@ public class AppdomeBuilderTest {
     }
 
     private static void printEnvironmentVariables() {
+        System.out.println("Printing Environment variables");
         Jenkins jenkins = Jenkins.getInstanceOrNull();
         if (jenkins != null) {
             EnvironmentVariablesNodeProperty prop = jenkins.getGlobalNodeProperties().get(EnvironmentVariablesNodeProperty.class);
