@@ -8,22 +8,22 @@ pipeline {
 
     stages {
         stage('Build') {
-        options {
-                        timeout(time: 15, unit: 'MINUTES') // Set timeout to 15 minutes
-                    }
+            options {
+                timeout(time: 15, unit: 'MINUTES') // Set timeout to 15 minutes
+            }
             steps {
                 script {
-                    // Set environment variables for the buildPlugin step
-                    withEnv(['MY_VARIABLE=my_value', 'ANOTHER_VARIABLE=another_value']) {
-                        // Call the buildPlugin step
-                        buildPlugin(
-                            useContainerAgent: true,
-                            configurations: [
-                                [platform: 'linux', jdk: 17], // use 'docker' if you have containerized tests
-                                // [platform: 'windows', jdk: 11],
-                            ]
-                        )
-                    }
+                    echo "Starting build!"
+
+                    // Call the buildPlugin step
+                    buildPlugin(
+                        useContainerAgent: true,
+                        configurations: [
+                            [platform: 'linux', jdk: 17], // use 'docker' if you have containerized tests
+                            // [platform: 'windows', jdk: 11],
+                        ]
+                    )
+                    echo "Build completed successfully!"
                 }
             }
         }
