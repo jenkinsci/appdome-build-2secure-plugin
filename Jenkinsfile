@@ -20,7 +20,8 @@ pipeline {
                         // Change to the specific directory
                         dir('src/test/java/io/jenkins/plugins/appdome/build/to/secure') {
                         // Print the current working directory
-                        sh 'pwd'
+                            sh 'pwd'
+                        }
                         // Define the parameters for the customBuildPlugin
                         Map params = [
                             repo: 'https://github.com/jenkinsci/appdome-build-2secure-plugin',
