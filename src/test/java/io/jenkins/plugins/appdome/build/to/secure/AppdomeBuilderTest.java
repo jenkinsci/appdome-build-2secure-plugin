@@ -42,7 +42,7 @@ public class AppdomeBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-//        System.out.println("I AM IN SETUP");
+        System.out.println("I AM IN SETUP");
 //        getpassword();
         setCommonEnvironmentVariables();
 //        downloadFilesForTestBuilds();
