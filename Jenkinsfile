@@ -16,7 +16,7 @@ pipeline {
                         def output = sh(script: 'ls', returnStdout: true).trim()
                         echo "Directory Listing: \n${output}"
                         // Load the custom Groovy script
-                        def customBuildPlugin = load 'src/test/java/io/jenkins/plugins/appdome/build/to/secure/BuildPlugin.groovy'
+                        def customBuildPlugin = load '/home/jenkins/agent/workspace/uild-2secure-plugin_plugin_tests/src/test/java/io/jenkins/plugins/appdome/build/to/secure/BuildPlugin.groovy'
                         // Change to the specific directory
                         dir('src/test/java/io/jenkins/plugins/appdome/build/to/secure') {
                         // Print the current working directory
