@@ -8,6 +8,9 @@ pipeline {
 
     stages {
         stage('Build') {
+        options {
+                        timeout(time: 15, unit: 'MINUTES') // Set timeout to 15 minutes
+                    }
             steps {
                 script {
                     // Set environment variables for the buildPlugin step
