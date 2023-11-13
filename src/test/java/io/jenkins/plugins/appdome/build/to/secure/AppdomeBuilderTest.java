@@ -101,8 +101,7 @@ public class AppdomeBuilderTest {
         setCommonEnvironmentVariables();
         System.out.println(jenkins.jenkins.root);
         FreeStyleProject project = jenkins.createFreeStyleProject();
-
-        // Create configuration objects
+                // Create configuration objects
         PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
         privateSign.setGoogleSigning(false);
 
@@ -119,7 +118,7 @@ public class AppdomeBuilderTest {
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
 
-
+        Thread.sleep(500000);
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
