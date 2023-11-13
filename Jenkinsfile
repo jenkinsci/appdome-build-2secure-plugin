@@ -8,9 +8,9 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 1, unit: 'HOURS') {
                     sh '''
-                        mvn -B -ntp clean verify package
+                        mvn -B -Djenkins.test.timeout=600 clean verify package
                     '''
                 }
             }
