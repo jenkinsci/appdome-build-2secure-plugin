@@ -44,7 +44,7 @@ public class AppdomeBuilderTest {
     public void setUp() throws Exception {
         System.out.println("I AM IN SETUP");
         System.out.println("Jenkins Test Timeout: " + System.getProperty("jenkins.test.timeout"));
-
+        printEnvironmentVariables();
 //        getpassword();
         setCommonEnvironmentVariables();
 //        downloadFilesForTestBuilds();
@@ -91,6 +91,23 @@ public class AppdomeBuilderTest {
         }
     }
 
+    private static void printEnvironmentVariables() {
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (jenkins != null) {
+            EnvironmentVariablesNodeProperty prop = jenkins.getGlobalNodeProperties().get(EnvironmentVariablesNodeProperty.class);
+            if (prop != null) {
+                EnvVars env = prop.getEnvVars();
+                for (String key : env.keySet()) {
+                    String value = env.get(key);
+                    System.out.println(key + "=" + value);
+                }
+            } else {
+                System.out.println("Environment variables property not found");
+            }
+        } else {
+            System.out.println("Jenkins instance not found");
+        }
+    }
     private void setCommonEnvironmentVariables() {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
         EnvVars env = prop.getEnvVars();
@@ -120,7 +137,7 @@ public class AppdomeBuilderTest {
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
 
-        Thread.sleep(500000);
+        Thread.sleep(300000);
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
