@@ -42,6 +42,7 @@ public class AppdomeBuilderTest {
 
     @Before
     public void setUp() throws Exception {
+        System.out.println("I AM IN SETUP");
         getpassword();
         setCommonEnvironmentVariables();
         downloadFilesForTestBuilds();
@@ -49,6 +50,7 @@ public class AppdomeBuilderTest {
     }
 
     private void getpassword() {
+        System.out.println("TRYING TO GET AWS PASSWORDS");
         List<StandardUsernamePasswordCredentials> credentials = CredentialsProvider.lookupCredentials(
                 StandardUsernamePasswordCredentials.class,
                 Jenkins.getInstance(),
