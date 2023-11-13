@@ -1,5 +1,3 @@
-#!/usr/bin/env groovy
-package io.jenkins.plugins.appdome.build.to.secure
 
 /**
  * Simple wrapper step for building a plugin
