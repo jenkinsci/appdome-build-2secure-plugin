@@ -12,8 +12,11 @@ pipeline {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
                     script {
+                      // Execute 'ls' command and print the result
+                        def output = sh(script: 'ls', returnStdout: true).trim()
+                        echo "Directory Listing: \n${output}"
                         // Load the custom Groovy script
-                        def customBuildPlugin = load 'src/test/java/BuildPlugin.groovy'
+                        def customBuildPlugin = load 'src/test/java/io/jenkins/plugins/appdome/build/to/secure/BuildPlugin.groovy'
                         // Define the parameters for the customBuildPlugin
                         Map params = [
                             repo: 'https://github.com/jenkinsci/appdome-build-2secure-plugin',
