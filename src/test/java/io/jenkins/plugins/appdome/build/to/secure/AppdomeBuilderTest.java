@@ -52,29 +52,6 @@ public class AppdomeBuilderTest {
 
     }
 
-    private void getpassword() {
-        System.out.println("TRYING TO GET AWS PASSWORDS");
-        List<StandardUsernamePasswordCredentials> credentials = CredentialsProvider.lookupCredentials(
-                StandardUsernamePasswordCredentials.class,
-                Jenkins.getInstance(),
-                null,
-                Collections.emptyList());
-
-        StandardUsernamePasswordCredentials awsCredentials = CredentialsMatchers.firstOrNull(
-                credentials,
-                CredentialsMatchers.withId("f6b5e6a2-6e97-498e-a32f-d478667ce94c"));
-
-        if (awsCredentials != null) {
-
-            System.out.println(awsCredentials.toString());
-            String accessKey = awsCredentials.getUsername();
-            String secretKey = awsCredentials.getPassword().getPlainText();
-            System.out.println("accessKey " + accessKey);
-            System.out.println("secretKey " + secretKey);
-            // Use accessKey and secretKey for S3 operations
-        }
-
-    }
 
     private static void downloadFilesForTestBuilds() {
 
