@@ -17,6 +17,10 @@ pipeline {
                         echo "Directory Listing: \n${output}"
                         // Load the custom Groovy script
                         def customBuildPlugin = load 'src/test/java/io/jenkins/plugins/appdome/build/to/secure/BuildPlugin.groovy'
+                        // Change to the specific directory
+                        dir('src/test/java/io/jenkins/plugins/appdome/build/to/secure') {
+                        // Print the current working directory
+                        sh 'pwd'
                         // Define the parameters for the customBuildPlugin
                         Map params = [
                             repo: 'https://github.com/jenkinsci/appdome-build-2secure-plugin',
