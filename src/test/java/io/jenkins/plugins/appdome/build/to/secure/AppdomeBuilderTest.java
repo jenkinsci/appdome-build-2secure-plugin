@@ -25,6 +25,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.jvnet.hudson.test.JenkinsRule;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -104,7 +107,8 @@ public class AppdomeBuilderTest {
                 // Create configuration objects
         PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
         privateSign.setGoogleSigning(false);
-
+        executeShellCommand("pwd");
+        executeShellCommand("ls -a");
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/EmptyApp.apk");
         androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
@@ -122,6 +126,23 @@ public class AppdomeBuilderTest {
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
+    private void executeShellCommand(String command) {
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            process.waitFor();
+            reader.close();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
