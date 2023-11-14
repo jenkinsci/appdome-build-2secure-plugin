@@ -16,7 +16,7 @@ jobs:
         shell: bash
 
       - name: Generate and Publish Presigned URLs
-        run: python pipeline/aws_signer.py
+        run: python .github/aws_signer.py
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
