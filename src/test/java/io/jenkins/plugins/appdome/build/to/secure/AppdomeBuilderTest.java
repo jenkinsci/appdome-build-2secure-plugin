@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.jvnet.hudson.test.JenkinsRule;
 
 
@@ -94,6 +95,8 @@ public class AppdomeBuilderTest {
         jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
+    @Test
+    @DisplayName("Test Android Private Sign Build with valid parameters")
     public void testAndroidPrivateSignBuild() throws Exception {
         setCommonEnvironmentVariables();
         System.out.println(jenkins.jenkins.root);
@@ -122,7 +125,7 @@ public class AppdomeBuilderTest {
     }
 
 
-
+    @Test
     public void testAndroidPrivateSignBuild2() throws Exception {
         setCommonEnvironmentVariables();
         System.out.println(jenkins.jenkins.root);
