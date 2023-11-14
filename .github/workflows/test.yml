@@ -47,7 +47,7 @@ jobs:
           ls -a downloaded_files
           cd downloaded_files
           pwd
-          ls- a
+          ls -a
 
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
