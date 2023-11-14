@@ -1,0 +1,30 @@
+name: Jenkins Plugin CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      jenkins:
+        image: jenkins/jenkins:lts
+        ports:
+          - 8080:8080
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Wait for Jenkins to start
+      run: |
+        until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
+          printf '.'
+          sleep 5
+        done
+
+    - name: Run tests
+      run: |
+        # Here, you can run commands to execute your tests against the Jenkins instance.
+        # For example, using Maven:
+        mvn -B -Djenkins.test.timeout=600 clean verify package
