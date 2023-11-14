@@ -26,7 +26,6 @@ jobs:
         with:
           name: presigned-urls
           path: presigned_urls
-
   build:
     runs-on: ubuntu-latest
     needs: Presign_URLs
@@ -58,7 +57,3 @@ jobs:
 
       - name: Build with Maven
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify package
-
-
-     - name: Build with Maven
-       run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify package
