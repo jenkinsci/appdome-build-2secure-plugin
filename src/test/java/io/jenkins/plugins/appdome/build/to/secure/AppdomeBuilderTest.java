@@ -129,6 +129,7 @@ public class AppdomeBuilderTest {
     }
 
     private void executeShellCommand(String command) {
+        System.out.println(command);
         try {
             Process process = Runtime.getRuntime().exec(command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
