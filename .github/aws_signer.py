@@ -50,13 +50,12 @@ def main():
     os.makedirs(destination_folder, exist_ok=True)
 
     for filename, url in presigned_urls.items():
-        download_file(url, destination_folder)
+        download_file(filename,url, destination_folder)
 
 
-def download_file(url, destination_folder):
+def download_file(filename,url, destination_folder):
     response = requests.get(url)
     if response.status_code == 200:
-        filename = url.split("/")[-1]  # Extracts filename from URL
         filepath = os.path.join(destination_folder, filename)
         with open(filepath, 'wb') as file:
             file.write(response.content)
