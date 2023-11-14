@@ -1,6 +1,6 @@
 import os
 import boto3
-
+import requests
 
 def main():
     aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -28,7 +28,8 @@ def main():
         print("Missing required environment variables.")
         exit(1)
 
-    s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_default_region)
+    s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key,
+                      region_name=aws_default_region)
 
     presigned_urls = {}
 
@@ -43,13 +44,24 @@ def main():
         )
         presigned_urls[key] = presigned_url
 
-    if not os.path.exists("presigned_urls"):
-        os.mkdir("presigned_urls")
+    destination_folder = "downloaded_files"
 
-    for key, url in presigned_urls.items():
-        with open(f"presigned_urls/{key}.txt", 'w') as url_file:
-            url_file.write(url)
+    # Create destination folder if it doesn't exist
+    os.makedirs(destination_folder, exist_ok=True)
 
+    for filename, url in presigned_urls.items():
+        download_file(url, destination_folder)
+
+
+def download_file(url, destination_folder):
+    response = requests.get(url)
+    if response.status_code == 200:
+        filename = url.split("/")[-1]  # Extracts filename from URL
+        filepath = os.path.join(destination_folder, filename)
+        with open(filepath, 'wb') as file:
+            file.write(response.content)
+    else:
+        print(f"Error downloading {url}: Status Code {response.status_code}")
 
 if __name__ == "__main__":
     main()
