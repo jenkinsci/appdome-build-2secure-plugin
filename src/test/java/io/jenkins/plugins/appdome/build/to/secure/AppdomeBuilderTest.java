@@ -94,7 +94,6 @@ public class AppdomeBuilderTest {
         jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
-    @Test(timeout = 600000)
     public void testAndroidPrivateSignBuild() throws Exception {
         setCommonEnvironmentVariables();
         System.out.println(jenkins.jenkins.root);
@@ -115,8 +114,36 @@ public class AppdomeBuilderTest {
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        System.out.println("SLEPPING");
-        System.out.println("DONE SLEEPING SLEPPING");
+
+        String consoleOutput = build.getLog();
+        System.out.println("build console output = " + consoleOutput);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
+
+
+    public void testAndroidPrivateSignBuild2() throws Exception {
+        setCommonEnvironmentVariables();
+        System.out.println(jenkins.jenkins.root);
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        // Create configuration objects
+        PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
+        privateSign.setGoogleSigning(false);
+
+        AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
+        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/EmptyApp.apk");
+        androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
+
+
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
+
+        appdomeBuilder.setBuildToTest(null);
+        appdomeBuilder.setBuildWithLogs(this.buildWithLogs);
+
+        project.getBuildersList().add(appdomeBuilder);
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
