@@ -1,32 +1,30 @@
-name: Jenkins Plugin CI
+name: Java CI with Maven
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
-    services:
-      jenkins:
-        image: jenkins/jenkins:lts
-        ports:
-          - 8080:8080
-        options: >-
-          --env JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Wait for Jenkins to start
-      run: |
-        until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
-          printf '.'
-          sleep 5
-        done
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
 
-    - name: Run tests
-      run: |
-        # Here, you can run commands to execute your tests against the Jenkins instance.
-        # For example, using Maven:
-        mvn -B -Djenkins.test.timeout=800 clean verify package
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build with Maven
+        run: mvn -B clean verify
+
+      # Add additional steps for running tests or other build steps
