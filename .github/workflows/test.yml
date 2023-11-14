@@ -24,7 +24,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Download dependencies
+        run: mvn -B dependency:go-offline
+
       - name: Build with Maven
         run: mvn -B clean verify
 
-      # Add additional steps for running tests or other build steps
+      # Add additional steps if needed
