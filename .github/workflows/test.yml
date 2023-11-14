@@ -11,6 +11,8 @@ jobs:
         image: jenkins/jenkins:lts
         ports:
           - 8080:8080
+        options: >-
+          --env JAVA_OPTS=-Djenkins.install.runSetupWizard=false
 
     steps:
     - name: Checkout
