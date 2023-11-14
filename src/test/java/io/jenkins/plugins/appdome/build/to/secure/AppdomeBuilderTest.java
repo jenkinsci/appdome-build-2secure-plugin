@@ -116,7 +116,6 @@ public class AppdomeBuilderTest {
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         System.out.println("SLEPPING");
-        Thread.sleep(600000);
         System.out.println("DONE SLEEPING SLEPPING");
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
