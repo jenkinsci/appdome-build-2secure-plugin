@@ -135,7 +135,7 @@ public class AppdomeBuilderTest {
         privateSign.setGoogleSigning(false);
 
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/EmptyApp.apk");
+        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/AndroidMediaPlayer.apk");
         androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
 
 
