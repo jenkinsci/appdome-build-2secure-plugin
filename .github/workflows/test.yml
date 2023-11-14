@@ -38,13 +38,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: presigned-urls
-          path: presigned_urls
+          path: downloaded_files
 
       - name: Print working directory and list files
         run: |
           pwd
           ls -a
-          ls -a presigned_urls
+          ls -a downloaded_files
+          cd downloaded_files
+          pwd
+          ls- a
 
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
