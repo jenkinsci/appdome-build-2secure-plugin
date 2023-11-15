@@ -47,7 +47,7 @@ jobs:
           cd presigned_urls
           pwd
           ls -a
-          cat presigned_urls/presigned_urls.json
+          cat presigned_urls.json
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
         with:
