@@ -61,8 +61,3 @@ jobs:
 
       - name: Build with Maven
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify package
-      - name: Remove Artifacts
-        run: |
-          echo "Removing downloaded files..."
-          rm -rf downloaded_files
-          echo "Artifacts removed."
