@@ -197,9 +197,9 @@ public class AppdomeBuilderTest {
         provision_profiles.add(new StringWarp(ipa2MobileProvisioning2Path));
         provision_profiles.add(new StringWarp(ipa2MobileProvisioning3Path));
         List<StringWarp> entitlements = new ArrayList<>();
-        provision_profiles.add(new StringWarp(ipa2Entitlements1Path));
-        provision_profiles.add(new StringWarp(ipa2Entitlements2Path));
-        provision_profiles.add(new StringWarp(ipa2Entitlements3Path));
+        entitlements.add(new StringWarp(ipa2Entitlements1Path));
+        entitlements.add(new StringWarp(ipa2Entitlements2Path));
+        entitlements.add(new StringWarp(ipa2Entitlements3Path));
 
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
