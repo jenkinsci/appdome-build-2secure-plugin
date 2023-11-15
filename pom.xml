@@ -76,7 +76,6 @@
                 <threadCount>4</threadCount>
                 <environmentVariables>
                     <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
-                    <MY_ENV_VAR>${env.MY_ENV_VAR}</MY_ENV_VAR>
                 </environmentVariables>
                 <rerunFailingTestsCount>1</rerunFailingTestsCount>
                 <printSummary>true</printSummary>

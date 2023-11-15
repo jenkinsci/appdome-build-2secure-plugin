@@ -42,7 +42,7 @@ public class AppdomeBuilderTest {
     final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String iosFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String fingerprint = "8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74";
-    final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjg1YTRmNTAtNjAyZi0xMWVkLWFkMTYtMTFlM2RjZjJlYjA1Iiwic2FsdCI6Ijc0OGM5OWZhLTQwY2MtNDVhNC04M2I5LWU3ZTQ3NDU1MDg0YSJ9.lhSU5MOCwnvixbmAuygJoC9rKHQfkf0upSD4ows0B-E";
+    private String token;
     final String teamId = "46002310-7cab-11ee-bfde-d76f94716e7a";
     private String aabAppPath;
     private String apkAppPath;
@@ -63,6 +63,9 @@ public class AppdomeBuilderTest {
 
     @Before
     public void setUp() throws Exception {
+        String appdomeApiToken = System.getenv("APPDOME_API_TOKEN");
+        System.out.println("my appdome api token " + appdomeApiToken);
+        this.token = appdomeApiToken;
         setCommonEnvironmentVariables();
         setFiles();
     }
@@ -84,8 +87,7 @@ public class AppdomeBuilderTest {
         this.ipaApp2Path = buildFilePath("ipa_app_2.ipa");
         this.keystoreFilePath = buildFilePath("keystore_file.keystore");
 
-        String myVar = System.getenv("MY_ENV_VAR");
-        System.out.println("my var " + myVar);
+
     }
 
 
