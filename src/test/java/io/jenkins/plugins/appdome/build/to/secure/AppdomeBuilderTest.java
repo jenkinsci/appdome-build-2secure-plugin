@@ -19,6 +19,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.m
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 
+import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -181,6 +182,40 @@ public class AppdomeBuilderTest {
 //        assertTrue("Output APK file should exist", outputFile.exists());
 //        System.out.println("outputFile : " + outputFile.getRemote() );
         executeShellCommand("ls " + workspace.getRemote());
+        String consoleOutput = build.getLog();
+        System.out.println("build console output = " + consoleOutput);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
+
+    @Test
+    public void testIosAutoSignBuild() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        List<StringWarp> provision_profiles = new ArrayList<>();
+        provision_profiles.add(new StringWarp(ipa2MobileProvisioning1Path));
+        provision_profiles.add(new StringWarp(ipa2MobileProvisioning2Path));
+        provision_profiles.add(new StringWarp(ipa2MobileProvisioning3Path));
+        List<StringWarp> entitlements = new ArrayList<>();
+        provision_profiles.add(new StringWarp(ipa2Entitlements1Path));
+        provision_profiles.add(new StringWarp(ipa2Entitlements2Path));
+        provision_profiles.add(new StringWarp(ipa2Entitlements3Path));
+
+        // Create configuration objects
+        io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
+                = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
+                AutoSign(this.certificateFilePath, Secret.fromString("maverick28"), provision_profiles, entitlements);
+
+        IosPlatform iosPlatform = new IosPlatform(autoSign);
+        iosPlatform.setFusionSetId(iosFusionSet);
+        iosPlatform.setAppPath(this.ipaApp2Path);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
+        BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
+        appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setBuildWithLogs(true);
+
+        project.getBuildersList().add(appdomeBuilder);
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());

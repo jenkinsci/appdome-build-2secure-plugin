@@ -159,3 +159,47 @@ jobs:
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
+
+  ios_auto_sign:
+    runs-on: ubuntu-latest
+    needs: Presign_URLs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download Presigned URLs Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: presigned-urls
+          path: presigned_urls
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
+          cat presigned_urls.json
+
+      - name: Download files from presigned URLs
+        run: |
+          mkdir downloaded_files
+          jq -r 'to_entries|map("\(.key) \(.value|tostring)")|.[]' presigned_urls/presigned_urls.json | while read -r key url; do
+            echo "Downloading $key from $url"
+            curl -o "downloaded_files/${key}" "$url"
+          done
+          ls downloaded_files
+      - name: Set up JDK 11 with Maven Cache
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Download dependencies
+        run: mvn -B dependency:go-offline
+      - name: Build and test for Android
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosAutoSignBuild package
+        env:
+          APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
