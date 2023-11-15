@@ -92,12 +92,6 @@ public class AppdomeBuilderTest {
 
 
     private String buildFilePath(String filename) {
-        System.out.println("BuildFilePath");
-        executeShellCommand("pwd");
-        executeShellCommand("ls -a");
-        executeShellCommand("ls -a downloaded_files/");
-
-
         File file = new File(PATH_TO_FILES, filename);
         System.out.println(filename + " : " + file.getAbsolutePath().toString());
         if (!file.exists()) {
@@ -122,8 +116,6 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.apkAppPath);
-        executeShellCommand("pwd");
-        executeShellCommand("ls -a");
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
@@ -146,8 +138,6 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.aabAppPath);
-        executeShellCommand("pwd");
-        executeShellCommand("ls -a");
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
