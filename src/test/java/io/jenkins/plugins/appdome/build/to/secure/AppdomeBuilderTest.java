@@ -14,6 +14,7 @@ import hudson.security.ACL;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoDevSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 
 import jenkins.model.Jenkins;
@@ -26,6 +27,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -36,18 +38,60 @@ public class AppdomeBuilderTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-
-    //    final String outputLocation = "/Users/idanhauser/work/output/081123144058_LocalMac_LOCAL_parallel/appdome_builder";
-    final boolean buildWithLogs = false;
-    final boolean BuildToTest = false;
+    private static final String PATH_TO_FILES = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/presigned_urls/downloaded_files";
+    final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
+    final String iosFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
+    final String fingerprint = "8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74";
     final String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjg1YTRmNTAtNjAyZi0xMWVkLWFkMTYtMTFlM2RjZjJlYjA1Iiwic2FsdCI6Ijc0OGM5OWZhLTQwY2MtNDVhNC04M2I5LWU3ZTQ3NDU1MDg0YSJ9.lhSU5MOCwnvixbmAuygJoC9rKHQfkf0upSD4ows0B-E";
     final String teamId = "46002310-7cab-11ee-bfde-d76f94716e7a";
+    private String aabAppPath;
+    private String apkAppPath;
+    private String certificateFilePath;
+    private String ipa1EntitlementsPath;
+    private String ipa1MobileProvisioningPath;
+    private String ipa2Entitlements1Path;
+    private String ipa2Entitlements2Path;
+    private String ipa2Entitlements3Path;
+    private String ipa2MobileProvisioning1Path;
+    private String ipa2MobileProvisioning2Path;
+    private String ipa2MobileProvisioning3Path;
+    private String ipaApp1Path;
+    private String ipaApp2Path;
+    private String keystoreFilePath;
 
 
     @Before
     public void setUp() throws Exception {
         setCommonEnvironmentVariables();
+        setFiles();
     }
+
+    private void setFiles() {
+        this.aabAppPath = buildFilePath("aab_app.aab");
+        this.apkAppPath = buildFilePath("apk_app.apk");
+        this.certificateFilePath = buildFilePath("certificate_file.p12");
+        this.ipa1EntitlementsPath = buildFilePath("ipa_1_entitlements.plist");
+        this.ipa1MobileProvisioningPath = buildFilePath("ipa_1_mobile_provisioning.mobileprovision");
+        this.ipa2Entitlements1Path = buildFilePath("ipa_2_entitlements_1.plist");
+        this.ipa2Entitlements2Path = buildFilePath("ipa_2_entitlements_2.plist");
+        this.ipa2Entitlements3Path = buildFilePath("ipa_2_entitlements_3.plist");
+        this.ipa2MobileProvisioning1Path = buildFilePath("ipa_2_mobile_provisioning_1.mobileprovision");
+        this.ipa2MobileProvisioning2Path = buildFilePath("ipa_2_mobile_provisioning_2.mobileprovision");
+        this.ipa2MobileProvisioning3Path = buildFilePath("ipa_2_mobile_provisioning_3.mobileprovision");
+        this.ipaApp1Path = buildFilePath("ipa_app_1.ipa");
+        this.ipaApp2Path = buildFilePath("ipa_app_2.ipa");
+        this.keystoreFilePath = buildFilePath("keystore_file.keystore");
+    }
+
+
+    private String buildFilePath(String filename) {
+        File file = new File(PATH_TO_FILES, filename);
+        if (!file.exists()) {
+            throw new IllegalStateException("Required file not found: " + file.getAbsolutePath());
+        }
+        return file.getAbsolutePath();
+    }
+
     private void setCommonEnvironmentVariables() {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
         EnvVars env = prop.getEnvVars();
@@ -58,24 +102,20 @@ public class AppdomeBuilderTest {
     @Test
     public void testAndroidPrivateSignBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-                // Create configuration objects
-        PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
+        // Create configuration objects
+        PrivateSign privateSign = new PrivateSign(fingerprint);
         privateSign.setGoogleSigning(false);
-        executeShellCommand("pwd");
-        executeShellCommand("ls -a");
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setAppPath("");
-        androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
-
+        androidPlatform.setFusionSetId(androidFusionSet);
+        androidPlatform.setAppPath(this.apkAppPath);
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
-        appdomeBuilder.setBuildWithLogs(this.buildWithLogs);
+        appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        System.err.println("TEST TEST TEST TEST");
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
@@ -83,48 +123,27 @@ public class AppdomeBuilderTest {
     }
 
     @Test
-    public void testAndroidPrivateSignBuild2() throws Exception {
+    public void testAndroidAutoDevSignBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
-        PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
-        privateSign.setGoogleSigning(false);
-        executeShellCommand("pwd");
-        executeShellCommand("ls -a");
-        AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setAppPath("");
-        androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
-
+        AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
+        autoDevSign.setGoogleSigning(true);
+        AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
+        androidPlatform.setFusionSetId(androidFusionSet);
+        androidPlatform.setAppPath(this.aabAppPath);
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
-
-        appdomeBuilder.setBuildToTest(null);
-        appdomeBuilder.setBuildWithLogs(this.buildWithLogs);
+        BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
+        appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        System.err.println("TEST TEST TEST TEST");
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
 
-    private void executeShellCommand(String command) {
-        System.out.println(command);
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            process.waitFor();
-            reader.close();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 }
