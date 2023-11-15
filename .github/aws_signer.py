@@ -10,6 +10,7 @@ def main():
     bucket_name = "appdome-automation-vanilla-apps"
     objects = {
         'aab_app.aab': 'Thomas/PipelineFiles/Apps/FileFinder.aab',
+        'AndroidMediaPlayer_app.apk': 'Thomas/PipelineFiles/Apps/AndroidMediaPlayer.apk',
         'apk_app.apk': 'Thomas/PipelineFiles/Apps/TimeCard.apk',
         'keystore_file.keystore': 'Thomas/PipelineFiles/appdome.keystore',
         'ipa_app_1.ipa': 'Thomas/PipelineFiles/Apps/FileFinder.ipa',

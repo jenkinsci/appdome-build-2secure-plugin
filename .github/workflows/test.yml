@@ -68,7 +68,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Denv.MY_ENV_VAR="some value" -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild package
 
   android_auto_dev_private_Sign:
     runs-on: ubuntu-latest
@@ -110,4 +110,4 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidAutoDevSignBuild package
+        run: mvn -V --color always -ntp -B -Denv.MY_ENV_VAR="some value" -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidAutoDevSignBuild package

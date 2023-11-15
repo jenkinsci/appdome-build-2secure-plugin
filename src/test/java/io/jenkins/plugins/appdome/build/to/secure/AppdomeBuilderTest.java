@@ -46,6 +46,7 @@ public class AppdomeBuilderTest {
     final String teamId = "46002310-7cab-11ee-bfde-d76f94716e7a";
     private String aabAppPath;
     private String apkAppPath;
+    private String AndroidMediaPlayerAppPath;
     private String certificateFilePath;
     private String ipa1EntitlementsPath;
     private String ipa1MobileProvisioningPath;
@@ -69,6 +70,7 @@ public class AppdomeBuilderTest {
     private void setFiles() {
         this.aabAppPath = buildFilePath("aab_app.aab");
         this.apkAppPath = buildFilePath("apk_app.apk");
+        this.AndroidMediaPlayerAppPath = buildFilePath("AndroidMediaPlayer_app.apk");
         this.certificateFilePath = buildFilePath("certificate_file.p12");
         this.ipa1EntitlementsPath = buildFilePath("ipa_1_entitlements.plist");
         this.ipa1MobileProvisioningPath = buildFilePath("ipa_1_mobile_provisioning.mobileprovision");
@@ -81,6 +83,9 @@ public class AppdomeBuilderTest {
         this.ipaApp1Path = buildFilePath("ipa_app_1.ipa");
         this.ipaApp2Path = buildFilePath("ipa_app_2.ipa");
         this.keystoreFilePath = buildFilePath("keystore_file.keystore");
+
+        String myVar = System.getenv("MY_ENV_VAR");
+        System.out.println("my var " + myVar);
     }
 
 
@@ -92,7 +97,7 @@ public class AppdomeBuilderTest {
 
 
         File file = new File(PATH_TO_FILES, filename);
-        System.out.println(filename+" : "+file.getAbsolutePath().toString());
+        System.out.println(filename + " : " + file.getAbsolutePath().toString());
         if (!file.exists()) {
             throw new IllegalStateException("Required file not found: " + file.getAbsolutePath());
         }
