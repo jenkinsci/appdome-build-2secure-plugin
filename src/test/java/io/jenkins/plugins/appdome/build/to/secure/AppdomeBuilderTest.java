@@ -86,6 +86,7 @@ public class AppdomeBuilderTest {
 
     private String buildFilePath(String filename) {
         File file = new File(PATH_TO_FILES, filename);
+        System.out.println(filename+" : "+file.getAbsolutePath().toString());
         if (!file.exists()) {
             throw new IllegalStateException("Required file not found: " + file.getAbsolutePath());
         }
