@@ -73,7 +73,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                 <parallel>methods</parallel>
-                <threadCount>4</threadCount>
+                <threadCount>6</threadCount>
                 <environmentVariables>
                     <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
                     <MY_ENV_VAR>${env.APPDOME_API_TOKEN}</MY_ENV_VAR>
