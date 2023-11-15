@@ -39,6 +39,8 @@ jobs:
         with:
           name: presigned-urls
           path: presigned_urls
+      - name: Install jq
+        run: sudo apt-get install jq
       - name: Print working directory and list files
         run: |
           pwd
@@ -48,6 +50,15 @@ jobs:
           pwd
           ls -a
           cat presigned_urls.json
+
+      - name: Download files from presigned URLs
+        run: |
+          mkdir downloaded_files
+          jq -r 'to_entries|map("\(.key) \(.value|tostring)")|.[]' presigned_urls/presigned_urls.json | while read -r key url; do
+            echo "Downloading $key from $url"
+            curl -o "downloaded_files/${key}" "$url"
+          done
+          ls downloaded_files
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
         with:
