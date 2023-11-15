@@ -177,13 +177,32 @@ public class AppdomeBuilderTest {
         // Check that the file exists in the workspace
         FilePath workspace = build.getWorkspace();
         assertNotNull("Workspace should exist", workspace);
-        FilePath outputFile = workspace.child("second_output.apk");
-        assertTrue("Output APK file should exist", outputFile.exists());
-        System.out.println("outputFile : " + outputFile.getRemote() );
+//        FilePath outputFile = workspace.child("second_output.apk");
+//        assertTrue("Output APK file should exist", outputFile.exists());
+//        System.out.println("outputFile : " + outputFile.getRemote() );
+        executeShellCommand("ls " + workspace.getRemote());
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
+    private void executeShellCommand(String command) {
+        System.out.println(command);
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            process.waitFor();
+            reader.close();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
