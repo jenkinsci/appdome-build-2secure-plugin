@@ -91,7 +91,7 @@ public class AppdomeBuilderTest {
         executeShellCommand("pwd");
         executeShellCommand("ls -a");
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/AndroidMediaPlayer.apk");
+        androidPlatform.setAppPath("https://appdome-automation-vanilla-apps.s3.amazonaws.com/Thomas/PipelineFiles/Apps/FileFinder.aab?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAUMYEOMD5MIW5WTF7%2F20231115%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Date=20231115T100200Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fadf03b8da641b13fa3ee0bbece8c26f87a99eb9c8f7faf0701869f379b07ce9");
         androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
 
 
