@@ -88,6 +88,8 @@ public class AppdomeBuilderTest {
         System.out.println("BuildFilePath");
         executeShellCommand("pwd");
         executeShellCommand("ls -a");
+        executeShellCommand("ls -a " + PATH_TO_FILES);
+
 
         File file = new File(PATH_TO_FILES, filename);
         System.out.println(filename+" : "+file.getAbsolutePath().toString());
