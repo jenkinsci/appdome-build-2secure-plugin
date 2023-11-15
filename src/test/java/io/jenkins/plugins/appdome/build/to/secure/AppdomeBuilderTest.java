@@ -15,6 +15,7 @@ import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoDevSign;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 
 import jenkins.model.Jenkins;
@@ -137,7 +138,7 @@ public class AppdomeBuilderTest {
         autoDevSign.setGoogleSigning(true);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(this.aabAppPath);
+        androidPlatform.setAppPath(this.AndroidMediaPlayerAppPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
@@ -151,22 +152,31 @@ public class AppdomeBuilderTest {
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
 
-    private void executeShellCommand(String command) {
-        System.out.println(command);
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    @Test
+    public void testAndroidAutoSignBuild() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        // Create configuration objects
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
+        AutoSign autoSign =
+                new AutoSign(this.keystoreFilePath,
+                        Secret.fromString("appdome"), Secret.fromString("appdome"),
+                        Secret.fromString("appdome"), null);
 
-            process.waitFor();
-            reader.close();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
+        androidPlatform.setFusionSetId(androidFusionSet);
+        androidPlatform.setAppPath(aabAppPath);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
+                androidPlatform, new StringWarp("./second_output.apk"));
+        appdomeBuilder.setBuildToTest(null);
+
+
+        project.getBuildersList().add(appdomeBuilder);
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+        String consoleOutput = build.getLog();
+        System.out.println("build console output = " + consoleOutput);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
+
 
 }
