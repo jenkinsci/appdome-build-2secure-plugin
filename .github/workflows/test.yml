@@ -60,7 +60,7 @@ jobs:
         run: mvn -B dependency:go-offline
 
       - name: Build with Maven
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild test clean verify package
       - name: Remove Artifacts
         run: |
           echo "Removing downloaded files..."

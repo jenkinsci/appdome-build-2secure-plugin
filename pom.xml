@@ -72,6 +72,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+                <parallel>methods</parallel>
+                <threadCount>4</threadCount>
                 <environmentVariables>
                     <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
                 </environmentVariables>

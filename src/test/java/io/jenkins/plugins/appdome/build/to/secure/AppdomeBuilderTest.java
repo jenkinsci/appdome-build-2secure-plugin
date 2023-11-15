@@ -46,50 +46,7 @@ public class AppdomeBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        System.out.println("I AM IN SETUP");
-        System.out.println("Jenkins Test Timeout: " + System.getProperty("jenkins.test.timeout"));
         setCommonEnvironmentVariables();
-        printEnvironmentVariables();
-//        getpassword();
-
-//        downloadFilesForTestBuilds();
-
-    }
-
-
-    private static void downloadFilesForTestBuilds() {
-
-        String awsAccessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
-        String awsSecretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
-        String awsDefaultRegion = "eu-central-1";
-        String bucketName = "appdome-automation-vanilla-apps";
-
-        Map<String, String> objects = new HashMap<>();
-        // Add all the object mappings as in Python code
-
-        if (awsAccessKeyId == null || awsSecretAccessKey == null) {
-            System.out.println("Missing required environment variables.");
-            System.exit(1);
-        }
-    }
-
-    private static void printEnvironmentVariables() {
-        System.out.println("Printing Environment variables");
-        Jenkins jenkins = Jenkins.getInstanceOrNull();
-        if (jenkins != null) {
-            EnvironmentVariablesNodeProperty prop = jenkins.getGlobalNodeProperties().get(EnvironmentVariablesNodeProperty.class);
-            if (prop != null) {
-                EnvVars env = prop.getEnvVars();
-                for (String key : env.keySet()) {
-                    String value = env.get(key);
-                    System.out.println(key + "=" + value);
-                }
-            } else {
-                System.out.println("Environment variables property not found");
-            }
-        } else {
-            System.out.println("Jenkins instance not found");
-        }
     }
     private void setCommonEnvironmentVariables() {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
@@ -99,10 +56,7 @@ public class AppdomeBuilderTest {
     }
 
     @Test
-    @DisplayName("Test Android Private Sign Build with valid parameters")
     public void testAndroidPrivateSignBuild() throws Exception {
-        setCommonEnvironmentVariables();
-        System.out.println(jenkins.jenkins.root);
         FreeStyleProject project = jenkins.createFreeStyleProject();
                 // Create configuration objects
         PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
