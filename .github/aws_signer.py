@@ -47,7 +47,7 @@ def main():
 
     destination_folder = "presigned_urls"
     # Specify the path to the JSON file
-    json_file_path = destination_folder + 'presigned_urls.json'
+    json_file_path = destination_folder + '/presigned_urls.json'
 
     # Create destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
