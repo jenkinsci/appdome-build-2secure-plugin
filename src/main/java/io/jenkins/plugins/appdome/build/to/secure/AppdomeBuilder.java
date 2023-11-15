@@ -132,7 +132,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws Exception {
         FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
         String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
-
         List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
                 .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
                 .collect(Collectors.toList());

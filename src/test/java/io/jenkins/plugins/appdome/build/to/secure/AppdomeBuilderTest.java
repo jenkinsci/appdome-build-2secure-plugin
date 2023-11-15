@@ -7,6 +7,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.matchers.IdMatcher;
 import hudson.EnvVars;
+import hudson.FilePath;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class AppdomeBuilderTest {
@@ -172,6 +174,12 @@ public class AppdomeBuilderTest {
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+        // Check that the file exists in the workspace
+        FilePath workspace = build.getWorkspace();
+        assertNotNull("Workspace should exist", workspace);
+        FilePath outputFile = workspace.child("second_output.apk");
+        assertTrue("Output APK file should exist", outputFile.exists());
+        System.out.println("outputFile : " + outputFile.getRemote() );
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
