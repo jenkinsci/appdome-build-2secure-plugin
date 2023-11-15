@@ -85,6 +85,10 @@ public class AppdomeBuilderTest {
 
 
     private String buildFilePath(String filename) {
+        System.out.println("BuildFilePath");
+        executeShellCommand("pwd");
+        executeShellCommand("ls -a");
+
         File file = new File(PATH_TO_FILES, filename);
         System.out.println(filename+" : "+file.getAbsolutePath().toString());
         if (!file.exists()) {
@@ -109,7 +113,8 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.apkAppPath);
-
+        executeShellCommand("pwd");
+        executeShellCommand("ls -a");
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
@@ -132,7 +137,8 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.aabAppPath);
-
+        executeShellCommand("pwd");
+        executeShellCommand("ls -a");
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
@@ -146,5 +152,22 @@ public class AppdomeBuilderTest {
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
 
+    private void executeShellCommand(String command) {
+        System.out.println(command);
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            process.waitFor();
+            reader.close();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
