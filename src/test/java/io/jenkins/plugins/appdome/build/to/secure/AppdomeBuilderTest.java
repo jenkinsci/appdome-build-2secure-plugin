@@ -64,7 +64,7 @@ public class AppdomeBuilderTest {
         executeShellCommand("pwd");
         executeShellCommand("ls -a");
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/EmptyApp.apk");
+        androidPlatform.setAppPath("https://appdome-automation-vanilla-apps.s3.amazonaws.com/Thomas/PipelineFiles/Apps/TimeCard.apk?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAUMYEOMD5MIW5WTF7%2F20231115%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Date=20231115T100713Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a22e8b2ddd38149d1fcd49c274769dcb547cdfdadd85d7ed8b5f7c90bf24f35");
         androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
 
 

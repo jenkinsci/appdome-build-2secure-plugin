@@ -453,13 +453,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             if (!isHttpUrl(singlePath)) {
                 pathsToFilesOnAgent.append(singlePath).append(',');
             } else {
-
-//                args = new ArgumentListBuilder("mkdir", "user_files");
-//                launcher.launch()
-//                        .cmds(args)
-//                        .pwd(agentWorkspace)
-//                        .quiet(true)
-//                        .join();
                 try {
                     userFilesPath = agentWorkspace.child("user_files");
                     userFilesPath.mkdirs();
@@ -478,11 +471,16 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         ArgumentListBuilder args = new ArgumentListBuilder("curl", "-LO", url);
         String fileName = url.substring(url.lastIndexOf('/') + 1);
         String outputPath = userFilesPath.getRemote() + File.separator + fileName;
-        launcher.launch()
+        int exitCode = launcher.launch()
                 .cmds(args)
                 .pwd(userFilesPath)
-                .quiet(true)
+                .stdout(System.out)
+                .stderr(System.err)
                 .join();
+
+        if (exitCode != 0) {
+            throw new IOException("Curl command failed with exit code: " + exitCode);
+        }
         return outputPath;
     }
 
