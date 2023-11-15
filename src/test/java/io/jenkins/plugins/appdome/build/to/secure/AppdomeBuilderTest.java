@@ -38,7 +38,7 @@ public class AppdomeBuilderTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-    private static final String PATH_TO_FILES = "presigned_urls/downloaded_files/";
+    private static final String PATH_TO_FILES = "downloaded_files/";
     final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String iosFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String fingerprint = "8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74";
@@ -88,7 +88,7 @@ public class AppdomeBuilderTest {
         System.out.println("BuildFilePath");
         executeShellCommand("pwd");
         executeShellCommand("ls -a");
-        executeShellCommand("ls -a presigned_urls/downloaded_files/");
+        executeShellCommand("ls -a downloaded_files/");
 
 
         File file = new File(PATH_TO_FILES, filename);
