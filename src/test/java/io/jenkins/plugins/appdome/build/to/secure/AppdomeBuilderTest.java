@@ -82,6 +82,33 @@ public class AppdomeBuilderTest {
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
 
+    @Test
+    public void testAndroidPrivateSignBuild2() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        // Create configuration objects
+        PrivateSign privateSign = new PrivateSign("8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74");
+        privateSign.setGoogleSigning(false);
+        executeShellCommand("pwd");
+        executeShellCommand("ls -a");
+        AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
+        androidPlatform.setAppPath("https://github.com/idanhauser/TestAppdome_orb_private/raw/main/files/AndroidMediaPlayer.apk");
+        androidPlatform.setFusionSetId("8c693120-7cab-11ee-8275-c54d0e1c9b7a");
+
+
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
+
+        appdomeBuilder.setBuildToTest(null);
+        appdomeBuilder.setBuildWithLogs(this.buildWithLogs);
+
+        project.getBuildersList().add(appdomeBuilder);
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+        System.err.println("TEST TEST TEST TEST");
+        String consoleOutput = build.getLog();
+        System.out.println("build console output = " + consoleOutput);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
     private void executeShellCommand(String command) {
         System.out.println(command);
         try {
