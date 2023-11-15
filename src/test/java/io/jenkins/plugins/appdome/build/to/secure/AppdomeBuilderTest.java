@@ -49,8 +49,8 @@ public class AppdomeBuilderTest {
     private String token;
     final String teamId = "46002310-7cab-11ee-bfde-d76f94716e7a";
     private String aabAppPath;
-    private String apkAppPath;
-    private String AndroidMediaPlayerAppPath;
+    private String apkApp1Path;
+    private String apkApp2Path;
     private String certificateFile1Path;
     private String certificateFile2Path;
     private String ipa1EntitlementsPath;
@@ -63,6 +63,7 @@ public class AppdomeBuilderTest {
     private String ipa2MobileProvisioning3Path;
     private String ipaApp1Path;
     private String ipaApp2Path;
+    private String ipaApp3Path;
     private String keystoreFilePath;
 
 
@@ -77,8 +78,8 @@ public class AppdomeBuilderTest {
 
     private void setFiles() {
         this.aabAppPath = buildFilePath("aab_app.aab");
-        this.apkAppPath = buildFilePath("apk_app.apk");
-        this.AndroidMediaPlayerAppPath = buildFilePath("AndroidMediaPlayer_app.apk");
+        this.apkApp1Path = buildFilePath("apk_app_1.apk");
+        this.apkApp2Path = buildFilePath("apk_app_2.apk");
         this.certificateFile1Path = buildFilePath("certificate_file1.p12");
         this.certificateFile2Path = buildFilePath("certificate_file2.p12");
         this.ipa1EntitlementsPath = buildFilePath("ipa_1_entitlements.plist");
@@ -91,6 +92,7 @@ public class AppdomeBuilderTest {
         this.ipa2MobileProvisioning3Path = buildFilePath("ipa_2_mobile_provisioning_3.mobileprovision");
         this.ipaApp1Path = buildFilePath("ipa_app_1.ipa");
         this.ipaApp2Path = buildFilePath("ipa_app_2.ipa");
+        this.ipaApp3Path = buildFilePath("ipa_app_3.ipa");
         this.keystoreFilePath = buildFilePath("keystore_file.keystore");
 
 
@@ -121,7 +123,7 @@ public class AppdomeBuilderTest {
         privateSign.setGoogleSigning(false);
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(this.apkAppPath);
+        androidPlatform.setAppPath(this.apkApp1Path);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
@@ -143,7 +145,7 @@ public class AppdomeBuilderTest {
         autoDevSign.setGoogleSigning(true);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(this.AndroidMediaPlayerAppPath);
+        androidPlatform.setAppPath(this.apkApp2Path);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
@@ -242,6 +244,31 @@ public class AppdomeBuilderTest {
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.BROWSERSTACK.name());
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(false);
+
+        project.getBuildersList().add(appdomeBuilder);
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+        String consoleOutput = build.getLog();
+        System.out.println("build console output = " + consoleOutput);
+        System.out.println("build status = " + build.getResult().toString());
+        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+    }
+
+    @Test
+    public void testIosAutoDevPrivateSignBuild() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        List<StringWarp> provision_profiles = new ArrayList<>();
+        provision_profiles.add(new StringWarp(ipa1MobileProvisioningPath));
+        List<StringWarp> entitlements = new ArrayList<>();
+        entitlements.add(new StringWarp(this.ipa1EntitlementsPath));
+
+        // Create configuration objects
+        io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign
+                autoDevSign = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
+                AutoDevSign(provision_profiles,entitlements);
+        IosPlatform iosPlatform = new IosPlatform(autoDevSign);
+        iosPlatform.setFusionSetId(iosFusionSet);
+        iosPlatform.setAppPath(this.ipaApp3Path);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);

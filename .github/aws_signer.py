@@ -10,11 +10,12 @@ def main():
     bucket_name = "appdome-automation-vanilla-apps"
     objects = {
         'aab_app.aab': 'Thomas/PipelineFiles/Apps/FileFinder.aab',
-        'AndroidMediaPlayer_app.apk': 'Thomas/PipelineFiles/Apps/AndroidMediaPlayer.apk',
-        'apk_app.apk': 'Thomas/PipelineFiles/Apps/TimeCard.apk',
+        'apk_app_1.apk': 'Thomas/PipelineFiles/Apps/TimeCard.apk',
+        'apk_app_2.apk': 'Thomas/PipelineFiles/Apps/AndroidMediaPlayer.apk',
         'keystore_file.keystore': 'Thomas/PipelineFiles/appdome.keystore',
         'ipa_app_1.ipa': 'Thomas/PipelineFiles/Apps/FileFinder.ipa',
         'ipa_app_2.ipa': 'Thomas/PipelineFiles/Apps/Trends256-iOS16.ipa',
+        'ipa_app_3.ipa': 'Thomas/PipelineFiles/Apps/Trends256-ForWatchKit.ipa',
         'certificate_file1.p12': 'Thomas/PipelineFiles/AutomationCert.p12',
         'certificate_file2.p12': 'Thomas/PipelineFiles/meirtsvi75.p12',
         'ipa_1_mobile_provisioning.mobileprovision': 'Thomas/PipelineFiles/Automation.mobileprovision',
