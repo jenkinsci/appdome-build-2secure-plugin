@@ -2,6 +2,7 @@ import os
 import boto3
 import requests
 
+
 def main():
     aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -44,23 +45,18 @@ def main():
         )
         presigned_urls[key] = presigned_url
 
-    destination_folder = "downloaded_files"
+    destination_folder = "presigned_urls"
+    # Specify the path to the JSON file
+    json_file_path = destination_folder + 'presigned_urls.json'
 
     # Create destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
+    # Write the dictionary to the JSON file
+    with open(json_file_path, 'w') as json_file:
+        json.dump(presigned_urls, json_file)
 
-    for filename, url in presigned_urls.items():
-        download_file(filename,url, destination_folder)
+    print(f"The presigned URLs have been written to {json_file_path}")
 
-
-def download_file(filename,url, destination_folder):
-    response = requests.get(url)
-    if response.status_code == 200:
-        filepath = os.path.join(destination_folder, filename)
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
-    else:
-        print(f"Error downloading {url}: Status Code {response.status_code}")
 
 if __name__ == "__main__":
     main()
