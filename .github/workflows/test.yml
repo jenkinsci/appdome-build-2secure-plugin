@@ -39,6 +39,14 @@ jobs:
         with:
           name: presigned-urls
           path: presigned_urls
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
         with:
@@ -61,6 +69,14 @@ jobs:
         with:
           name: presigned-urls
           path: presigned_urls
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
       - name: Set up JDK 11 with Maven Cache
         uses: actions/setup-java@v2
         with:
@@ -70,4 +86,4 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for iOS
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild2 package
