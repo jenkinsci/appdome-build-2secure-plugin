@@ -44,7 +44,7 @@ public class AppdomeBuilderTest {
     public JenkinsRule jenkins = new JenkinsRule();
     private static final String PATH_TO_FILES = "downloaded_files/";
     final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
-    final String iosFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
+    final String iosFusionSet = "13ded0a0-7cad-11ee-b531-29c8c84aedcc";
     final String fingerprint = "8DF593C1B6EAA6EADADCE36831FE82B08CAC8D74";
     private String token;
     final String teamId = "46002310-7cab-11ee-bfde-d76f94716e7a";
