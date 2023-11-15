@@ -469,7 +469,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
     private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url) throws IOException, InterruptedException {
         ArgumentListBuilder args = new ArgumentListBuilder("curl", "-LO", url);
-        String fileName = url.substring(url.lastIndexOf('/') + 1);
+        String fileName = "downloaded_app";
         String outputPath = userFilesPath.getRemote() + File.separator + fileName;
         int exitCode = launcher.launch()
                 .cmds(args)
