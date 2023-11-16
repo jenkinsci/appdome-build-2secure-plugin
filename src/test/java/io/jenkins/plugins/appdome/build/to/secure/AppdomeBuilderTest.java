@@ -221,6 +221,7 @@ public class AppdomeBuilderTest {
 
         IosPlatform iosPlatform = new IosPlatform(autoSign);
         iosPlatform.setFusionSetId(iosFusionSet);
+        System.out.println("The IPA APP PATH 2 is " + this.ipaApp2Path);
         iosPlatform.setAppPath(this.ipaApp2Path);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
