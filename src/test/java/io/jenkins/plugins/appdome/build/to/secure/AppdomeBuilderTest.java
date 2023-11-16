@@ -77,7 +77,7 @@ public class AppdomeBuilderTest {
         this.keystoreAlias = System.getenv("KEYSTORE_ALIAS");
         this.keystoreKeyPass = System.getenv("KEYSTORE_KEY_PASS");
         this.keystorePassword = System.getenv("KEYSTORE_PASSWORD");
-        this.p12Password = System.getenv("P12_PASSWORD");
+        this.p12Password = System.getenv("PTWELVE_PASSWORD");
 
 
         this.
