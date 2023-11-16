@@ -182,7 +182,7 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(aabAppPath);
-        System.out.println("project.getSomeWorkspace : " + project.getSomeWorkspace().getRemote());
+        System.out.println("FIRST");
         System.out.println("project.getWorkspace : " + project.getWorkspace());
         System.out.println("project.getCustomWorkspace : " + project.getCustomWorkspace());
         FilePath second_output_file = new FilePath(project.getWorkspace(), "output/second_output.apk");
