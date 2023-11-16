@@ -139,11 +139,8 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        String consoleOutput = build.getLog();
-        System.out.println("build console output = " + consoleOutput);
-        System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        checkingResults(project);
+
     }
 
     @Test
@@ -161,11 +158,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        String consoleOutput = build.getLog();
-        System.out.println("build console output = " + consoleOutput);
-        System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        checkingResults(project);
     }
 
     @Test
@@ -184,36 +177,18 @@ public class AppdomeBuilderTest {
         androidPlatform.setAppPath(aabAppPath);
 
 
-        File directory = new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/");
-        directory.mkdirs();
-        String outputFile = directory.getPath() + File.separator + "second_output.apk";
+        File secondOutputLocation = new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/");
+        secondOutputLocation.mkdirs();
+        String secondOutputPath = secondOutputLocation.getPath() + File.separator + "second_output.apk";
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform,new StringWarp(outputFile));
+                androidPlatform,new StringWarp(secondOutputPath));
 
         appdomeBuilder.setBuildToTest(null);
 
 
         project.getBuildersList().add(appdomeBuilder);
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-
-        executeShellCommand("pwd");
-        executeShellCommand("ls");
-        String outputPath = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output";
-        executeShellCommand("cd " + outputPath + " && ls");
-
-        FilePath workspace = build.getWorkspace();
-
-        // Check that the file exists in the workspace
-        FilePath output_location = workspace.child("output");
-
-        assertTrue("output_location should exist", output_location.exists());
-        assertTrue("Second output should be downloaded", new File(outputFile).exists());
-
-        String consoleOutput = build.getLog();
-        System.out.println("build console output = " + consoleOutput);
-        System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        checkingResults(project);
     }
 
 
@@ -243,8 +218,17 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
+        checkingResults(project);
+    }
+
+    private void checkingResults(FreeStyleProject project) throws Exception {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         String consoleOutput = build.getLog();
+        FilePath workspace = build.getWorkspace();
+
+        // Check that the file exists in the workspace
+        FilePath output_location = workspace.child("output");
+        assertTrue("output_location should exist", output_location.exists());
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
@@ -270,11 +254,8 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        String consoleOutput = build.getLog();
-        System.out.println("build console output = " + consoleOutput);
-        System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        checkingResults(project);
+
     }
 
     @Test
@@ -295,29 +276,8 @@ public class AppdomeBuilderTest {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
 
         project.getBuildersList().add(appdomeBuilder);
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        String consoleOutput = build.getLog();
-        System.out.println("build console output = " + consoleOutput);
-        System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
-    }
+        checkingResults(project);
 
-    private void executeShellCommand(String command) {
-        System.out.println("Executing command: " + command);
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            process.waitFor();
-            reader.close();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }
