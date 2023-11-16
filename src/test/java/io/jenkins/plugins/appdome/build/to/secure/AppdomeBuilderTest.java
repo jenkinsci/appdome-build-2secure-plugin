@@ -194,10 +194,12 @@ public class AppdomeBuilderTest {
         FilePath workspace = build.getWorkspace();
         FilePath output_location = workspace.child("output");
 
-        assertNotNull("Workspace should exist", output_location);
+
         FilePath outputFile = output_location.child("second_output.apk");
-        assertTrue("Output APK file should exist", outputFile.exists());
+        System.out.println("output_location : " + output_location.getRemote() );
         System.out.println("outputFile : " + outputFile.getRemote() );
+        assertNotNull("Workspace should exist", output_location);
+        assertTrue("Output APK file should exist", outputFile.exists());
 
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
