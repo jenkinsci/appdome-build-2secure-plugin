@@ -217,12 +217,11 @@ public class AppdomeBuilderTest {
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
                 = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoSign(this.certificateFile2Path, Secret.fromString(this.p12Password), provision_profiles, entitlements);
+                AutoSign(this.certificateFile2Path, Secret.fromString("maverick28"), provision_profiles, entitlements);
 
         IosPlatform iosPlatform = new IosPlatform(autoSign);
         iosPlatform.setFusionSetId(iosFusionSet);
-        System.out.println("The IPA APP PATH 2 is " + this.ipaApp2Path);
-        iosPlatform.setAppPath(this.ipaApp3Path);
+        iosPlatform.setAppPath(this.ipaApp2Path);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
