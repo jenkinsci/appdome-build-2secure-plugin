@@ -217,7 +217,7 @@ public class AppdomeBuilderTest {
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
                 = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoSign(this.certificateFile2Path, Secret.fromString("maverick28"), provision_profiles, entitlements);
+                AutoSign(this.certificateFile2Path, Secret.fromString(this.p12Password), provision_profiles, entitlements);
 
         IosPlatform iosPlatform = new IosPlatform(autoSign);
         iosPlatform.setFusionSetId(iosFusionSet);
