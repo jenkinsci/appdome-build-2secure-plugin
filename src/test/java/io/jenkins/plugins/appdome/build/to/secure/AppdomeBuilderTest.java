@@ -124,15 +124,30 @@ public class AppdomeBuilderTest {
         jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
+
     @Test
-    public void testAndroidPrivateSignBuild() throws Exception {
+    public void apk_test() throws Exception {
+        testAndroidPrivateSignBuild(this.apkApp1Path);
+        testAndroidAutoSignBuild(this.apkApp1Path);
+        testAndroidAutoDevSignBuild(this.apkApp1Path);
+    }
+
+    @Test
+    public void aab_test() throws Exception {
+        testAndroidPrivateSignBuild(this.aabAppPath);
+        testAndroidAutoSignBuild(this.aabAppPath);
+        testAndroidAutoDevSignBuild(this.aabAppPath);
+    }
+
+    @Test
+    public void testAndroidPrivateSignBuild(String appPath) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         PrivateSign privateSign = new PrivateSign(fingerprint);
         privateSign.setGoogleSigning(false);
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(this.apkApp1Path);
+        androidPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
         appdomeBuilder.setBuildToTest(null);
@@ -144,14 +159,14 @@ public class AppdomeBuilderTest {
     }
 
     @Test
-    public void testAndroidAutoDevSignBuild() throws Exception {
+    public void testAndroidAutoDevSignBuild(String appPath) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
         autoDevSign.setGoogleSigning(true);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(this.apkApp2Path);
+        androidPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
@@ -162,7 +177,7 @@ public class AppdomeBuilderTest {
     }
 
     @Test
-    public void testAndroidAutoSignBuild() throws Exception {
+    public void testAndroidAutoSignBuild(String appPath) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
         // Create configuration objects
@@ -174,7 +189,7 @@ public class AppdomeBuilderTest {
 
         AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
         androidPlatform.setFusionSetId(androidFusionSet);
-        androidPlatform.setAppPath(aabAppPath);
+        androidPlatform.setAppPath(appPath);
 
 
         File secondOutputLocation = new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/");
