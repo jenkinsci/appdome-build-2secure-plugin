@@ -183,10 +183,9 @@ public class AppdomeBuilderTest {
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(aabAppPath);
 
-        System.out.println("HEKKI");
-        System.out.println(jenkins.jenkins.getRawWorkspaceDir().toString());
+        String secondOutput = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/second_output.apk";
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform, new StringWarp("/output/second_output.apk"));
+                androidPlatform,new StringWarp(secondOutput));
         executeShellCommand("pwd");
         executeShellCommand("ls");
         appdomeBuilder.setBuildToTest(null);
@@ -199,12 +198,8 @@ public class AppdomeBuilderTest {
         // Check that the file exists in the workspace
         FilePath output_location = workspace.child("output");
 
-
-        FilePath outputFile = output_location.child("second_output.apk");
-        System.out.println("output_location : " + output_location.getRemote() );
-        System.out.println("outputFile : " + outputFile.getRemote() );
-        assertNotNull("Workspace should exist", output_location);
-        assertTrue("Output APK file should exist", outputFile.exists());
+        assertTrue("output_location should exist", output_location.exists());
+        assertTrue("Second output should be downloaded", (new File(secondOutput).exists()));
 
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
