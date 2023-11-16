@@ -142,6 +142,23 @@ public class AppdomeBuilderTest {
         checkingResults(project);
 
     }
+    @Test
+    public void testAabAndroidAutoDevSignBuild() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        // Create configuration objects
+        AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
+        autoDevSign.setGoogleSigning(true);
+        AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
+        androidPlatform.setFusionSetId(androidFusionSet);
+        androidPlatform.setAppPath(this.aabAppPath);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
+        BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
+        appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setBuildWithLogs(false);
+
+        project.getBuildersList().add(appdomeBuilder);
+        checkingResults(project);
+    }
 
     @Test
     public void testAndroidAutoDevSignBuild() throws Exception {
