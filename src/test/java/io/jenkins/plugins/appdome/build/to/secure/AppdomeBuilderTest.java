@@ -190,13 +190,18 @@ public class AppdomeBuilderTest {
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform,new StringWarp(outputFile));
-        executeShellCommand("pwd");
-        executeShellCommand("ls");
+
         appdomeBuilder.setBuildToTest(null);
 
 
         project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+
+        executeShellCommand("pwd");
+        executeShellCommand("ls");
+        String outputPath = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output";
+        executeShellCommand("cd " + outputPath + " && ls");
+
         FilePath workspace = build.getWorkspace();
 
         // Check that the file exists in the workspace
@@ -298,7 +303,7 @@ public class AppdomeBuilderTest {
     }
 
     private void executeShellCommand(String command) {
-        System.out.println(command);
+        System.out.println("Executing command: " + command);
         try {
             Process process = Runtime.getRuntime().exec(command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -314,6 +319,5 @@ public class AppdomeBuilderTest {
             e.printStackTrace();
         }
     }
-
 
 }
