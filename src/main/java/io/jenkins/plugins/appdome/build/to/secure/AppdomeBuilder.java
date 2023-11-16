@@ -137,10 +137,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .collect(Collectors.toList());
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-        String debugMode = env.get("DEBUG_MODE");
+        String debugMode = env.get("ACTIONS_STEP_DEBUG");
         if ("true".equalsIgnoreCase(debugMode)) {
-            listener.getLogger().println("command : " + command);
+            listener.getLogger().println("[debug] command : " + command);
         }
+        listener.getLogger().println("command : " + command);
         listener.getLogger().println("Launching Appdome engine");
         return launcher.launch()
                 .cmds(filteredCommandList)
