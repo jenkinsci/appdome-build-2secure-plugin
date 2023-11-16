@@ -66,13 +66,22 @@ public class AppdomeBuilderTest {
     private String ipaApp3Path;
     private String keystoreFilePath;
 
+    private String keystoreAlias;
+    private String keystoreKeyPass;
+    private String keystorePassword;
+    private String p12Password;
 
     @Before
     public void setUp() throws Exception {
-        String appdomeApiToken = System.getenv("APPDOME_API_TOKEN");
-        System.out.println("my appdome api token " + appdomeApiToken);
-        this.token = appdomeApiToken;
-        setCommonEnvironmentVariables();
+        this.token = System.getenv("APPDOME_API_TOKEN");
+        this.keystoreAlias = System.getenv("KEYSTORE_ALIAS");
+        this.keystoreKeyPass = System.getenv("KEYSTORE_KEY_PASS");
+        this.keystorePassword = System.getenv("KEYSTORE_PASSWORD");
+        this.p12Password = System.getenv("P12_PASSWORD");
+
+
+        this.
+                setCommonEnvironmentVariables();
         setFiles();
     }
 
@@ -166,8 +175,8 @@ public class AppdomeBuilderTest {
 
         AutoSign autoSign =
                 new AutoSign(this.keystoreFilePath,
-                        Secret.fromString("appdome"), Secret.fromString("appdome"),
-                        Secret.fromString("appdome"), null);
+                        Secret.fromString(this.keystorePassword), Secret.fromString(this.keystoreAlias),
+                        Secret.fromString(keystoreKeyPass), null);
 
         AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
         androidPlatform.setFusionSetId(androidFusionSet);
@@ -208,7 +217,7 @@ public class AppdomeBuilderTest {
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
                 = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoSign(this.certificateFile2Path, Secret.fromString("maverick28"), provision_profiles, entitlements);
+                AutoSign(this.certificateFile2Path, Secret.fromString(this.p12Password), provision_profiles, entitlements);
 
         IosPlatform iosPlatform = new IosPlatform(autoSign);
         iosPlatform.setFusionSetId(iosFusionSet);
@@ -264,7 +273,7 @@ public class AppdomeBuilderTest {
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign
                 autoDevSign = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoDevSign(provision_profiles,entitlements);
+                AutoDevSign(provision_profiles, entitlements);
         IosPlatform iosPlatform = new IosPlatform(autoDevSign);
         iosPlatform.setFusionSetId(iosFusionSet);
         iosPlatform.setAppPath(this.ipaApp3Path);
@@ -277,6 +286,7 @@ public class AppdomeBuilderTest {
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
+
     private void executeShellCommand(String command) {
         System.out.println(command);
         try {

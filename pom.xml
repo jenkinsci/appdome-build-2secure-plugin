@@ -76,7 +76,6 @@
                 <threadCount>6</threadCount>
                 <environmentVariables>
                     <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
-                    <MY_ENV_VAR>${env.APPDOME_API_TOKEN}</MY_ENV_VAR>
                 </environmentVariables>
                 <rerunFailingTestsCount>1</rerunFailingTestsCount>
                 <printSummary>true</printSummary>
