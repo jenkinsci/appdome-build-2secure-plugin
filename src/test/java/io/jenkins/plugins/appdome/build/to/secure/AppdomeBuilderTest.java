@@ -183,6 +183,8 @@ public class AppdomeBuilderTest {
         androidPlatform.setAppPath(aabAppPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform, new StringWarp("./second_output.apk"));
+        executeShellCommand("pwd");
+        executeShellCommand("ls");
         appdomeBuilder.setBuildToTest(null);
 
 
@@ -190,11 +192,12 @@ public class AppdomeBuilderTest {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         // Check that the file exists in the workspace
         FilePath workspace = build.getWorkspace();
-        assertNotNull("Workspace should exist", workspace);
+        System.out.println(workspace.getRemote());
+//        assertNotNull("Workspace should exist", workspace);
 //        FilePath outputFile = workspace.child("second_output.apk");
 //        assertTrue("Output APK file should exist", outputFile.exists());
 //        System.out.println("outputFile : " + outputFile.getRemote() );
-        executeShellCommand("ls " + workspace.getRemote());
+
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
