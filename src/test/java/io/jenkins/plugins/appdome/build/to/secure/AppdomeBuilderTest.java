@@ -183,9 +183,13 @@ public class AppdomeBuilderTest {
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(aabAppPath);
 
-        String secondOutput = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/second_output.apk";
+
+        File directory = new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/output/");
+        directory.mkdirs();
+        String outputFile = directory.getPath() + File.separator + "second_output.apk";
+
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform,new StringWarp(secondOutput));
+                androidPlatform,new StringWarp(outputFile));
         executeShellCommand("pwd");
         executeShellCommand("ls");
         appdomeBuilder.setBuildToTest(null);
@@ -199,7 +203,7 @@ public class AppdomeBuilderTest {
         FilePath output_location = workspace.child("output");
 
         assertTrue("output_location should exist", output_location.exists());
-        assertTrue("Second output should be downloaded", (new File(secondOutput).exists()));
+        assertTrue("Second output should be downloaded", new File(outputFile).exists());
 
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
