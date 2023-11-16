@@ -182,10 +182,9 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(aabAppPath);
-        System.out.println("FIRST");
-        System.out.println("project.getWorkspace : " + project.getWorkspace());
-        System.out.println("project.getCustomWorkspace : " + project.getCustomWorkspace());
-        FilePath second_output_file = new FilePath(project.getWorkspace(), "output/second_output.apk");
+
+        System.out.println("HEKKI");
+        System.out.println(jenkins.jenkins.getRawWorkspaceDir().toString());
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform, new StringWarp("/output/second_output.apk"));
         executeShellCommand("pwd");
