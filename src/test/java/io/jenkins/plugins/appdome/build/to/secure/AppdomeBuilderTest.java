@@ -20,7 +20,6 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.m
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
-import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -174,40 +173,45 @@ public class AppdomeBuilderTest {
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
         // Create configuration objects
-        AutoSign autoSign = new AutoSign(this.keystoreFilePath,
-                Secret.fromString(this.keystorePassword), Secret.fromString(this.keystoreAlias),
-                Secret.fromString(keystoreKeyPass), null);
+
+        AutoSign autoSign =
+                new AutoSign(this.keystoreFilePath,
+                        Secret.fromString(this.keystorePassword), Secret.fromString(this.keystoreAlias),
+                        Secret.fromString(keystoreKeyPass), null);
 
         AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(aabAppPath);
-
+        System.out.println("project.getSomeWorkspace : " + project.getSomeWorkspace().getRemote());
+        System.out.println("project.getWorkspace : " + project.getWorkspace());
+        System.out.println("project.getCustomWorkspace : " + project.getCustomWorkspace());
         FilePath second_output_file = new FilePath(project.getWorkspace(), "output/second_output.apk");
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform, new StringWarp(second_output_file.getRemote()));
+                androidPlatform, new StringWarp("/output/second_output.apk"));
+        executeShellCommand("pwd");
+        executeShellCommand("ls");
         appdomeBuilder.setBuildToTest(null);
 
-        project.getBuildersList().add(appdomeBuilder);
 
-        // Trigger the build
+        project.getBuildersList().add(appdomeBuilder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         FilePath workspace = build.getWorkspace();
-        FilePath output_location = workspace.child("output");
-        FilePath outputFile = output_location.child("second_output.apk");
 
         // Check that the file exists in the workspace
+        FilePath output_location = workspace.child("output");
+
+
+        FilePath outputFile = output_location.child("second_output.apk");
+        System.out.println("output_location : " + output_location.getRemote() );
+        System.out.println("outputFile : " + outputFile.getRemote() );
         assertNotNull("Workspace should exist", output_location);
         assertTrue("Output APK file should exist", outputFile.exists());
 
-        // Log output for debugging
         String consoleOutput = build.getLog();
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
-
-        // Assert build success
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
     }
-
 
 
     @Test
