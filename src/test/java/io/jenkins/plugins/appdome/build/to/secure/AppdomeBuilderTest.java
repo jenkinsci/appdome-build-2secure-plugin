@@ -251,7 +251,7 @@ public class AppdomeBuilderTest {
 
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project,true);
+        checkingResults(project,false);
     }
 
 
