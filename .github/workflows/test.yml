@@ -28,9 +28,9 @@ jobs:
           name: presigned-urls
           path: presigned_urls
 
-  android_private_sign:
+  android_aab_private_sign:
     runs-on: ubuntu-latest
-    needs: Presign_URLs
+    needs: android_aab_auto_sign
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -68,7 +68,150 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidPrivateSignBuild package
+        env:
+          APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASS: ${{ secrets.KEYSTORE_KEY_PASS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  android_apk_private_sign:
+    runs-on: ubuntu-latest
+    needs: android_apk_auto_sign
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download Presigned URLs Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: presigned-urls
+          path: presigned_urls
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
+          cat presigned_urls.json
+
+      - name: Download files from presigned URLs
+        run: |
+          mkdir downloaded_files
+          jq -r 'to_entries|map("\(.key) \(.value|tostring)")|.[]' presigned_urls/presigned_urls.json | while read -r key url; do
+            echo "Downloading $key from $url"
+            curl -o "downloaded_files/${key}" "$url"
+          done
+          ls downloaded_files
+      - name: Set up JDK 11 with Maven Cache
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Download dependencies
+        run: mvn -B dependency:go-offline
+      - name: Build and test for Android
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidPrivateSignBuild package
+        env:
+          APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASS: ${{ secrets.KEYSTORE_KEY_PASS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+
+  android_apk_auto_dev_private_sign:
+    runs-on: ubuntu-latest
+    needs: android_apk_private_sign
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download Presigned URLs Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: presigned-urls
+          path: presigned_urls
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
+          cat presigned_urls.json
+
+      - name: Download files from presigned URLs
+        run: |
+          mkdir downloaded_files
+          jq -r 'to_entries|map("\(.key) \(.value|tostring)")|.[]' presigned_urls/presigned_urls.json | while read -r key url; do
+            echo "Downloading $key from $url"
+            curl -o "downloaded_files/${key}" "$url"
+          done
+          ls downloaded_files
+      - name: Set up JDK 11 with Maven Cache
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Download dependencies
+        run: mvn -B dependency:go-offline
+      - name: Build and test for Android
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoDevSignBuild package
+        env:
+          APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASS: ${{ secrets.KEYSTORE_KEY_PASS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+
+  android_aab_auto_dev_private_sign:
+    runs-on: ubuntu-latest
+    needs: android_aab_private_sign
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download Presigned URLs Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: presigned-urls
+          path: presigned_urls
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Print working directory and list files
+        run: |
+          pwd
+          ls -a
+          ls -a presigned_urls
+          cd presigned_urls
+          pwd
+          ls -a
+          cat presigned_urls.json
+
+      - name: Download files from presigned URLs
+        run: |
+          mkdir downloaded_files
+          jq -r 'to_entries|map("\(.key) \(.value|tostring)")|.[]' presigned_urls/presigned_urls.json | while read -r key url; do
+            echo "Downloading $key from $url"
+            curl -o "downloaded_files/${key}" "$url"
+          done
+          ls downloaded_files
+      - name: Set up JDK 11 with Maven Cache
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Download dependencies
+        run: mvn -B dependency:go-offline
+      - name: Build and test for Android
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoDevSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -77,7 +220,7 @@ jobs:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
 
 
-  android_auto_dev_private_sign:
+  android_aab_auto_sign:
     runs-on: ubuntu-latest
     needs: Presign_URLs
     steps:
@@ -117,7 +260,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidAutoDevSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -125,8 +268,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
 
-
-  android_auto_sign:
+  android_apk_auto_sign:
     runs-on: ubuntu-latest
     needs: Presign_URLs
     steps:
@@ -166,7 +308,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAndroidAutoSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -213,7 +355,7 @@ jobs:
           cache: 'maven'
       - name: Download dependencies
         run: mvn -B dependency:go-offline
-      - name: Build and test for Android
+      - name: Build and test for iOS
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
@@ -261,7 +403,7 @@ jobs:
           cache: 'maven'
       - name: Download dependencies
         run: mvn -B dependency:go-offline
-      - name: Build and test for Android
+      - name: Build and test for iOS
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
@@ -310,7 +452,7 @@ jobs:
           cache: 'maven'
       - name: Download dependencies
         run: mvn -B dependency:go-offline
-      - name: Build and test for Android
+      - name: Build and test for iOS
         run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosAutoDevPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
