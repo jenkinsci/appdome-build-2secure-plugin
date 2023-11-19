@@ -472,15 +472,27 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url) throws IOException, InterruptedException {
+        String fileName = getFileNameFromUrl(url);
+        FilePath outputPath = userFilesPath.child(fileName);
+        if (!userFilesPath.exists()) {
+            userFilesPath.mkdirs();
+        }
+        System.out.println("Output Path: " + outputPath.getRemote());
         ArgumentListBuilder args = new ArgumentListBuilder("curl", "-LO", url);
-        String fileName = url.substring(url.lastIndexOf('/') + 1);
-        String outputPath = userFilesPath.getRemote() + File.separator + fileName;
         launcher.launch()
                 .cmds(args)
                 .pwd(userFilesPath)
                 .quiet(true)
                 .join();
-        return outputPath;
+
+
+        return outputPath.getRemote();
+    }
+
+    private static String getFileNameFromUrl(String url) {
+        String decodedUrl = url.split("\\?")[0];
+        int lastSlashIndex = decodedUrl.lastIndexOf('/');
+        return decodedUrl.substring(lastSlashIndex + 1);
     }
 
     /**

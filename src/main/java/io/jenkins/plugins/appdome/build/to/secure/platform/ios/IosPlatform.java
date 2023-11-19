@@ -16,6 +16,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
+import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilder.isHttpUrl;
+
 public class IosPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
@@ -65,6 +67,8 @@ public class IosPlatform extends Platform {
                         "Please ensure that a valid path is provided for non-protected applications in the environment variable called 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
+            } else if (appPath != null && isHttpUrl(appPath)) {
+                return FormValidation.ok("Application remote url provided.");
             } else if (appPath != null && !(appPath.endsWith(".ipa"))) {
                 return FormValidation.error("iOS app - File extension is not allowed," +
                         " allowed extensions are: '.ipa'. Please rename your file or upload a different file.");
