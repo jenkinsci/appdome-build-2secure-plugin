@@ -139,7 +139,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
 
     }
 
@@ -158,7 +158,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
 
     }
 
@@ -177,7 +177,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
     }
     @Test
     public void testApkAndroidAutoSignBuild() throws Exception {
@@ -221,7 +221,7 @@ public class AppdomeBuilderTest {
 
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
     }
 
     @Test
@@ -251,7 +251,7 @@ public class AppdomeBuilderTest {
 
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,true);
     }
 
 
@@ -281,10 +281,10 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(true);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
     }
 
-    private void checkingResults(FreeStyleProject project) throws Exception {
+    private void checkingResults(FreeStyleProject project, boolean isSecondOutput) throws Exception {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         String consoleOutput = build.getLog();
         FilePath workspace = build.getWorkspace();
@@ -292,6 +292,10 @@ public class AppdomeBuilderTest {
         // Check that the file exists in the workspace
         FilePath output_location = workspace.child("output");
         assertTrue("output_location should exist", output_location.exists());
+        if (isSecondOutput)
+        {
+            jenkins.assertLogContains("Download Second Output",build);
+        }
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
         jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
@@ -317,7 +321,7 @@ public class AppdomeBuilderTest {
         appdomeBuilder.setBuildWithLogs(false);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
 
     }
 
@@ -339,7 +343,7 @@ public class AppdomeBuilderTest {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
 
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project);
+        checkingResults(project,false);
 
     }
 
