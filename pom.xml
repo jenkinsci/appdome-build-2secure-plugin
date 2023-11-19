@@ -29,7 +29,7 @@
         <revision>1.2.1</revision>
         <changelist>-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.version>2.361.4</jenkins.version>
+        <jenkins.version>2.387.3</jenkins.version>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     </properties>
 
@@ -37,13 +37,22 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.361.x</artifactId>
-                <version>1841.v7b_22c5218e1a</version>
+                <artifactId>bom-2.387.x</artifactId>
+                <version>2543.vfb_1a_5fb_9496d</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>credentials</artifactId>
+            <version>1139.veb_9579fca_33b_</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
     <repositories>
         <repository>
@@ -57,4 +66,24 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+                <parallel>methods</parallel>
+                <threadCount>6</threadCount>
+                <environmentVariables>
+                    <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
+                </environmentVariables>
+                <rerunFailingTestsCount>1</rerunFailingTestsCount>
+                <printSummary>true</printSummary>
+                <useFile>false</useFile>
+                <redirectTestOutputToFile>false</redirectTestOutputToFile>
+            </configuration>
+
+        </plugin>
+    </plugins>
+</build>
 </project>

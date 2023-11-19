@@ -10,7 +10,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
-import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign;
@@ -32,8 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
-import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.ANDROID;
-import static io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType.IOS;
 
 public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
@@ -108,7 +105,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .getLogger()
                     .println("Appdome engine updated successfully");
             try {
-
                 exitCode = ExecuteAppdomeApi(listener, appdomeWorkspace, workspace, env, launcher);
             } catch (Exception e) {
                 listener.error("Couldn't run Appdome Builder, read logs for more information. error:" + e);
@@ -133,16 +129,19 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         deleteAppdomeWorkspacce(listener, appdomeWorkspace);
     }
 
-    private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws IOException, InterruptedException {
+    private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws Exception {
         FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
         String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
-
-        List<String> filteredCommandList = Stream.of(command.split(" "))
-                .filter(s -> !s.isEmpty())
+        List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
+                .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
                 .collect(Collectors.toList());
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-
+        String debugMode = env.get("ACTIONS_STEP_DEBUG");
+        if ("true".equalsIgnoreCase(debugMode)) {
+            listener.getLogger().println("[debug] command : " + command);
+        }
+        listener.getLogger().println("command : " + command);
         listener.getLogger().println("Launching Appdome engine");
         return launcher.launch()
                 .cmds(filteredCommandList)
@@ -154,7 +153,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .join();
     }
 
-    private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+    private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
         //common:
         StringBuilder command = new StringBuilder("./appdome_api.sh");
         command.append(KEY_FLAG)
@@ -191,7 +190,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             throw new RuntimeException("App path was not provided.");
         } else {
             command.append(APP_FLAG)
-                    .append(appPath);
+                    .append("\"" + appPath + "\"");
         }
 
         if (this.buildWithLogs != null && this.buildWithLogs) {
@@ -222,14 +221,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append("Deobfuscation_Mapping_Files.zip");
 
         } else {
-            args = new ArgumentListBuilder("mkdir", "output");
-            launcher.launch()
-                    .cmds(args)
-                    .pwd(agentWorkspace)
-                    .quiet(true)
-                    .join();
+//            args = new ArgumentListBuilder("mkdir", "output");
+//            launcher.launch()
+//                    .cmds(args)
+//                    .pwd(agentWorkspace)
+//                    .quiet(true)
+//                    .join();
 
             output_location = agentWorkspace.child("output");
+            output_location.mkdirs();
 
             //Need to check it
             setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
@@ -277,7 +277,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (outputLocation.endsWith(".ipa") || outputLocation.endsWith(".aab") || outputLocation.endsWith(".apk") || outputLocation.endsWith(".sh")) {
             dotIndex = outputLocation.lastIndexOf('.');
             outputLocation = outputLocation.substring(0, dotIndex); // Remove the extension from outputLocation
-        } else if (!outputLocation.endsWith("/")){
+        } else if (!outputLocation.endsWith("/")) {
             outputName = new File(outputLocation).getName().toString();
             outputLocation = new File(outputLocation).getParent().toString();
         }
@@ -315,7 +315,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
 
-    private void ComposeIosCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws IOException, InterruptedException {
+    private void ComposeIosCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
         IosPlatform iosPlatform = ((IosPlatform) platform);
 
 
@@ -378,7 +378,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws IOException, InterruptedException {
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
         switch (androidPlatform.getCertificateMethod().getSignType()) {
@@ -446,7 +446,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return urlString.matches(regex);
     }
 
-    private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws IOException, InterruptedException {
+    private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
         ArgumentListBuilder args;
         FilePath userFilesPath;
         StringBuilder pathsToFilesOnAgent = new StringBuilder();
@@ -456,29 +456,43 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             if (!isHttpUrl(singlePath)) {
                 pathsToFilesOnAgent.append(singlePath).append(',');
             } else {
-                args = new ArgumentListBuilder("mkdir", "user_files");
-                launcher.launch()
-                        .cmds(args)
-                        .pwd(agentWorkspace)
-                        .quiet(true)
-                        .join();
-                userFilesPath = agentWorkspace.child("user_files");
-                pathsToFilesOnAgent.append(DownloadFiles(userFilesPath, launcher, singlePath)).append(',');
+
+                try {
+                    userFilesPath = agentWorkspace.child("user_files");
+                    userFilesPath.mkdirs();
+                    pathsToFilesOnAgent.append(DownloadFiles(userFilesPath, launcher, singlePath)).append(',');
+
+                } catch (IOException | InterruptedException e) {
+                    // Handle exceptions
+                    throw new RuntimeException("Could not create or process files in the 'user_files' folder", e);
+                }
             }
         }
         return pathsToFilesOnAgent.substring(0, pathsToFilesOnAgent.length() - 1).trim();
     }
 
     private static String DownloadFiles(FilePath userFilesPath, Launcher launcher, String url) throws IOException, InterruptedException {
+        String fileName = getFileNameFromUrl(url);
+        FilePath outputPath = userFilesPath.child(fileName);
+        if (!userFilesPath.exists()) {
+            userFilesPath.mkdirs();
+        }
+        System.out.println("Output Path: " + outputPath.getRemote());
         ArgumentListBuilder args = new ArgumentListBuilder("curl", "-LO", url);
-        String fileName = url.substring(url.lastIndexOf('/') + 1);
-        String outputPath = userFilesPath.getRemote() + File.separator + fileName;
         launcher.launch()
                 .cmds(args)
                 .pwd(userFilesPath)
                 .quiet(true)
                 .join();
-        return outputPath;
+
+
+        return outputPath.getRemote();
+    }
+
+    private static String getFileNameFromUrl(String url) {
+        String decodedUrl = url.split("\\?")[0];
+        int lastSlashIndex = decodedUrl.lastIndexOf('/');
+        return decodedUrl.substring(lastSlashIndex + 1);
     }
 
     /**

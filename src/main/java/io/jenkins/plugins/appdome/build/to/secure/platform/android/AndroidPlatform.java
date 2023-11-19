@@ -16,6 +16,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
+import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilder.isHttpUrl;
+
 public class AndroidPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
@@ -65,7 +67,10 @@ public class AndroidPlatform extends Platform {
                         " in the environment variable named 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
-            } else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
+            }else if (appPath != null && isHttpUrl(appPath)) {
+                return FormValidation.ok("Application remote url provided.");
+            }
+             else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
                 return FormValidation.error("Android app - File extension is not allowed," +
                         " allowed extensions are: '.apk' or '.aab'. Please rename your file or upload a different file.");
             }
