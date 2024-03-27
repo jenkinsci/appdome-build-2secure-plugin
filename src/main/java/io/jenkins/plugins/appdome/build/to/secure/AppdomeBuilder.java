@@ -221,21 +221,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append("Deobfuscation_Mapping_Files.zip");
 
         } else {
-//            args = new ArgumentListBuilder("mkdir", "output");
-//            launcher.launch()
-//                    .cmds(args)
-//                    .pwd(agentWorkspace)
-//                    .quiet(true)
-//                    .join();
+
 
             output_location = agentWorkspace.child("output");
             output_location.mkdirs();
 
-            //Need to check it
             setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
 
 
-            //Need to check it
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
 
