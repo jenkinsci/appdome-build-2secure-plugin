@@ -50,7 +50,7 @@ public class AutoGoogleSign extends AbstractDescribableImpl<AutoGoogleSign> {
     }
 
 
-    @Symbol("Android_AutoGoogleSign")
+    @Symbol({"Android_AutoGoogleSign", "SignOnAppdome_GoogleSign"})
     @Extension
     public static class DescriptorImpl extends Descriptor<AutoGoogleSign> {
 
