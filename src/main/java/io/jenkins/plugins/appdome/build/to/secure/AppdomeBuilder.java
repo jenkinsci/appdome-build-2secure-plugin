@@ -141,7 +141,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
         }
-        listener.getLogger().println("command : " + command);
         listener.getLogger().println("Launching Appdome engine");
         return launcher.launch()
                 .cmds(filteredCommandList)
@@ -208,7 +207,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
 
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
-            //Need to check it
             setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
 
             command.append(OUTPUT_FLAG)
