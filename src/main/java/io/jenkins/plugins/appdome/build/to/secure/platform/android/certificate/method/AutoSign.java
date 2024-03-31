@@ -82,7 +82,7 @@ public class AutoSign extends CertificateMethod {
         this.googleSignFingerPrint = googleSignFingerPrint;
     }
 
-    @Symbol("Android_AutoSign")
+    @Symbol({"Android_AutoSign", "Android_SignOnAppdome"})
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
 

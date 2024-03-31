@@ -63,7 +63,7 @@ public class AutoSign extends CertificateMethod {
     }
 
 
-    @Symbol("iOS_AutoSign")
+    @Symbol({"iOS_AutoSign", "iOS_SignOnAppdome"})
     @Extension
     public static final class DescriptorImpl extends CertificateMethodDescriptor {
 
