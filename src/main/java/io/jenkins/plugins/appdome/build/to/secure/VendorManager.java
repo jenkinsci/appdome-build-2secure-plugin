@@ -8,7 +8,12 @@ public class VendorManager {
         SAUCELABS,
         BITBAR,
         LAMBDATEST,
-        BROWSERSTACK
+        BROWSERSTACK,
+        PERFECTO,
+        FIREBASE,
+        KATALON,
+        TOSCA,
+        AWS_DEVICE_FARM
     }
 
     private static final VendorManager instance = new VendorManager();
