@@ -301,6 +301,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         if (fieldValue == null || fieldValue.isEmpty() && (env.get(envName) != null && !(Util.fixEmptyAndTrim(env.get(envName)) == null))) {
             return env.get(envName, fieldValue);
         }
+        if (filedName.equals("entitlements")) {
+            //Do nothing
+            return null;
+        }
         throw new InputMismatchException("The field '" + filedName + "' was not provided correctly. " +
                 "Kindly ensure that the environment variable '" + envName + "' has been correctly inserted.");
     }
@@ -366,6 +370,35 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             case NONE:
             default:
                 break;
+        }
+        System.out.println(command);
+        CleanCommand(command);
+        System.out.println(command);
+
+    }
+
+    /**
+     * Cleans the provided command represented by a StringBuilder by removing any flags immediately followed by "NULL".
+     * This method processes the command by checking each segment, and selectively modifying the original StringBuilder
+     * to exclude the unwanted flags and "NULL" values.
+     *
+     * @param command The StringBuilder containing the command string to be cleaned directly.
+     */
+    public static void CleanCommand(StringBuilder command)
+    {
+        String[] parts = command.toString().split(" ");
+        command.setLength(0); // Clear the original StringBuilder
+
+        for (int i = 0; i < parts.length; i++) {
+            if (i < parts.length - 1 && parts[i + 1].equals("NULL")) {
+                i++; // Skip the flag and the "NULL"
+            } else {
+                command.append(parts[i]).append(" ");
+            }
+        }
+
+        if (command.length() > 0) { // Remove the trailing space if present
+            command.setLength(command.length() - 1);
         }
     }
 
@@ -438,6 +471,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
+        if (paths == null) {
+            return "NULL";
+        }
         ArgumentListBuilder args;
         FilePath userFilesPath;
         StringBuilder pathsToFilesOnAgent = new StringBuilder();
