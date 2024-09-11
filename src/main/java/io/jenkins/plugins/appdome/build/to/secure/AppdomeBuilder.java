@@ -371,10 +371,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             default:
                 break;
         }
-        System.out.println(command);
-        CleanCommand(command);
-        System.out.println(command);
-
+        cleanCommand(command);
     }
 
     /**
@@ -384,7 +381,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
      *
      * @param command The StringBuilder containing the command string to be cleaned directly.
      */
-    public static void CleanCommand(StringBuilder command)
+    public static void cleanCommand(StringBuilder command)
     {
         String[] parts = command.toString().split(" ");
         command.setLength(0); // Clear the original StringBuilder
