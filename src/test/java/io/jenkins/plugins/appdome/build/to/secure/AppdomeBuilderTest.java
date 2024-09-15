@@ -112,11 +112,16 @@ public class AppdomeBuilderTest {
     @Test
     public void testApkAndroidPrivateSignBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
+        System.out.println("Android App Path: " + this.apkApp1Path);
+        System.out.println("Android Fusion Set ID: " + androidFusionSet);
+        System.out.println("Appdome Builder created with Team ID: " + teamId);
+        System.out.println("Fingerprint used: " + fingerprint);
         // Create configuration objects
         PrivateSign privateSign = new PrivateSign(fingerprint);
         privateSign.setGoogleSigning(false);
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
+
         androidPlatform.setAppPath(this.apkApp1Path);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 
