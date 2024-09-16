@@ -1,0 +1,46 @@
+name: Maven CI
+
+on: [ push, pull_request ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout code
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: 'maven'
+
+      - name: Set Environment Variables
+        run: |
+          echo "APPDOME_API_TOKEN=${{ secrets.APPDOME_API_TOKEN }}" >> $GITHUB_ENV
+          echo "KEYSTORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }}" >> $GITHUB_ENV
+          echo "KEYSTORE_KEY_PASS=${{ secrets.KEYSTORE_KEY_PASS }}" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "P12_PASSWORD=${{ secrets.P12_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Build and Test with Maven
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 \
+          -Dsurefire.printSummary=true -Dsurefire.useFile=false \
+          clean verify \
+          -Dtest=PipelineTest#workFlowTest \
+          -DteamId='default-teamId' \
+          -DsignOption='default-signOption' \
+          -DappFilePath='default-appFilePath' \
+          -DkeystoreFilePath='default-keystoreFilePath' \
+          -DcertificateFilePath='default-certificateFilePath' \
+          -DfusionSetId='default-fusionSetId' \
+          -DsignFingerprint='default-signFingerprint' \
+          -DentitlementsPath='default1,default2' \
+          -DmobileProvisionProfilesPath='default1,default2' \
+          -DbuildToTest='default-buildToTest' \
+          -DbuildWithLogs='false' \
+          -DgooglePlaySign='false' \
+          -DsecondOutput='default-secondOutput' \
+          package
