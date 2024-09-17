@@ -67,43 +67,68 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
-
-          # Download files using curl and store them locally
-          curl -o /tmp/app.apk "$appFilePath"
-          curl -o /tmp/keystore.jks "$keystoreFilePath"
-          [ "$certificateFilePath" != "None" ] && curl -o /tmp/certificate.pem "$certificateFilePath" || echo "Certificate file path is 'None', skipping download."
-
-          # Download entitlementsPath files
+          
+          # Download files using curl and store them locally, only if they are not "None"
+          if [ "$appFilePath" != "None" ]; then
+              curl -o /tmp/app.apk "$appFilePath"
+              echo "Downloaded app file to /tmp/app.apk"
+              appFilePath="/tmp/app.apk"
+          else
+              echo "App file path is 'None', skipping download."
+          fi
+          
+          if [ "$keystoreFilePath" != "None" ]; then
+              curl -o /tmp/keystore.jks "$keystoreFilePath"
+              echo "Downloaded keystore file to /tmp/keystore.jks"
+              keystoreFilePath="/tmp/keystore.jks"
+          else
+              echo "Keystore file path is 'None', skipping download."
+          fi
+          
+          if [ "$certificateFilePath" != "None" ]; then
+              curl -o /tmp/certificate.pem "$certificateFilePath"
+              echo "Downloaded certificate file to /tmp/certificate.pem"
+              certificateFilePath="/tmp/certificate.pem"
+          else
+              echo "Certificate file path is 'None', skipping download."
+          fi
+          
+          # Download entitlementsPath files, only if they are not "None"
           localEntitlementsPaths=""
-          IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
-          for url in "${entitlementUrls[@]}"; do
-              fileName="/tmp/$(basename $url)"
-              curl -o "$fileName" "$url"
-              if [ -z "$localEntitlementsPaths" ]; then
-                  localEntitlementsPaths="$fileName"
-              else
-                  localEntitlementsPaths="$localEntitlementsPaths,$fileName"
-              fi
-          done
-
-          # Download mobileProvisionProfilesPath files
+          if [ "$entitlementsPath" != "None" ]; then
+              IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
+              for url in "${entitlementUrls[@]}"; do
+                  fileName="/tmp/$(basename $url)"
+                  curl -o "$fileName" "$url"
+                  if [ -z "$localEntitlementsPaths" ]; then
+                      localEntitlementsPaths="$fileName"
+                  else
+                      localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+                  fi
+              done
+              echo "Downloaded entitlement files: $localEntitlementsPaths"
+          else
+              echo "Entitlements path is 'None', skipping download."
+          fi
+          
+          # Download mobileProvisionProfilesPath files, only if they are not "None"
           localMobileProvisionPaths=""
-          IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
-          for url in "${provisionUrls[@]}"; do
-              fileName="/tmp/$(basename $url)"
-              curl -o "$fileName" "$url"
-              if [ -z "$localMobileProvisionPaths" ]; then
-                  localMobileProvisionPaths="$fileName"
-              else
-                  localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
-              fi
-          done
-
-          # Update the paths to use local paths
-          appFilePath="/tmp/app.apk"
-          keystoreFilePath="/tmp/keystore.jks"
-          certificateFilePath="/tmp/certificate.pem"
-
+          if [ "$mobileProvisionProfilesPath" != "None" ]; then
+              IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
+              for url in "${provisionUrls[@]}"; do
+                  fileName="/tmp/$(basename $url)"
+                  curl -o "$fileName" "$url"
+                  if [ -z "$localMobileProvisionPaths" ]; then
+                      localMobileProvisionPaths="$fileName"
+                  else
+                      localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+                  fi
+              done
+              echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+          else
+              echo "Mobile provision profiles path is 'None', skipping download."
+          fi
+          
           # Output local paths to be used later
           echo "Local app file path: $appFilePath"
           echo "Local keystore file path: $keystoreFilePath"
