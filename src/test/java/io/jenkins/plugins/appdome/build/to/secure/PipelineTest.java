@@ -228,19 +228,19 @@ public class PipelineTest {
                 this.jenkinsPluginTest.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs);
+                        this.buildWithLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign);
+                        this.buildWithLogs, this.googlePlaySign, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign);
+                        this.buildWithLogs, this.googlePlaySign, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -261,17 +261,17 @@ public class PipelineTest {
                 logger.info("iOS: sign on appdome");
                 this.jenkinsPluginTest.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
-                        null, null, buildToTest, buildWithLogs);
+                        null, null, buildToTest, buildWithLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 this.jenkinsPluginTest.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, buildToTest, buildWithLogs);
+                        this.fusionSetId, null, buildToTest, buildWithLogs,logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 this.jenkinsPluginTest.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, null, buildToTest, buildWithLogs);
+                        this.fusionSetId, null, null, buildToTest, buildWithLogs,logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");

@@ -21,6 +21,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
@@ -334,8 +335,8 @@ public class AppdomeBuilderTest {
     public void testAndroidAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
                                          String keystorePassword, String keystoreAlias, String keystoreKeyPass,
                                          String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
-                                         Boolean buildWithLogs) throws Exception {
-
+                                         Boolean buildWithLogs, Logger logger) throws Exception {
+        logger.info("Inside testAndroidAutoSignBuild");
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         AutoGoogleSign autoGoogleSign = null;
@@ -369,7 +370,8 @@ public class AppdomeBuilderTest {
 
     public void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                             StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                            Boolean googleSigning) throws Exception {
+                                            Boolean googleSigning, Logger logger) throws Exception {
+        logger.info("Inside testAndroidPrivateSignBuild");
         FreeStyleProject project = jenkins.createFreeStyleProject();
         Boolean isSecondOutput = false;
         if (secondOutput != null) {
@@ -389,7 +391,8 @@ public class AppdomeBuilderTest {
 
     public void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                             StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                            Boolean googleSigning) throws Exception {
+                                            Boolean googleSigning, Logger logger) throws Exception {
+        logger.info("Inside testAndroidAutoDevSignBuild");
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         Boolean isSecondOutput = false;
@@ -413,7 +416,9 @@ public class AppdomeBuilderTest {
     public void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                      String certificateFilePath, String certificatePassword, List<StringWarp>
                                              provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
-                                     Boolean buildWithLogs) throws Exception {
+                                     Boolean buildWithLogs, Logger logger) throws Exception {
+        logger.info("Inside testIosAutoSignBuild");
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
@@ -434,7 +439,9 @@ public class AppdomeBuilderTest {
 
     public void testIosPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                         List<StringWarp> provisionProfiles, BuildToTest buildToTest,
-                                        Boolean buildWithLogs) throws Exception {
+                                        Boolean buildWithLogs, Logger logger) throws Exception {
+        logger.info("Inside testIosPrivateSignBuild");
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
         // Create configuration objects
@@ -456,7 +463,8 @@ public class AppdomeBuilderTest {
 
     public void testIosAutoDevPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                                List<StringWarp> provisionProfiles, List<StringWarp> entitlements,
-                                               BuildToTest buildToTest, Boolean buildWithLogs) throws Exception {
+                                               BuildToTest buildToTest, Boolean buildWithLogs, Logger logger) throws Exception {
+        logger.info("Inside testIosAutoDevPrivateSignBuild");
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
         // Create configuration objects
