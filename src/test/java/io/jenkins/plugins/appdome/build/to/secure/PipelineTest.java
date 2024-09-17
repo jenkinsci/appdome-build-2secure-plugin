@@ -45,12 +45,28 @@ public class PipelineTest {
 
     @Before
     public void setUp() throws Exception {
+        logger.info("Loading environment variables...");
         loadEnvironmentVariables();
-        loadSystemProperties();
-        configureGlobalProperties();
-        printAllValues();  // Call to print all values after setup
 
+        logger.info("Loading system properties...");
+        loadSystemProperties();
+
+        configureGlobalProperties();
+
+        logger.info("Printing all variables...");
+        printAllValues();  // Print all values after setup for visibility
+
+        logger.info("Checking if files exist:");
+        // Check if files exist for paths that are not empty
+        checkFileExists(this.appFilePath, "App File Path");
+        checkFileExists(this.keystoreFilePath, "Keystore File Path");
+        checkFileExists(this.certificateFilePath, "Certificate File Path");
+
+        // Check if files exist for each entitlement and provision profile path
+        checkFilesExist(this.entitlementsPath, "Entitlements Path");
+        checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
     }
+
 
     private void configureGlobalProperties() {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
@@ -97,14 +113,7 @@ public class PipelineTest {
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
 
-        // Check if files exist for paths that are not empty
-        checkFileExists(this.appFilePath, "App File Path");
-        checkFileExists(this.keystoreFilePath, "Keystore File Path");
-        checkFileExists(this.certificateFilePath, "Certificate File Path");
 
-        // Check if files exist for each entitlements and provision profile path
-        checkFilesExist(this.entitlementsPath, "Entitlements Path");
-        checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
     }
 
 

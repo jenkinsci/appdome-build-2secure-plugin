@@ -1,16 +1,16 @@
 name: Maven CI
 
 on:
-  push:
-    branches:
-      - main
-      - testing-enviorment
-    tags:
-      - v*
-  pull_request:
-    branches:
-      - main
-      - testing-enviorment
+#  push:
+#    branches:
+#      - main
+#      - testing-enviorment
+#    tags:
+#      - v*
+#  pull_request:
+#    branches:
+#      - main
+#      - testing-enviorment
   workflow_dispatch:
     inputs:
       branch:
