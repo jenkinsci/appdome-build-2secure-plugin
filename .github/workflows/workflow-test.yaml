@@ -90,6 +90,3 @@ jobs:
             -DsecondOutput="$secondOutput" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
-  shell: /usr/bin/bash -e {0}
-  env:
-    JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/11.0.24-8/x64
