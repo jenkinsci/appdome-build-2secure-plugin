@@ -117,6 +117,12 @@ public class PipelineTest {
     }
 
 
+    /**
+     * Checks if a file exists at the given path.
+     *
+     * @param filePath The path of the file to check.
+     * @param description Description of the file for logging purposes.
+     */
     private void checkFileExists(String filePath, String description) {
         if (filePath != null && !filePath.isEmpty()) {
             File file = new File(filePath);
@@ -129,11 +135,21 @@ public class PipelineTest {
         }
     }
 
-    private void checkFilesExist(List<StringWarp> paths, String description) {
-        if (paths != null && !paths.isEmpty()) {
-            for (StringWarp path : paths) {
-                checkFileExists(path.getItem(), description);
+
+    /**
+     * Checks if a list of files exist.
+     *
+     * @param filePaths List of file paths to check.
+     * @param description Description of the file type being checked (for logging purposes).
+     */
+    private void checkFilesExist(List<StringWarp> filePaths, String description) {
+        if (filePaths != null && !filePaths.isEmpty()) {
+            for (StringWarp filePathWarp : filePaths) {
+                String filePath = filePathWarp.getItem().toString();
+                checkFileExists(filePath, description);
             }
+        } else {
+            logger.info(description + " is empty or not provided.");
         }
     }
 
