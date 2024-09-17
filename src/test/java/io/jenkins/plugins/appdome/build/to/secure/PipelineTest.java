@@ -315,23 +315,29 @@ public class PipelineTest {
      */
     private void printAllValues() {
         logger.info("Current Test Configuration:");
-        logger.info("Token: " + this.token);
-        logger.info("Team ID: " + this.teamId);
-        logger.info("Sign Option: " + this.signOption);
-        logger.info("App File Path: " + this.appFilePath);
-        logger.info("Keystore File Path: " + this.keystoreFilePath);
-        logger.info("Keystore Alias: " + this.keystoreAlias);
-        logger.info("Keystore Key Pass: " + this.keystoreKeyPass);
-        logger.info("Keystore Password: " + this.keystorePassword);
-        logger.info("Certificate File Path: " + this.certificateFilePath);
-        logger.info("Certificate Password: " + this.certificatePassword);
-        logger.info("Fusion Set ID: " + this.fusionSetId);
-        logger.info("Sign Fingerprint: " + this.signFingerprint);
-        logger.info("Entitlements Path: " + this.entitlementsPath.stream().toString());
-        logger.info("Mobile Provision Profiles Path: " + this.mobileProvisionProfilesPath.stream().toString());
-        logger.info("Build To Test: " + this.buildToTest.getSelectedVendor());
-        logger.info("Build With Logs: " + this.buildWithLogs);
-        logger.info("Google Play Sign: " + this.googlePlaySign);
-        logger.info("Second Output: " + this.secondOutput);
+        logger.info("Token: " + (this.token != null ? this.token : "null"));
+        logger.info("Team ID: " + (this.teamId != null ? this.teamId : "null"));
+        logger.info("Sign Option: " + (this.signOption != null ? this.signOption : "null"));
+        logger.info("App File Path: " + (this.appFilePath != null ? this.appFilePath : "null"));
+        logger.info("Keystore File Path: " + (this.keystoreFilePath != null ? this.keystoreFilePath : "null"));
+        logger.info("Keystore Alias: " + (this.keystoreAlias != null ? this.keystoreAlias : "null"));
+        logger.info("Keystore Key Pass: " + (this.keystoreKeyPass != null ? this.keystoreKeyPass : "null"));
+        logger.info("Keystore Password: " + (this.keystorePassword != null ? this.keystorePassword : "null"));
+        logger.info("Certificate File Path: " + (this.certificateFilePath != null ? this.certificateFilePath : "null"));
+        logger.info("Certificate Password: " + (this.certificatePassword != null ? this.certificatePassword : "null"));
+        logger.info("Fusion Set ID: " + (this.fusionSetId != null ? this.fusionSetId : "null"));
+        logger.info("Sign Fingerprint: " + (this.signFingerprint != null ? this.signFingerprint : "null"));
+
+        // Safely handle potential nulls for lists and objects
+        logger.info("Entitlements Path: " + (this.entitlementsPath != null ?
+                this.entitlementsPath.stream().map(StringWarp::toString).toString() : "null"));
+        logger.info("Mobile Provision Profiles Path: " + (this.mobileProvisionProfilesPath != null ?
+                this.mobileProvisionProfilesPath.stream().map(StringWarp::toString).toString() : "null"));
+
+        logger.info("Build To Test: " + (this.buildToTest != null ? this.buildToTest.getSelectedVendor() : "null"));
+        logger.info("Build With Logs: " + (this.buildWithLogs != null ? this.buildWithLogs : "null"));
+        logger.info("Google Play Sign: " + (this.googlePlaySign != null ? this.googlePlaySign : "null"));
+        logger.info("Second Output: " + (this.secondOutput != null ? this.secondOutput : "null"));
     }
+
 }
