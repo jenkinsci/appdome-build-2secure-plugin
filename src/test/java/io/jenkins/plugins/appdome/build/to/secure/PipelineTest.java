@@ -231,9 +231,9 @@ public class PipelineTest {
         logger.info("Certificate Password: " + this.certificatePassword);
         logger.info("Fusion Set ID: " + this.fusionSetId);
         logger.info("Sign Fingerprint: " + this.signFingerprint);
-        logger.info("Entitlements Path: " + this.entitlementsPath);
-        logger.info("Mobile Provision Profiles Path: " + this.mobileProvisionProfilesPath);
-        logger.info("Build To Test: " + this.buildToTest);
+        logger.info("Entitlements Path: " + this.entitlementsPath.stream().toString());
+        logger.info("Mobile Provision Profiles Path: " + this.mobileProvisionProfilesPath.stream().toString());
+        logger.info("Build To Test: " + this.buildToTest.getSelectedVendor());
         logger.info("Build With Logs: " + this.buildWithLogs);
         logger.info("Google Play Sign: " + this.googlePlaySign);
         logger.info("Second Output: " + this.secondOutput);

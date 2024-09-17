@@ -55,6 +55,9 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
 
+      - name: Install jq
+        run: sudo apt-get install jq
+
       - name: Build and Test with Maven
         run: |
           # Extract parameters directly from the JSON input
