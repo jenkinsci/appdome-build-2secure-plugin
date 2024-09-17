@@ -87,6 +87,7 @@ on:
           - info
           - warning
           - debug
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -103,4 +104,21 @@ jobs:
           cache: 'maven'
 
       - name: Build and Test with Maven
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=PipelineTest#workFlowTest -DteamId='default-teamId' -DsignOption='default-signOption' -DappFilePath='default-appFilePath' -DkeystoreFilePath='default-keystoreFilePath' -DcertificateFilePath='default-certificateFilePath' -DfusionSetId='default-fusionSetId' -DsignFingerprint='default-signFingerprint' -DentitlementsPath='default1,default2' -DmobileProvisionProfilesPath='default1,default2' -DbuildToTest='default-buildToTest' -DbuildWithLogs='false' -DgooglePlaySign='false' -DsecondOutput='default-secondOutput' package
+        run: |
+          mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
+            -Dtest=PipelineTest#workFlowTest \
+            -DteamId='${{ github.event.inputs.teamId }}' \
+            -DsignOption='${{ github.event.inputs.signOption }}' \
+            -DappFilePath='${{ github.event.inputs.appFilePath }}' \
+            -DkeystoreFilePath='${{ github.event.inputs.keystoreFilePath }}' \
+            -DcertificateFilePath='${{ github.event.inputs.certificateFilePath }}' \
+            -DfusionSetId='${{ github.event.inputs.fusionSetId }}' \
+            -DsignFingerprint='${{ github.event.inputs.signFingerprint }}' \
+            -DentitlementsPath='${{ github.event.inputs.entitlementsPath }}' \
+            -DmobileProvisionProfilesPath='${{ github.event.inputs.mobileProvisionProfilesPath }}' \
+            -DbuildToTest='${{ github.event.inputs.buildToTest }}' \
+            -DbuildWithLogs='${{ github.event.inputs.buildWithLogs }}' \
+            -DgooglePlaySign='${{ github.event.inputs.googlePlaySign }}' \
+            -DsecondOutput='${{ github.event.inputs.secondOutput }}' \
+            -Denvironment='${{ github.event.inputs.environment }}' \
+            package
