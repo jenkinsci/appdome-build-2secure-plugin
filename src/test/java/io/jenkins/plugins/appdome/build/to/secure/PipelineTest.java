@@ -23,7 +23,6 @@ public class PipelineTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-    private AppdomeBuilderTest jenkinsPluginTest;
     private String token;
     private String teamId;
     private String signOption;
@@ -225,20 +224,20 @@ public class PipelineTest {
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("Android: sign on appdome");
-                this.jenkinsPluginTest.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                         this.buildWithLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
-                this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                         this.buildWithLogs, this.googlePlaySign, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
-                this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                         this.buildWithLogs, this.googlePlaySign, logger);
                 break;
@@ -259,18 +258,18 @@ public class PipelineTest {
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("iOS: sign on appdome");
-                this.jenkinsPluginTest.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
                         null, null, buildToTest, buildWithLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
-                this.jenkinsPluginTest.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, null, buildToTest, buildWithLogs,logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
-                this.jenkinsPluginTest.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, null, null, buildToTest, buildWithLogs,logger);
                 break;
             default:
