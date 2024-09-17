@@ -52,7 +52,7 @@ public class PipelineTest {
         loadSystemProperties();
 
         configureGlobalProperties();
-
+        checkAndSetNullValues();
         logger.info("Printing all variables...");
         printAllValues();  // Print all values after setup for visibility
 
@@ -65,6 +65,7 @@ public class PipelineTest {
         // Check if files exist for each entitlement and provision profile path
         checkFilesExist(this.entitlementsPath, "Entitlements Path");
         checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
+
     }
 
 
@@ -112,10 +113,39 @@ public class PipelineTest {
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
-        if (Objects.equals(this.buildToTest.getSelectedVendor().toLowerCase(), "none")) {
+
+
+    }
+
+
+    // Add the method to check all values and set to null if needed
+    public void checkAndSetNullValues() {
+        if (isNoneOrEmpty(this.token)) this.token = null;
+        if (isNoneOrEmpty(this.teamId)) this.teamId = null;
+        if (isNoneOrEmpty(this.signOption)) this.signOption = null;
+        if (isNoneOrEmpty(this.appFilePath)) this.appFilePath = null;
+        if (isNoneOrEmpty(this.keystoreFilePath)) this.keystoreFilePath = null;
+        if (isNoneOrEmpty(this.keystoreAlias)) this.keystoreAlias = null;
+        if (isNoneOrEmpty(this.keystoreKeyPass)) this.keystoreKeyPass = null;
+        if (isNoneOrEmpty(this.keystorePassword)) this.keystorePassword = null;
+        if (isNoneOrEmpty(this.certificateFilePath)) this.certificateFilePath = null;
+        if (isNoneOrEmpty(this.certificatePassword)) this.certificatePassword = null;
+        if (isNoneOrEmpty(this.fusionSetId)) this.fusionSetId = null;
+        if (isNoneOrEmpty(this.signFingerprint)) this.signFingerprint = null;
+        if (this.buildToTest != null && Objects.equals(this.buildToTest.getSelectedVendor().toLowerCase(), "none")) {
             this.buildToTest = null;
         }
+        if (this.entitlementsPath != null && this.entitlementsPath.isEmpty()) this.entitlementsPath = null;
+        if (this.mobileProvisionProfilesPath != null && this.mobileProvisionProfilesPath.isEmpty())
+            this.mobileProvisionProfilesPath = null;
+        if (this.buildWithLogs != null && !this.buildWithLogs) this.buildWithLogs = null;
+        if (this.googlePlaySign != null && !this.googlePlaySign) this.googlePlaySign = null;
+        if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
+    }
 
+    // Helper method to check if a string is "None" or empty
+    private boolean isNoneOrEmpty(String value) {
+        return value == null || value.trim().isEmpty() || value.equalsIgnoreCase("none");
     }
 
 
@@ -267,12 +297,12 @@ public class PipelineTest {
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, buildToTest, buildWithLogs,logger);
+                        this.fusionSetId, null, buildToTest, buildWithLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, null, buildToTest, buildWithLogs,logger);
+                        this.fusionSetId, null, null, buildToTest, buildWithLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
