@@ -47,6 +47,8 @@ public class PipelineTest {
         loadEnvironmentVariables();
         loadSystemProperties();
         configureGlobalProperties();
+        printAllValues();  // Call to print all values after setup
+
     }
 
     private void configureGlobalProperties() {
@@ -178,6 +180,7 @@ public class PipelineTest {
                     break;
                 default:
                     logger.info("That's not a valid sign option.");
+                    fail("Invalid sign option provided: " + this.signOption);
                     break;
             }
         }
@@ -209,5 +212,30 @@ public class PipelineTest {
                 logger.info("That's not a valid sign option.");
                 break;
         }
+    }
+
+    /**
+     * Prints all the values of the class properties for debugging.
+     */
+    private void printAllValues() {
+        logger.info("Current Test Configuration:");
+        logger.info("Token: " + this.token);
+        logger.info("Team ID: " + this.teamId);
+        logger.info("Sign Option: " + this.signOption);
+        logger.info("App File Path: " + this.appFilePath);
+        logger.info("Keystore File Path: " + this.keystoreFilePath);
+        logger.info("Keystore Alias: " + this.keystoreAlias);
+        logger.info("Keystore Key Pass: " + this.keystoreKeyPass);
+        logger.info("Keystore Password: " + this.keystorePassword);
+        logger.info("Certificate File Path: " + this.certificateFilePath);
+        logger.info("Certificate Password: " + this.certificatePassword);
+        logger.info("Fusion Set ID: " + this.fusionSetId);
+        logger.info("Sign Fingerprint: " + this.signFingerprint);
+        logger.info("Entitlements Path: " + this.entitlementsPath);
+        logger.info("Mobile Provision Profiles Path: " + this.mobileProvisionProfilesPath);
+        logger.info("Build To Test: " + this.buildToTest);
+        logger.info("Build With Logs: " + this.buildWithLogs);
+        logger.info("Google Play Sign: " + this.googlePlaySign);
+        logger.info("Second Output: " + this.secondOutput);
     }
 }
