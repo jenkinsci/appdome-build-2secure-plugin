@@ -1,4 +1,5 @@
 package io.jenkins.plugins.appdome.build.to.secure;
+
 import java.io.File;
 
 import hudson.EnvVars;
@@ -22,7 +23,7 @@ public class PipelineTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-    private AppdomeBuilderTest jenkinsPluginTest = new AppdomeBuilderTest(jenkins);
+    private AppdomeBuilderTest jenkinsPluginTest;
     private String token;
     private String teamId;
     private String signOption;
@@ -72,7 +73,7 @@ public class PipelineTest {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
         EnvVars env = prop.getEnvVars();
         env.put("APPDOME_SERVER_BASE_URL", "https://qamaster.dev.appdome.com");
-        this.jenkinsPluginTest.getJenkins().jenkins.getGlobalNodeProperties().add(prop);
+        this.jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
     /**
@@ -120,7 +121,7 @@ public class PipelineTest {
     /**
      * Checks if a file exists at the given path.
      *
-     * @param filePath The path of the file to check.
+     * @param filePath    The path of the file to check.
      * @param description Description of the file for logging purposes.
      */
     private void checkFileExists(String filePath, String description) {
@@ -139,7 +140,7 @@ public class PipelineTest {
     /**
      * Checks if a list of files exist.
      *
-     * @param filePaths List of file paths to check.
+     * @param filePaths   List of file paths to check.
      * @param description Description of the file type being checked (for logging purposes).
      */
     private void checkFilesExist(List<StringWarp> filePaths, String description) {
@@ -187,12 +188,15 @@ public class PipelineTest {
             if (platform == null) {
                 throw new IllegalArgumentException("App file path does not have a valid extension.");
             }
+            logger.info("The app extension is " + platform);
 
 
             // Platform-specific tests
             if (Objects.equals(platform, "ipa")) {
+                logger.info("Goes to method performIosTests");
                 performIosTests();
             } else {
+                logger.info("Goes to method performAndroidTests");
                 performAndroidTests(platform);
             }
 
@@ -210,28 +214,30 @@ public class PipelineTest {
      * @param extension The file extension to check for specific configurations.
      */
     private void performAndroidTests(String extension) throws Exception {
+        logger.info("performAndroidTests");
         StringWarp stringWarpSecondOutput = null;
         if (extension.equals("aab")) {
             if (secondOutput != null) {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
+            logger.info("signOption is " + signOption);
             switch (this.signOption) {
                 case "SIGN_ON_APPDOME":
                     logger.info("Android: sign on appdome");
-                    this.jenkinsPluginTest.testAndroidAutoSignBuild(this.token, this.teamId, this.appFilePath,
+                    this.jenkinsPluginTest.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                             this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                             this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                             this.buildWithLogs);
                     break;
                 case "PRIVATE_SIGNING":
                     logger.info("Android: private sign");
-                    this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.token, this.teamId, this.appFilePath,
+                    this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                             this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                             this.buildWithLogs, this.googlePlaySign);
                     break;
                 case "AUTO_DEV_SIGNING":
                     logger.info("Android: auto dev sign");
-                    this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.token, this.teamId, this.appFilePath,
+                    this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                             this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
                             this.buildWithLogs, this.googlePlaySign);
                     break;
@@ -248,21 +254,23 @@ public class PipelineTest {
      * Tests iOS-specific functionality. Asserts expected outcomes based on operations.
      */
     private void performIosTests() throws Exception {
+        logger.info("Inside performIosTests");
+        logger.info("signOption is " + signOption);
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("iOS: sign on appdome");
-                this.jenkinsPluginTest.testIosAutoSignBuild(this.token, this.teamId, this.appFilePath,
+                this.jenkinsPluginTest.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
                         null, null, buildToTest, buildWithLogs);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
-                this.jenkinsPluginTest.testIosPrivateSignBuild(this.token, this.teamId, this.appFilePath,
+                this.jenkinsPluginTest.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, null, buildToTest, buildWithLogs);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
-                this.jenkinsPluginTest.testIosAutoDevPrivateSignBuild(this.token, this.teamId, this.appFilePath,
+                this.jenkinsPluginTest.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, null, null, buildToTest, buildWithLogs);
                 break;
             default:

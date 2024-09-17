@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class AppdomeBuilderTest {
 
     @Rule
-    public JenkinsRule jenkins;
+    public JenkinsRule jenkins = new JenkinsRule();
     private static final String PATH_TO_FILES = "downloaded_files/";
     final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String iosFusionSet = "13ded0a0-7cad-11ee-b531-29c8c84aedcc";
@@ -56,19 +56,6 @@ public class AppdomeBuilderTest {
     private String keystoreKeyPass;
     private String keystorePassword;
     private String p12Password;
-
-    public AppdomeBuilderTest(JenkinsRule jenkins) {
-        if (jenkins != null) {
-            this.jenkins = jenkins;
-        } else {
-            this.jenkins = new JenkinsRule();
-        }
-    }
-
-    public JenkinsRule getJenkins()
-    {
-        return this.jenkins;
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -344,7 +331,7 @@ public class AppdomeBuilderTest {
 
     }
 
-    public void testAndroidAutoSignBuild(String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
+    public void testAndroidAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
                                          String keystorePassword, String keystoreAlias, String keystoreKeyPass,
                                          String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
                                          Boolean buildWithLogs) throws Exception {
@@ -380,7 +367,7 @@ public class AppdomeBuilderTest {
         checkingResults(project, isSecondOutput);
     }
 
-    public void testAndroidPrivateSignBuild(String token, String teamId, String appPath, String fusionSet, String fingerprint,
+    public void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                             StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
                                             Boolean googleSigning) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
@@ -400,7 +387,7 @@ public class AppdomeBuilderTest {
         checkingResults(project, isSecondOutput);
     }
 
-    public void testAndroidAutoDevSignBuild(String token, String teamId, String appPath, String fusionSet, String fingerprint,
+    public void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                             StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
                                             Boolean googleSigning) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
@@ -423,7 +410,7 @@ public class AppdomeBuilderTest {
     }
 
 
-    public void testIosAutoSignBuild(String token, String teamId, String appPath, String fusionSet,
+    public void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                      String certificateFilePath, String certificatePassword, List<StringWarp>
                                              provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
                                      Boolean buildWithLogs) throws Exception {
@@ -445,7 +432,7 @@ public class AppdomeBuilderTest {
     }
 
 
-    public void testIosPrivateSignBuild(String token, String teamId, String appPath, String fusionSet,
+    public void testIosPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                         List<StringWarp> provisionProfiles, BuildToTest buildToTest,
                                         Boolean buildWithLogs) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
@@ -467,7 +454,7 @@ public class AppdomeBuilderTest {
     }
 
 
-    public void testIosAutoDevPrivateSignBuild(String token, String teamId, String appPath, String fusionSet,
+    public void testIosAutoDevPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                                List<StringWarp> provisionProfiles, List<StringWarp> entitlements,
                                                BuildToTest buildToTest, Boolean buildWithLogs) throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
