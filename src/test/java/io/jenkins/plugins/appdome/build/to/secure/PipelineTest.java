@@ -220,32 +220,32 @@ public class PipelineTest {
             if (secondOutput != null) {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
-            logger.info("signOption is " + signOption);
-            switch (this.signOption) {
-                case "SIGN_ON_APPDOME":
-                    logger.info("Android: sign on appdome");
-                    this.jenkinsPluginTest.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                            this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
-                            this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                            this.buildWithLogs);
-                    break;
-                case "PRIVATE_SIGNING":
-                    logger.info("Android: private sign");
-                    this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                            this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                            this.buildWithLogs, this.googlePlaySign);
-                    break;
-                case "AUTO_DEV_SIGNING":
-                    logger.info("Android: auto dev sign");
-                    this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                            this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                            this.buildWithLogs, this.googlePlaySign);
-                    break;
-                default:
-                    logger.info("That's not a valid sign option.");
-                    fail("Invalid sign option provided: " + this.signOption);
-                    break;
-            }
+        }
+        logger.info("signOption is " + signOption);
+        switch (this.signOption) {
+            case "SIGN_ON_APPDOME":
+                logger.info("Android: sign on appdome");
+                this.jenkinsPluginTest.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                        this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
+                        this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
+                        this.buildWithLogs);
+                break;
+            case "PRIVATE_SIGNING":
+                logger.info("Android: private sign");
+                this.jenkinsPluginTest.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                        this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
+                        this.buildWithLogs, this.googlePlaySign);
+                break;
+            case "AUTO_DEV_SIGNING":
+                logger.info("Android: auto dev sign");
+                this.jenkinsPluginTest.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
+                        this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
+                        this.buildWithLogs, this.googlePlaySign);
+                break;
+            default:
+                logger.info("That's not a valid sign option.");
+                fail("Invalid sign option provided: " + this.signOption);
+                break;
         }
     }
 
