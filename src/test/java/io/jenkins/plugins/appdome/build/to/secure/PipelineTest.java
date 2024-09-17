@@ -255,6 +255,9 @@ public class PipelineTest {
     private void performIosTests() throws Exception {
         logger.info("Inside performIosTests");
         logger.info("signOption is " + signOption);
+        if (Objects.equals(this.buildToTest.getSelectedVendor(), "None")) {
+            this.buildToTest = null;
+        }
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("iOS: sign on appdome");
@@ -265,12 +268,12 @@ public class PipelineTest {
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, buildToTest, buildWithLogs,logger);
+                        this.fusionSetId, null, buildToTest, buildWithLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, null, buildToTest, buildWithLogs,logger);
+                        this.fusionSetId, null, null, buildToTest, buildWithLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
