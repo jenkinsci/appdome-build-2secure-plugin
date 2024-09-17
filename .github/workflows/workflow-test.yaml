@@ -55,22 +55,30 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
 
+      - name: Parse Build Parameters
+        id: parse_build_params
+        run: |
+          echo "Parsing build parameters..."
+          echo "buildParams=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.')" >> $GITHUB_ENV
+
       - name: Build and Test with Maven
         run: |
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
             -Dtest=PipelineTest#workFlowTest \
-            -DteamId='${{ github.event.inputs.teamId }}' \
-            -DsignOption='${{ github.event.inputs.signOption }}' \
-            -DappFilePath='${{ github.event.inputs.appFilePath }}' \
-            -DkeystoreFilePath='${{ github.event.inputs.keystoreFilePath }}' \
-            -DcertificateFilePath='${{ github.event.inputs.certificateFilePath }}' \
-            -DfusionSetId='${{ github.event.inputs.fusionSetId }}' \
-            -DsignFingerprint='${{ github.event.inputs.signFingerprint }}' \
-            -DentitlementsPath='${{ github.event.inputs.entitlementsPath }}' \
-            -DmobileProvisionProfilesPath='${{ github.event.inputs.mobileProvisionProfilesPath }}' \
-            -DbuildToTest='${{ github.event.inputs.buildToTest }}' \
-            -DbuildWithLogs='${{ github.event.inputs.buildWithLogs }}' \
-            -DgooglePlaySign='${{ github.event.inputs.googlePlaySign }}' \
-            -DsecondOutput='${{ github.event.inputs.secondOutput }}' \
+            -DteamId='$(echo ${{ env.buildParams }} | jq -r .teamId)' \
+            -DsignOption='$(echo ${{ env.buildParams }} | jq -r .signOption)' \
+            -DappFilePath='$(echo ${{ env.buildParams }} | jq -r .appFilePath)' \
+            -DkeystoreFilePath='$(echo ${{ env.buildParams }} | jq -r .keystoreFilePath)' \
+            -DcertificateFilePath='$(echo ${{ env.buildParams }} | jq -r .certificateFilePath)' \
+            -DfusionSetId='$(echo ${{ env.buildParams }} | jq -r .fusionSetId)' \
+            -DsignFingerprint='$(echo ${{ env.buildParams }} | jq -r .signFingerprint)' \
+            -DentitlementsPath='$(echo ${{ env.buildParams }} | jq -r .entitlementsPath)' \
+            -DmobileProvisionProfilesPath='$(echo ${{ env.buildParams }} | jq -r .mobileProvisionProfilesPath)' \
+            -DbuildToTest='$(echo ${{ env.buildParams }} | jq -r .buildToTest)' \
+            -DbuildWithLogs='$(echo ${{ env.buildParams }} | jq -r .buildWithLogs)' \
+            -DgooglePlaySign='$(echo ${{ env.buildParams }} | jq -r .googlePlaySign)' \
+            -DsecondOutput='$(echo ${{ env.buildParams }} | jq -r .secondOutput)' \
             -Denvironment='${{ github.event.inputs.environment }}' \
             package
+        env:
+          PATH: /usr/local/bin:$PATH
