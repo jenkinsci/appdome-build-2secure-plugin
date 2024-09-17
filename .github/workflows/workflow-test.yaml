@@ -26,58 +26,10 @@ on:
           - development
           - staging
           - production
-      teamId:
-        description: 'Team ID for the plugin'
+      buildParams:
+        description: 'Build parameters in JSON format'
         required: true
-        default: 'default-teamId'
-      signOption:
-        description: 'Signing option'
-        required: true
-        default: 'default-signOption'
-      appFilePath:
-        description: 'App file path'
-        required: true
-        default: 'default-appFilePath'
-      keystoreFilePath:
-        description: 'Keystore file path'
-        required: true
-        default: 'default-keystoreFilePath'
-      certificateFilePath:
-        description: 'Certificate file path'
-        required: true
-        default: 'default-certificateFilePath'
-      fusionSetId:
-        description: 'Fusion Set ID'
-        required: true
-        default: 'default-fusionSetId'
-      signFingerprint:
-        description: 'Sign Fingerprint'
-        required: true
-        default: 'default-signFingerprint'
-      entitlementsPath:
-        description: 'Entitlements path (comma-separated)'
-        required: true
-        default: 'default1,default2'
-      mobileProvisionProfilesPath:
-        description: 'Mobile provision profiles path (comma-separated)'
-        required: true
-        default: 'default1,default2'
-      buildToTest:
-        description: 'Build to test'
-        required: true
-        default: 'default-buildToTest'
-      buildWithLogs:
-        description: 'Build with logs (true/false)'
-        required: true
-        default: 'false'
-      googlePlaySign:
-        description: 'Google Play Signing (true/false)'
-        required: true
-        default: 'false'
-      secondOutput:
-        description: 'Second output'
-        required: true
-        default: 'default-secondOutput'
+        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput"}'
       logLevel:
         description: 'Set the log level for Maven builds'
         required: false
