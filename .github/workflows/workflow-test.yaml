@@ -58,18 +58,67 @@ jobs:
       - name: Install jq
         run: sudo apt-get install jq
 
+      - name: Download files from AWS S3 URLs
+        run: |
+          # Extract parameters from JSON input
+          buildParams='${{ github.event.inputs.buildParams }}'
+          appFilePath=$(echo $buildParams | jq -r '.appFilePath')
+          keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
+          certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
+          entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
+          mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
+
+          # Download files using curl and store them locally
+          curl -o /tmp/app.apk "$appFilePath"
+          curl -o /tmp/keystore.jks "$keystoreFilePath"
+          [ "$certificateFilePath" != "None" ] && curl -o /tmp/certificate.pem "$certificateFilePath" || echo "Certificate file path is 'None', skipping download."
+
+          # Download entitlementsPath files
+          localEntitlementsPaths=""
+          IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
+          for url in "${entitlementUrls[@]}"; do
+              fileName="/tmp/$(basename $url)"
+              curl -o "$fileName" "$url"
+              if [ -z "$localEntitlementsPaths" ]; then
+                  localEntitlementsPaths="$fileName"
+              else
+                  localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+              fi
+          done
+
+          # Download mobileProvisionProfilesPath files
+          localMobileProvisionPaths=""
+          IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
+          for url in "${provisionUrls[@]}"; do
+              fileName="/tmp/$(basename $url)"
+              curl -o "$fileName" "$url"
+              if [ -z "$localMobileProvisionPaths" ]; then
+                  localMobileProvisionPaths="$fileName"
+              else
+                  localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+              fi
+          done
+
+          # Update the paths to use local paths
+          appFilePath="/tmp/app.apk"
+          keystoreFilePath="/tmp/keystore.jks"
+          certificateFilePath="/tmp/certificate.pem"
+
+          # Output local paths to be used later
+          echo "Local app file path: $appFilePath"
+          echo "Local keystore file path: $keystoreFilePath"
+          echo "Local certificate file path: $certificateFilePath"
+          echo "Local entitlements paths: $localEntitlementsPaths"
+          echo "Local mobile provision profiles paths: $localMobileProvisionPaths"
+
+
       - name: Build and Test with Maven
         run: |
-          # Extract parameters directly from the JSON input
+          # Extract other parameters from JSON input
           teamId=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.teamId')
           signOption=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.signOption')
-          appFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.appFilePath')
-          keystoreFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.keystoreFilePath')
-          certificateFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.certificateFilePath')
           fusionSetId=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.fusionSetId')
           signFingerprint=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.signFingerprint')
-          entitlementsPath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.entitlementsPath')
-          mobileProvisionProfilesPath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.mobileProvisionProfilesPath')
           buildToTest=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.buildToTest')
           buildWithLogs=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.buildWithLogs')
           googlePlaySign=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.googlePlaySign')
@@ -84,13 +133,13 @@ jobs:
           echo "certificateFilePath: $certificateFilePath"
           echo "fusionSetId: $fusionSetId"
           echo "signFingerprint: $signFingerprint"
-          echo "entitlementsPath: $entitlementsPath"
-          echo "mobileProvisionProfilesPath: $mobileProvisionProfilesPath"
+          echo "entitlementsPath: $localEntitlementsPaths"
+          echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
           echo "buildToTest: $buildToTest"
           echo "buildWithLogs: $buildWithLogs"
           echo "googlePlaySign: $googlePlaySign"
           echo "secondOutput: $secondOutput"
-
+          
           # Run the Maven command with extracted parameters
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
             -Dtest=PipelineTest#workFlowTest \
@@ -101,8 +150,8 @@ jobs:
             -DcertificateFilePath="$certificateFilePath" \
             -DfusionSetId="$fusionSetId" \
             -DsignFingerprint="$signFingerprint" \
-            -DentitlementsPath="$entitlementsPath" \
-            -DmobileProvisionProfilesPath="$mobileProvisionProfilesPath" \
+            -DentitlementsPath="$localEntitlementsPaths" \
+            -DmobileProvisionProfilesPath="$localMobileProvisionPaths" \
             -DbuildToTest="$buildToTest" \
             -DbuildWithLogs="$buildWithLogs" \
             -DgooglePlaySign="$googlePlaySign" \
