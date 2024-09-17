@@ -55,30 +55,41 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
 
-      - name: Parse Build Parameters
-        id: parse_build_params
-        run: |
-          echo "Parsing build parameters..."
-          echo "buildParams=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.')" >> $GITHUB_ENV
-
       - name: Build and Test with Maven
         run: |
+          # Extract parameters directly from the JSON input
+          teamId=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.teamId')
+          signOption=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.signOption')
+          appFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.appFilePath')
+          keystoreFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.keystoreFilePath')
+          certificateFilePath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.certificateFilePath')
+          fusionSetId=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.fusionSetId')
+          signFingerprint=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.signFingerprint')
+          entitlementsPath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.entitlementsPath')
+          mobileProvisionProfilesPath=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.mobileProvisionProfilesPath')
+          buildToTest=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.buildToTest')
+          buildWithLogs=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.buildWithLogs')
+          googlePlaySign=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.googlePlaySign')
+          secondOutput=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.secondOutput')
+
+          # Run the Maven command with extracted parameters
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
             -Dtest=PipelineTest#workFlowTest \
-            -DteamId='$(echo ${{ env.buildParams }} | jq -r .teamId)' \
-            -DsignOption='$(echo ${{ env.buildParams }} | jq -r .signOption)' \
-            -DappFilePath='$(echo ${{ env.buildParams }} | jq -r .appFilePath)' \
-            -DkeystoreFilePath='$(echo ${{ env.buildParams }} | jq -r .keystoreFilePath)' \
-            -DcertificateFilePath='$(echo ${{ env.buildParams }} | jq -r .certificateFilePath)' \
-            -DfusionSetId='$(echo ${{ env.buildParams }} | jq -r .fusionSetId)' \
-            -DsignFingerprint='$(echo ${{ env.buildParams }} | jq -r .signFingerprint)' \
-            -DentitlementsPath='$(echo ${{ env.buildParams }} | jq -r .entitlementsPath)' \
-            -DmobileProvisionProfilesPath='$(echo ${{ env.buildParams }} | jq -r .mobileProvisionProfilesPath)' \
-            -DbuildToTest='$(echo ${{ env.buildParams }} | jq -r .buildToTest)' \
-            -DbuildWithLogs='$(echo ${{ env.buildParams }} | jq -r .buildWithLogs)' \
-            -DgooglePlaySign='$(echo ${{ env.buildParams }} | jq -r .googlePlaySign)' \
-            -DsecondOutput='$(echo ${{ env.buildParams }} | jq -r .secondOutput)' \
-            -Denvironment='${{ github.event.inputs.environment }}' \
+            -DteamId="$teamId" \
+            -DsignOption="$signOption" \
+            -DappFilePath="$appFilePath" \
+            -DkeystoreFilePath="$keystoreFilePath" \
+            -DcertificateFilePath="$certificateFilePath" \
+            -DfusionSetId="$fusionSetId" \
+            -DsignFingerprint="$signFingerprint" \
+            -DentitlementsPath="$entitlementsPath" \
+            -DmobileProvisionProfilesPath="$mobileProvisionProfilesPath" \
+            -DbuildToTest="$buildToTest" \
+            -DbuildWithLogs="$buildWithLogs" \
+            -DgooglePlaySign="$googlePlaySign" \
+            -DsecondOutput="$secondOutput" \
+            -Denvironment="${{ github.event.inputs.environment }}" \
             package
-        env:
-          PATH: /usr/local/bin:$PATH
+  shell: /usr/bin/bash -e {0}
+  env:
+    JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/11.0.24-8/x64
