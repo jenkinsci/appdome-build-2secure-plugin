@@ -59,88 +59,88 @@ jobs:
         run: sudo apt-get install jq
 
       - name: Download files from AWS S3 URLs
-        id: download_files  # Assign an ID to the step to use outputs
+        id: download_files
         run: |
-            # Extract parameters from JSON input
-            buildParams='${{ github.event.inputs.buildParams }}'
-            appFilePath=$(echo $buildParams | jq -r '.appFilePath')
-            keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
-            certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
-            entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
-            mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
-            
-            # Initialize local file paths
-            localAppFilePath=""
-            localKeystoreFilePath=""
-            localCertificateFilePath=""
-            localEntitlementsPaths=""
-            localMobileProvisionPaths=""
-            
-            # Download files using curl and store them locally, only if they are not "None"
-            if [ "$appFilePath" != "None" ]; then
-                curl -o /tmp/app.apk "$appFilePath"
-                echo "Downloaded app file to /tmp/app.apk"
-                localAppFilePath="/tmp/app.apk"
-            else
-                echo "App file path is 'None', skipping download."
-            fi
-            
-            if [ "$keystoreFilePath" != "None" ]; then
-                curl -o /tmp/keystore.jks "$keystoreFilePath"
-                echo "Downloaded keystore file to /tmp/keystore.jks"
-                localKeystoreFilePath="/tmp/keystore.jks"
-            else
-                echo "Keystore file path is 'None', skipping download."
-            fi
-            
-            if [ "$certificateFilePath" != "None" ]; then
-                curl -o /tmp/certificate.pem "$certificateFilePath"
-                echo "Downloaded certificate file to /tmp/certificate.pem"
-                localCertificateFilePath="/tmp/certificate.pem"
-            else
-                echo "Certificate file path is 'None', skipping download."
-            fi
-            
-            # Download entitlementsPath files, only if they are not "None"
-            if [ "$entitlementsPath" != "None" ]; then
-                IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
-                for url in "${entitlementUrls[@]}"; do
-                    fileName="/tmp/$(basename $url)"
-                    curl -o "$fileName" "$url"
-                    if [ -z "$localEntitlementsPaths" ]; then
-                        localEntitlementsPaths="$fileName"
-                    else
-                        localEntitlementsPaths="$localEntitlementsPaths,$fileName"
-                    fi
-                done
-                echo "Downloaded entitlement files: $localEntitlementsPaths"
-            else
-                echo "Entitlements path is 'None', skipping download."
-            fi
-            
-            # Download mobileProvisionProfilesPath files, only if they are not "None"
-            if [ "$mobileProvisionProfilesPath" != "None" ]; then
-                IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
-                for url in "${provisionUrls[@]}"; do
-                    fileName="/tmp/$(basename $url)"
-                    curl -o "$fileName" "$url"
-                    if [ -z "$localMobileProvisionPaths" ]; then
-                        localMobileProvisionPaths="$fileName"
-                    else
-                        localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
-                    fi
-                done
-                echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
-            else
-                echo "Mobile provision profiles path is 'None', skipping download."
-            fi
-            
-            # Set outputs for next steps
-            echo "::set-output name=appFilePath::$localAppFilePath"
-            echo "::set-output name=keystoreFilePath::$localKeystoreFilePath"
-            echo "::set-output name=certificateFilePath::$localCertificateFilePath"
-            echo "::set-output name=entitlementsPath::$localEntitlementsPaths"
-            echo "::set-output name=mobileProvisionProfilesPath::$localMobileProvisionPaths"
+          # Extract parameters from JSON input
+          buildParams='${{ github.event.inputs.buildParams }}'
+          appFilePath=$(echo $buildParams | jq -r '.appFilePath')
+          keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
+          certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
+          entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
+          mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
+          
+          # Initialize local file paths
+          localAppFilePath=""
+          localKeystoreFilePath=""
+          localCertificateFilePath=""
+          localEntitlementsPaths=""
+          localMobileProvisionPaths=""
+          
+          # Download files using curl and store them locally, only if they are not "None"
+          if [ "$appFilePath" != "None" ]; then
+              curl -o /tmp/app.apk "$appFilePath"
+              echo "Downloaded app file to /tmp/app.apk"
+              localAppFilePath="/tmp/app.apk"
+          else
+              echo "App file path is 'None', skipping download."
+          fi
+          
+          if [ "$keystoreFilePath" != "None" ]; then
+              curl -o /tmp/keystore.jks "$keystoreFilePath"
+              echo "Downloaded keystore file to /tmp/keystore.jks"
+              localKeystoreFilePath="/tmp/keystore.jks"
+          else
+              echo "Keystore file path is 'None', skipping download."
+          fi
+          
+          if [ "$certificateFilePath" != "None" ]; then
+              curl -o /tmp/certificate.pem "$certificateFilePath"
+              echo "Downloaded certificate file to /tmp/certificate.pem"
+              localCertificateFilePath="/tmp/certificate.pem"
+          else
+              echo "Certificate file path is 'None', skipping download."
+          fi
+          
+          # Download entitlementsPath files, only if they are not "None"
+          if [ "$entitlementsPath" != "None" ]; then
+              IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
+              for url in "${entitlementUrls[@]}"; do
+                  fileName="/tmp/$(basename $url)"
+                  curl -o "$fileName" "$url"
+                  if [ -z "$localEntitlementsPaths" ]; then
+                      localEntitlementsPaths="$fileName"
+                  else
+                      localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+                  fi
+              done
+              echo "Downloaded entitlement files: $localEntitlementsPaths"
+          else
+              echo "Entitlements path is 'None', skipping download."
+          fi
+          
+          # Download mobileProvisionProfilesPath files, only if they are not "None"
+          if [ "$mobileProvisionProfilesPath" != "None" ]; then
+              IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
+              for url in "${provisionUrls[@]}"; do
+                  fileName="/tmp/$(basename $url)"
+                  curl -o "$fileName" "$url"
+                  if [ -z "$localMobileProvisionPaths" ]; then
+                      localMobileProvisionPaths="$fileName"
+                  else
+                      localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+                  fi
+              done
+              echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+          else
+              echo "Mobile provision profiles path is 'None', skipping download."
+          fi
+          
+          # Set outputs for next steps using Environment Files
+          echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
+          echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+          echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+          echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+          echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
 
       - name: Build and Test with Maven
         run: |
@@ -156,11 +156,11 @@ jobs:
           secondOutput=$(echo $buildParams | jq -r '.secondOutput')
           
           # Use outputs from the previous step for file paths
-          appFilePath="${{ steps.download_files.outputs.appFilePath }}"
-          keystoreFilePath="${{ steps.download_files.outputs.keystoreFilePath }}"
-          certificateFilePath="${{ steps.download_files.outputs.certificateFilePath }}"
-          entitlementsPath="${{ steps.download_files.outputs.entitlementsPath }}"
-          mobileProvisionProfilesPath="${{ steps.download_files.outputs.mobileProvisionProfilesPath }}"
+          appFilePath="${{ env.appFilePath }}"
+          keystoreFilePath="${{ env.keystoreFilePath }}"
+          certificateFilePath="${{ env.certificateFilePath }}"
+          entitlementsPath="${{ env.entitlementsPath }}"
+          mobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}"
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
