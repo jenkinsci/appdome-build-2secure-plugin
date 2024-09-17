@@ -1,4 +1,5 @@
 package io.jenkins.plugins.appdome.build.to.secure;
+import java.io.File;
 
 import hudson.EnvVars;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
@@ -95,7 +96,38 @@ public class PipelineTest {
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
+
+        // Check if files exist for paths that are not empty
+        checkFileExists(this.appFilePath, "App File Path");
+        checkFileExists(this.keystoreFilePath, "Keystore File Path");
+        checkFileExists(this.certificateFilePath, "Certificate File Path");
+
+        // Check if files exist for each entitlements and provision profile path
+        checkFilesExist(this.entitlementsPath, "Entitlements Path");
+        checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
     }
+
+
+    private void checkFileExists(String filePath, String description) {
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                logger.severe(description + " does not exist: " + filePath);
+                throw new IllegalArgumentException(description + " does not exist: " + filePath);
+            } else {
+                logger.info(description + " exists: " + filePath);
+            }
+        }
+    }
+
+    private void checkFilesExist(List<StringWarp> paths, String description) {
+        if (paths != null && !paths.isEmpty()) {
+            for (StringWarp path : paths) {
+                checkFileExists(path.getItem(), description);
+            }
+        }
+    }
+
 
     /**
      * Converts a CSV string to a List of StringWarp objects.
