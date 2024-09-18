@@ -11,6 +11,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.m
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
@@ -99,7 +100,7 @@ public class Tests {
         logger.info("teamId = " + teamId);
         logger.info("androidPlatform =" + androidPlatform);
         logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
-        logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().toString());
+        logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().getSignType().toString());
         logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
@@ -109,6 +110,8 @@ public class Tests {
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
+
+
 
 
     public static void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
