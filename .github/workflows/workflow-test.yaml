@@ -153,7 +153,7 @@ jobs:
             echo "appFilePath: $localAppFilePath"
               echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
           
-            printenv | grep appFilePath
+            printenv
             
             echo "keystoreFilePath: $localKeystoreFilePath"
               echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
