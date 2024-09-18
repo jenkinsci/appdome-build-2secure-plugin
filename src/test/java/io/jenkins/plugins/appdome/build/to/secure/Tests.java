@@ -98,8 +98,16 @@ public class Tests {
         androidPlatform.setAppPath(appPath);
         logger.info("secret = " + Secret.fromString(token));
         logger.info("teamId = " + teamId);
+        logger.info("fingerprint  = " + fingerprint);
+        logger.info("secondOutput  = " + secondOutput.getItem());
+        logger.info("BuildToTest  = " + buildToTest.getSelectedVendor().toString());
+        logger.info("buildWithLogs  = " + buildWithLogs);
+        logger.info("buildWithLogs  = " + googleSigning);
+
         logger.info("androidPlatform =" + androidPlatform);
         logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
+
+
         logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().getSignType().toString());
         logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
 
@@ -110,8 +118,6 @@ public class Tests {
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
-
-
 
 
     public static void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
