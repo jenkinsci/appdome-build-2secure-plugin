@@ -39,6 +39,9 @@ on:
           - info
           - warning
           - debug
+      dispatch_id:
+        description: 'run_unique_id'
+        required: true
 
 jobs:
   build-and-test:
