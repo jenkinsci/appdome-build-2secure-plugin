@@ -89,11 +89,19 @@ public class Tests {
         if (secondOutput != null) {
             isSecondOutput = true;
         }
+
         AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
         autoDevSign.setGoogleSigning(googleSigning);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
+        logger.info("secret = " + Secret.fromString(token));
+        logger.info("teamId = " + teamId);
+        logger.info("androidPlatform =" + androidPlatform);
+        logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
+        logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().toString());
+        logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
+
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
