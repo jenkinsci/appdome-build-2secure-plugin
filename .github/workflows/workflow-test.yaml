@@ -151,6 +151,8 @@ jobs:
           echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
           echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
           echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
+          
+          echo $GITHUB_ENV
 
       - name: Parse Build Params
         id: parse_params
