@@ -522,13 +522,19 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                                         .android.certificate.method.AutoDevSign)
                                         androidPlatform.getCertificateMethod();
 
+                        // Check for null fingerprint
+                        String fingerprint = autoDev.getFingerprint();
+                        if (fingerprint == null || fingerprint.isEmpty()) {
+                            listener.error("[error] AUTODEV fingerprint is null or empty.");
+                            throw new Exception("AUTODEV fingerprint is required but not provided.");
+                        }
                         command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                                 .append(FINGERPRINT_FLAG)
-                                .append(autoDev.getFingerprint());
+                                .append(fingerprint);
 
                         listener.getLogger().println("[debug] AUTODEV signing command: " + command.toString());
 
-                        if (autoDev.getGoogleSigning()) {
+                        if (autoDev.getGoogleSigning() != null && autoDev.getGoogleSigning()) {
                             command.append(GOOGLE_PLAY_SIGN_FLAG);
                             listener.getLogger().println("[debug] Google Play signing enabled for AUTODEV sign.");
                         }
