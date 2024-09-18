@@ -91,6 +91,7 @@ jobs:
               curl -o /tmp/app.apk "$appFilePath"
               echo "Downloaded app file to /tmp/app.apk"
               localAppFilePath="/tmp/app.apk"
+              echo $localAppFilePath
           else
               echo "App file path is 'None', skipping download."
           fi
@@ -151,9 +152,13 @@ jobs:
             # Print and set each variable
             echo "appFilePath: $localAppFilePath"
               echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
+          
+            printenv | grep appFilePath
             
             echo "keystoreFilePath: $localKeystoreFilePath"
               echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+          
+            
             
             echo "certificateFilePath: $localCertificateFilePath"
               echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
