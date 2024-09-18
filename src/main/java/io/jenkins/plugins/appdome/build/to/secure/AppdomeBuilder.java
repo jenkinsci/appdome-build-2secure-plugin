@@ -176,7 +176,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
         switch (platform.getPlatformType()) {
             case ANDROID:
-                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
                 break;
             case IOS:
                 ComposeIosCommand(command, env, appdomeWorkspace, launcher);
