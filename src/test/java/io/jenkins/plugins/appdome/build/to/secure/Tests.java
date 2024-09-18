@@ -192,17 +192,17 @@ public class Tests {
         // Define the output location inside /tmp/output/
         FilePath output_location = new FilePath(new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/"));
 
-        // Print the path to /tmp/output/
+        // Print the path to "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/"
         System.out.println("Output Location Path: " + output_location.getRemote());
 
         // Check if the directory exists and print its contents
         if (output_location.exists()) {
-            System.out.println("/tmp/output/ exists. Listing files:");
+            System.out.println("\"/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/\" exists. Listing files:");
             for (FilePath file : output_location.list()) {
                 System.out.println(file.getName());
             }
         } else {
-            System.out.println("/tmp/output/ does not exist.");
+            System.out.println("\"/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/\" does not exist.");
         }
 
         // Further assertions and logging

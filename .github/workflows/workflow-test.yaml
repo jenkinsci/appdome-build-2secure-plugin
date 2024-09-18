@@ -244,10 +244,10 @@ jobs:
           KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
           P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
 
-        # Step to upload the downloaded files as artifacts
+      # Step to upload the downloaded files as artifacts (using wildcard)
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: downloaded-files-artifact # Name for the artifact
-          path: |
-            "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/"
+          name: downloaded-files-artifact
+          path: /home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/*
+          if-no-files-found: warn
