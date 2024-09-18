@@ -13,6 +13,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.m
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -176,10 +177,7 @@ public class Tests {
     private static void checkingResults(FreeStyleProject project, boolean isSecondOutput, JenkinsRule jenkins) throws Exception {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         String consoleOutput = build.getLog();
-        FilePath workspace = build.getWorkspace();
-
-        // Check that the file exists in the workspace
-        FilePath output_location = workspace.child("output");
+        FilePath output_location = new FilePath(new File("/tmp/output/"));
         assertTrue("output_location should exist", output_location.exists());
         if (isSecondOutput) {
             jenkins.assertLogContains("Download Second Output", build);
