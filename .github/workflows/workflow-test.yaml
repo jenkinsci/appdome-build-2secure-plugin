@@ -1,16 +1,16 @@
 name: Maven CI
 
 on:
-#  push:
-#    branches:
-#      - main
-#      - testing-enviorment
-#    tags:
-#      - v*
-#  pull_request:
-#    branches:
-#      - main
-#      - testing-enviorment
+  #  push:
+  #    branches:
+  #      - main
+  #      - testing-enviorment
+  #    tags:
+  #      - v*
+  #  pull_request:
+  #    branches:
+  #      - main
+  #      - testing-enviorment
   workflow_dispatch:
     inputs:
       branch:
@@ -154,18 +154,18 @@ jobs:
             echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
           
             printenv
-            
+          
             echo "keystoreFilePath: $localKeystoreFilePath"
             echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
           
-            
-            
+          
+          
             echo "certificateFilePath: $localCertificateFilePath"
             echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
-            
+          
             echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-            
+          
             echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
 
@@ -211,7 +211,7 @@ jobs:
         run: |
           echo "Printing all environment variables:"
           printenv | sort
-    
+
 
       - name: Build and Test with Maven
         run: |
@@ -262,5 +262,3 @@ jobs:
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
           KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
           P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
-
-
