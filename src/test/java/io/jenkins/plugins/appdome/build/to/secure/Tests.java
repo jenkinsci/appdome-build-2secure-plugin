@@ -99,7 +99,6 @@ public class Tests {
         logger.info("secret = " + Secret.fromString(token));
         logger.info("teamId = " + teamId);
         logger.info("fingerprint  = " + fingerprint);
-        logger.info("secondOutput  = " + secondOutput.getItem());
         logger.info("buildWithLogs  = " + buildWithLogs);
         logger.info("buildWithLogs  = " + googleSigning);
 
