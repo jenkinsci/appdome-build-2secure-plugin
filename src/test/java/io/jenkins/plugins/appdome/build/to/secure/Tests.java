@@ -184,6 +184,11 @@ public class Tests {
             throw new IllegalStateException("Workspace not found for the build");
         }
 
+        // Print the current working directory (pwd)
+        String currentWorkingDirectory = System.getProperty("user.dir");
+        System.out.println("Current Working Directory (pwd): " + currentWorkingDirectory);
+
+
         // Define the output location inside /tmp/output/
         FilePath output_location = new FilePath(new File("/tmp/output/"));
 
@@ -198,17 +203,6 @@ public class Tests {
             }
         } else {
             System.out.println("/tmp/output/ does not exist.");
-        }
-
-        // Now print the contents of the /tmp directory
-        FilePath tmpDir = new FilePath(new File("/tmp"));
-        if (tmpDir.exists()) {
-            System.out.println("/tmp directory exists. Listing files:");
-            for (FilePath file : tmpDir.list()) {
-                System.out.println(file.getName());
-            }
-        } else {
-            System.out.println("/tmp directory does not exist.");
         }
 
         // Further assertions and logging
