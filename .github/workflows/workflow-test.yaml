@@ -65,6 +65,7 @@ jobs:
         id: download_files
         run: |
           # Extract parameters from JSON input
+          echo '${{ github.event.inputs.dispatch_id }}'
           buildParams='${{ github.event.inputs.buildParams }}'
           appFilePath=$(echo $buildParams | jq -r '.appFilePath')
           keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
