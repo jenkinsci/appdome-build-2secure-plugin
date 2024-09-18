@@ -146,11 +146,23 @@ jobs:
           fi
           
           # Set outputs for next steps using Environment Files
-          echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
-          echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
-          echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
-          echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-          echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
+            echo "Setting environment variables for next steps..."
+          
+            # Print and set each variable
+            echo "appFilePath: $localAppFilePath"
+              echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
+            
+            echo "keystoreFilePath: $localKeystoreFilePath"
+              echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+            
+            echo "certificateFilePath: $localCertificateFilePath"
+              echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+            
+            echo "entitlementsPath: $localEntitlementsPaths"
+              echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+            
+            echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
+              echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
 
       - name: Parse Build Params
         id: parse_params
@@ -182,13 +194,14 @@ jobs:
           echo "KEYSTORE_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_PASSWORD')" >> $GITHUB_ENV
           echo "P12_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.P12_PASSWORD')" >> $GITHUB_ENV
 
-      - name: Print Env Variables
+      - name: Print Environment Variables after setting them
         run: |
-          echo ${{ env.APPDOME_API_TOKEN_PIPELINE }}
-          echo ${{ env.KEYSTORE_ALIAS_PIPELINE }}
-          echo ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
-          echo ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
-          echo ${{ env.P12_PASSWORD_PIPELINE }}
+          echo "appFilePath: ${{ env.appFilePath }}"
+          echo "keystoreFilePath: ${{ env.keystoreFilePath }}"
+          echo "certificateFilePath: ${{ env.certificateFilePath }}"
+          echo "entitlementsPath: ${{ env.entitlementsPath }}"
+          echo "mobileProvisionProfilesPath: ${{ env.mobileProvisionProfilesPath }}"
+
       - name: Print all GitHub environment variables
         run: |
           echo "Printing all environment variables:"
