@@ -52,7 +52,7 @@ public class Tests {
 
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
@@ -74,7 +74,7 @@ public class Tests {
         androidPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
@@ -97,7 +97,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
@@ -121,7 +121,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins, logger);
     }
@@ -144,7 +144,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins, logger);
 
@@ -167,7 +167,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/tmp/output/");
+        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins, logger);
 
@@ -190,7 +190,7 @@ public class Tests {
 
 
         // Define the output location inside /tmp/output/
-        FilePath output_location = new FilePath(new File("/tmp/output/"));
+        FilePath output_location = new FilePath(new File("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/"));
 
         // Print the path to /tmp/output/
         System.out.println("Output Location Path: " + output_location.getRemote());

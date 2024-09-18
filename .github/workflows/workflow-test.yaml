@@ -250,4 +250,4 @@ jobs:
         with:
           name: downloaded-files-artifact # Name for the artifact
           path: |
-            "/tmp/output/"
+            "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/"
