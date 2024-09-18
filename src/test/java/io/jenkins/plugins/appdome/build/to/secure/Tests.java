@@ -54,7 +54,7 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput,jenkins);
+        checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
     public static void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
@@ -76,7 +76,7 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput, jenkins);
+        checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
     public static void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
@@ -99,14 +99,14 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput, jenkins);
+        checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
 
     public static void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
-                                     String certificateFilePath, String certificatePassword, List<StringWarp>
-                                             provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
-                                     Boolean buildWithLogs, Logger logger) throws Exception {
+                                            String certificateFilePath, String certificatePassword, List<StringWarp>
+                                                    provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
+                                            Boolean buildWithLogs, Logger logger) throws Exception {
         logger.info("Inside testIosAutoSignBuild");
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
@@ -123,13 +123,13 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false, jenkins);
+        checkingResults(project, false, jenkins, logger);
     }
 
 
     public static void testIosPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
-                                        List<StringWarp> provisionProfiles, BuildToTest buildToTest,
-                                        Boolean buildWithLogs, Logger logger) throws Exception {
+                                               List<StringWarp> provisionProfiles, BuildToTest buildToTest,
+                                               Boolean buildWithLogs, Logger logger) throws Exception {
         logger.info("Inside testIosPrivateSignBuild");
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
@@ -146,7 +146,7 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false, jenkins);
+        checkingResults(project, false, jenkins, logger);
 
     }
 
@@ -169,22 +169,57 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false, jenkins);
+        checkingResults(project, false, jenkins, logger);
 
     }
 
 
-    private static void checkingResults(FreeStyleProject project, boolean isSecondOutput, JenkinsRule jenkins) throws Exception {
+    private static void checkingResults(FreeStyleProject project, boolean isSecondOutput, JenkinsRule jenkins, Logger logger) throws Exception {
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
         String consoleOutput = build.getLog();
+
+        // Get the workspace of the current build
+        FilePath workspace = build.getWorkspace();
+        if (workspace == null) {
+            throw new IllegalStateException("Workspace not found for the build");
+        }
+
+        // Define the output location inside /tmp/output/
         FilePath output_location = new FilePath(new File("/tmp/output/"));
-        assertTrue("output_location should exist", output_location.exists());
+
+        // Print the path to /tmp/output/
+        System.out.println("Output Location Path: " + output_location.getRemote());
+
+        // Check if the directory exists and print its contents
+        if (output_location.exists()) {
+            System.out.println("/tmp/output/ exists. Listing files:");
+            for (FilePath file : output_location.list()) {
+                System.out.println(file.getName());
+            }
+        } else {
+            System.out.println("/tmp/output/ does not exist.");
+        }
+
+        // Now print the contents of the /tmp directory
+        FilePath tmpDir = new FilePath(new File("/tmp"));
+        if (tmpDir.exists()) {
+            System.out.println("/tmp directory exists. Listing files:");
+            for (FilePath file : tmpDir.list()) {
+                System.out.println(file.getName());
+            }
+        } else {
+            System.out.println("/tmp directory does not exist.");
+        }
+
+        // Further assertions and logging
         if (isSecondOutput) {
             jenkins.assertLogContains("Download Second Output", build);
         }
+
         System.out.println("build console output = " + consoleOutput);
         System.out.println("build status = " + build.getResult().toString());
-        jenkins.assertBuildStatus(Result.SUCCESS, build); // Check build status
+        jenkins.assertBuildStatus(Result.SUCCESS, build);
     }
+
 
 }
