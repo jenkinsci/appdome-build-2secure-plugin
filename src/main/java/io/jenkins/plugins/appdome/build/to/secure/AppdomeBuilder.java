@@ -158,103 +158,137 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
-        //common:
-        StringBuilder command = new StringBuilder("./appdome_api.sh");
-        command.append(KEY_FLAG)
-                .append(this.token).
-                append(FUSION_SET_ID_FLAG)
-                .append(platform.getFusionSetId());
+        StringBuilder command = new StringBuilder();
+        try {
+            // Debug the start of command composition
+            listener.getLogger().println("[debug] Starting to compose Appdome command...");
 
-        //concatenate the team id if it is not empty:
-        if (!(Util.fixEmptyAndTrim(this.teamId) == null)) {
-            command.append(TEAM_ID_FLAG)
-                    .append(this.teamId);
-        }
+            //common:
+            command.append("./appdome_api.sh")
+                    .append(KEY_FLAG)
+                    .append(this.token)
+                    .append(FUSION_SET_ID_FLAG)
+                    .append(platform.getFusionSetId());
 
-        String appPath = "";
-        //concatenate the app path if it is not empty:
-        if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
-            appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
-        } else {
-            appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
-                    appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
-        }
-        switch (platform.getPlatformType()) {
-            case ANDROID:
-                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
-                break;
-            case IOS:
-                ComposeIosCommand(command, env, appdomeWorkspace, launcher);
-                break;
-            default:
-                return null;
-        }
+            listener.getLogger().println("[debug] Base command: " + command.toString());
 
-        if (appPath.isEmpty()) {
-            throw new RuntimeException("App path was not provided.");
-        } else {
-            command.append(APP_FLAG)
-                    .append("\"" + appPath + "\"");
-        }
+            //concatenate the team id if it is not empty:
+            if (!(Util.fixEmptyAndTrim(this.teamId) == null)) {
+                command.append(TEAM_ID_FLAG)
+                        .append(this.teamId);
+                listener.getLogger().println("[debug] Team ID added to command: " + this.teamId);
+            }
 
-        if (this.buildWithLogs != null && this.buildWithLogs) {
-            command.append(BUILD_WITH_LOGS);
-        }
+            String appPath = "";
+            try {
+                //concatenate the app path if it is not empty:
+                if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
+                    appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
+                } else {
+                    appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
+                            appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
+                }
 
-        if (this.buildToTest != null) {
-            command.append(BUILD_TO_TEST)
-                    .append(this.buildToTest.getSelectedVendor());
-        }
+                listener.getLogger().println("[debug] App path resolved: " + appPath);
 
-        String basename = new File(appPath).getName();
-        ArgumentListBuilder args;
-        FilePath output_location;
+            } catch (Exception e) {
+                listener.error("[error] Failed to resolve app path: " + e.getMessage());
+                throw e;
+            }
 
+            // Determine platform-specific command
+            switch (platform.getPlatformType()) {
+                case ANDROID:
+                    listener.getLogger().println("[debug] Composing command for Android...");
+                    ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                    break;
+                case IOS:
+                    listener.getLogger().println("[debug] Composing command for iOS...");
+                    ComposeIosCommand(command, env, appdomeWorkspace, launcher);
+                    break;
+                default:
+                    listener.error("[error] Unsupported platform type: " + platform.getPlatformType());
+                    return null;
+            }
 
-        if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
-            setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
+            // Check if appPath is empty and throw error if necessary
+            if (appPath.isEmpty()) {
+                listener.error("[error] App path is empty.");
+                throw new RuntimeException("App path was not provided.");
+            } else {
+                command.append(APP_FLAG)
+                        .append("\"").append(appPath).append("\"");
+                listener.getLogger().println("[debug] Final app path added to command: " + appPath);
+            }
 
-            command.append(OUTPUT_FLAG)
-                    .append(getOutputLocation());
-            command.append(CERTIFIED_SECURE_FLAG)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
-                    .append("Certified_Secure.pdf");
-            command.append(DEOBFUSCATION_OUTPUT)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
-                    .append("Deobfuscation_Mapping_Files.zip");
+            // Check for optional flags
+            if (this.buildWithLogs != null && this.buildWithLogs) {
+                command.append(BUILD_WITH_LOGS);
+                listener.getLogger().println("[debug] Added build with logs flag.");
+            }
 
-        } else {
+            if (this.buildToTest != null) {
+                command.append(BUILD_TO_TEST)
+                        .append(this.buildToTest.getSelectedVendor());
+                listener.getLogger().println("[debug] Added build to test with vendor: " + this.buildToTest.getSelectedVendor());
+            }
 
+            // Handle output locations
+            String basename = new File(appPath).getName();
+            FilePath output_location;
 
-            output_location = agentWorkspace.child("output");
-            output_location.mkdirs();
+            if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
+                setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
 
-            setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
+                command.append(OUTPUT_FLAG)
+                        .append(getOutputLocation());
+                command.append(CERTIFIED_SECURE_FLAG)
+                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append("Certified_Secure.pdf");
+                command.append(DEOBFUSCATION_OUTPUT)
+                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append("Deobfuscation_Mapping_Files.zip");
 
+                listener.getLogger().println("[debug] Output location (provided): " + getOutputLocation());
+            } else {
+                output_location = agentWorkspace.child("output");
+                output_location.mkdirs();
 
-            command.append(OUTPUT_FLAG)
-                    .append(getOutputLocation());
+                setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
 
-            command.append(CERTIFIED_SECURE_FLAG)
-                    .append(output_location.getRemote())
-                    .append(File.separator)
-                    .append("Certified_Secure.pdf");
+                command.append(OUTPUT_FLAG)
+                        .append(getOutputLocation());
+                command.append(CERTIFIED_SECURE_FLAG)
+                        .append(output_location.getRemote())
+                        .append(File.separator)
+                        .append("Certified_Secure.pdf");
+                command.append(DEOBFUSCATION_OUTPUT)
+                        .append(output_location.getRemote())
+                        .append(File.separator)
+                        .append("Deobfuscation_Mapping_Files.zip");
 
-            command.append(DEOBFUSCATION_OUTPUT)
-                    .append(output_location.getRemote())
-                    .append(File.separator)
-                    .append("Deobfuscation_Mapping_Files.zip");
-        }
+                listener.getLogger().println("[debug] Output location (default): " + getOutputLocation());
+            }
 
-        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
-            String secondOutputVar = this.getSecondOutput();
-            secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
-            command.append(SECOND_OUTPUT).append(secondOutputVar);
+            // Handle second output
+            if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
+                String secondOutputVar = this.getSecondOutput();
+                secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
+                command.append(SECOND_OUTPUT).append(secondOutputVar);
+                listener.getLogger().println("[debug] Second output added: " + secondOutputVar);
+            }
 
+            // Final debug of command before returning
+            listener.getLogger().println("[debug] Final composed command: " + command.toString());
+
+        } catch (Exception e) {
+            listener.error("[error] Failed to compose Appdome command: " + e.getMessage());
+            throw e;
         }
 
         return command.toString();
     }
+
 
     private String checkExtension(String outputLocation, String basename, Boolean isThisAutoDevPrivate, Boolean isThisSecondOutput) {
         int dotIndex = basename.lastIndexOf('.');
