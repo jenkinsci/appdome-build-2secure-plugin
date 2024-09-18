@@ -151,23 +151,23 @@ jobs:
           
             # Print and set each variable
             echo "appFilePath: $localAppFilePath"
-              echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
+            echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
           
             printenv
             
             echo "keystoreFilePath: $localKeystoreFilePath"
-              echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+            echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
           
             
             
             echo "certificateFilePath: $localCertificateFilePath"
-              echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+            echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
             
             echo "entitlementsPath: $localEntitlementsPaths"
-              echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+            echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
             
             echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
-              echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
+            echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
 
       - name: Parse Build Params
         id: parse_params
