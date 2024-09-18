@@ -195,6 +195,22 @@ jobs:
           
       - name: Build and Test with Maven
         run: |
+          echo "Using the following parameters:"
+          echo "Team ID: $teamId"
+          echo "Sign Option: $signOption"
+          echo "App File Path: $appFilePath"
+          echo "Keystore File Path: $keystoreFilePath"
+          echo "Certificate File Path: $certificateFilePath"
+          echo "Fusion Set ID: $fusionSetId"
+          echo "Sign Fingerprint: $signFingerprint"
+          echo "Entitlements Path: $entitlementsPath"
+          echo "Mobile Provision Profiles Path: $mobileProvisionProfilesPath"
+          echo "Build to Test: $buildToTest"
+          echo "Build with Logs: $buildWithLogs"
+          echo "Google Play Sign: $googlePlaySign"
+          echo "Second Output: $secondOutput"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
             -Dtest=PipelineTest#workFlowTest \
             -DteamId="$teamId" \
@@ -218,3 +234,4 @@ jobs:
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
           KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
           P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
+
