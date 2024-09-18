@@ -42,9 +42,11 @@ on:
       dispatch_id:
         description: 'run_unique_id'
         required: true
+        type: string
 
 jobs:
   build-and-test:
+    name: build_and_test_'${{ github.event.inputs.dispatch_id }}'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -65,7 +67,6 @@ jobs:
         id: download_files
         run: |
           # Extract parameters from JSON input
-          echo '${{ github.event.inputs.dispatch_id }}'
           buildParams='${{ github.event.inputs.buildParams }}'
           appFilePath=$(echo $buildParams | jq -r '.appFilePath')
           keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
