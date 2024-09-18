@@ -46,7 +46,7 @@ on:
 
 jobs:
   build-and-test:
-    name: build_and_test_'${{ github.event.inputs.dispatch_id }}'
+    name: run_${{ github.event.inputs.dispatch_id }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
