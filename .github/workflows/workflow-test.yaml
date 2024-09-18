@@ -86,10 +86,6 @@ jobs:
           echo "KEYSTORE_PASSWORD_PIPELINE: $KEYSTORE_PASSWORD_PIPELINE"
           echo "P12_PASSWORD_PIPELINE: $P12_PASSWORD_PIPELINE"
 
-      - name: Print Workspace Path
-        run:
-          echo "Workspace directory: ${{ github.workspace }}"
-
       - name: Download files from AWS S3 URLs
         id: download_files  # Assign an ID to the step to use outputs
         run: |
