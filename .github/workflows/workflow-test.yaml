@@ -160,8 +160,6 @@ jobs:
           echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
             
-            # Optional: Print environment variables for verification
-            printenv | grep 'appFilePath\|keystoreFilePath\|certificateFilePath\|entitlementsPath\|mobileProvisionProfilesPath'
 
 
       - name: Build and Test with Maven
