@@ -200,7 +200,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             switch (platform.getPlatformType()) {
                 case ANDROID:
                     listener.getLogger().println("[debug] Composing command for Android...");
-                    ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                    ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
                     break;
                 case IOS:
                     listener.getLogger().println("[debug] Composing command for iOS...");
@@ -437,66 +437,116 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
-        AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
+        try {
+            // Log start of Android command composition
+            listener.getLogger().println("[debug] Starting to compose Android command...");
 
-        switch (androidPlatform.getCertificateMethod().getSignType()) {
-            case AUTO:
-                io.jenkins.plugins.appdome.build.to.secure.platform
-                        .android.certificate.method.AutoSign autoSign =
-                        (io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.AutoSign)
-                                androidPlatform.getCertificateMethod();
+            AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
-                command.append(SIGN_ON_APPDOME_FLAG)
-                        .append(KEYSTORE_FLAG)
-                        .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
-                                KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
-                        .append(KEYSTORE_PASS_FLAG)
-                        .append(autoSign.getKeystorePassword())
-                        .append(KEYSOTRE_ALIAS_FLAG)
-                        .append(autoSign.getKeystoreAlias())
-                        .append(KEY_PASS_FLAG)
-                        .append(autoSign.getKeyPass());
+            // Log the signing method for Android
+            listener.getLogger().println("[debug] Android sign type: " + androidPlatform.getCertificateMethod().getSignType());
 
-                if (autoSign.getIsEnableGoogleSign()) {
-                    command.append(GOOGLE_PLAY_SIGN_FLAG);
-                    command.append(FINGERPRINT_FLAG)
-                            .append(autoSign.getGoogleSignFingerPrint());
-                }
-                break;
-            case PRIVATE:
-                io.jenkins.plugins.appdome.build.to.secure.platform
-                        .android.certificate.method.PrivateSign privateSign =
-                        (io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.PrivateSign)
-                                androidPlatform.getCertificateMethod();
-                command.append(PRIVATE_SIGN_FLAG)
-                        .append(FINGERPRINT_FLAG)
-                        .append(privateSign.getFingerprint());
-                if (privateSign.getGoogleSigning()) {
-                    command.append(GOOGLE_PLAY_SIGN_FLAG);
-                }
-                break;
-            case AUTODEV:
-                this.isAutoDevPrivateSign = true;
-                io.jenkins.plugins.appdome.build.to.secure.platform
-                        .android.certificate.method.AutoDevSign autoDev =
-                        (io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.AutoDevSign)
-                                androidPlatform.getCertificateMethod();
-                command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
-                        .append(FINGERPRINT_FLAG)
-                        .append(autoDev.getFingerprint());
-                if (autoDev.getGoogleSigning()) {
-                    command.append(GOOGLE_PLAY_SIGN_FLAG);
-                }
-                break;
-            case NONE:
-            default:
-                break;
+            switch (androidPlatform.getCertificateMethod().getSignType()) {
+                case AUTO:
+                    try {
+                        listener.getLogger().println("[debug] Using AUTO signing...");
+
+                        io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.AutoSign autoSign =
+                                (io.jenkins.plugins.appdome.build.to.secure.platform
+                                        .android.certificate.method.AutoSign)
+                                        androidPlatform.getCertificateMethod();
+
+                        command.append(SIGN_ON_APPDOME_FLAG)
+                                .append(KEYSTORE_FLAG)
+                                .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
+                                        ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                        KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                        : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
+                                .append(KEYSTORE_PASS_FLAG)
+                                .append(autoSign.getKeystorePassword())
+                                .append(KEYSOTRE_ALIAS_FLAG)
+                                .append(autoSign.getKeystoreAlias())
+                                .append(KEY_PASS_FLAG)
+                                .append(autoSign.getKeyPass());
+
+                        listener.getLogger().println("[debug] AUTO signing command: " + command.toString());
+
+                        if (autoSign.getIsEnableGoogleSign()) {
+                            command.append(GOOGLE_PLAY_SIGN_FLAG);
+                            command.append(FINGERPRINT_FLAG)
+                                    .append(autoSign.getGoogleSignFingerPrint());
+                            listener.getLogger().println("[debug] Google Play signing enabled with fingerprint: " + autoSign.getGoogleSignFingerPrint());
+                        }
+                    } catch (Exception e) {
+                        listener.error("[error] Failed to compose AUTO sign command: " + e.getMessage());
+                        throw e;
+                    }
+                    break;
+
+                case PRIVATE:
+                    try {
+                        listener.getLogger().println("[debug] Using PRIVATE signing...");
+
+                        io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.PrivateSign privateSign =
+                                (io.jenkins.plugins.appdome.build.to.secure.platform
+                                        .android.certificate.method.PrivateSign)
+                                        androidPlatform.getCertificateMethod();
+
+                        command.append(PRIVATE_SIGN_FLAG)
+                                .append(FINGERPRINT_FLAG)
+                                .append(privateSign.getFingerprint());
+
+                        listener.getLogger().println("[debug] PRIVATE signing command: " + command.toString());
+
+                        if (privateSign.getGoogleSigning()) {
+                            command.append(GOOGLE_PLAY_SIGN_FLAG);
+                            listener.getLogger().println("[debug] Google Play signing enabled for PRIVATE sign.");
+                        }
+                    } catch (Exception e) {
+                        listener.error("[error] Failed to compose PRIVATE sign command: " + e.getMessage());
+                        throw e;
+                    }
+                    break;
+
+                case AUTODEV:
+                    try {
+                        this.isAutoDevPrivateSign = true;
+                        listener.getLogger().println("[debug] Using AUTODEV signing...");
+
+                        io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.AutoDevSign autoDev =
+                                (io.jenkins.plugins.appdome.build.to.secure.platform
+                                        .android.certificate.method.AutoDevSign)
+                                        androidPlatform.getCertificateMethod();
+
+                        command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
+                                .append(FINGERPRINT_FLAG)
+                                .append(autoDev.getFingerprint());
+
+                        listener.getLogger().println("[debug] AUTODEV signing command: " + command.toString());
+
+                        if (autoDev.getGoogleSigning()) {
+                            command.append(GOOGLE_PLAY_SIGN_FLAG);
+                            listener.getLogger().println("[debug] Google Play signing enabled for AUTODEV sign.");
+                        }
+                    } catch (Exception e) {
+                        listener.error("[error] Failed to compose AUTODEV sign command: " + e.getMessage());
+                        throw e;
+                    }
+                    break;
+
+                case NONE:
+                default:
+                    listener.getLogger().println("[debug] No signing method selected.");
+                    break;
+            }
+
+        } catch (Exception e) {
+            listener.error("[error] Error occurred while composing Android command: " + e.getMessage());
+            throw e;
         }
     }
 
