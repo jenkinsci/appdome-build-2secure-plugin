@@ -175,12 +175,12 @@ jobs:
           googlePlaySign=$(echo $buildParams | jq -r '.googlePlaySign')
           secondOutput=$(echo $buildParams | jq -r '.secondOutput')
           
-          # Use outputs from the previous step for file paths
-          appFilePath="${{ steps.download_files.outputs.appFilePath }}"
-          keystoreFilePath="${{ steps.download_files.outputs.keystoreFilePath }}"
-          certificateFilePath="${{ steps.download_files.outputs.certificateFilePath }}"
-          entitlementsPath="${{ steps.download_files.outputs.entitlementsPath }}"
-          mobileProvisionProfilesPath="${{ steps.download_files.outputs.mobileProvisionProfilesPath }}"
+          # Use the environment variables directly
+          appFilePath="$appFilePath"
+          keystoreFilePath="$keystoreFilePath"
+          certificateFilePath="$certificateFilePath"
+          entitlementsPath="$entitlementsPath"
+          mobileProvisionProfilesPath="$mobileProvisionProfilesPath"
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
