@@ -134,7 +134,7 @@ jobs:
               for url in "${provisionUrls[@]}"; do
                   fileName="/tmp/$(basename $url)"
                   curl -L -o "$fileName" "$url"
-                  if [ -z "$localMobileProvisionPaths" ]; then
+                  if [ -z "$localMobileProvisionPaths" ];then
                       localMobileProvisionPaths="$fileName"
                   else
                       localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
@@ -197,40 +197,42 @@ jobs:
           echo "Using the following parameters:"
           echo "Team ID: $teamId"
           echo "Sign Option: $signOption"
-          echo "App File Path: $appFilePath"
-          echo "Keystore File Path: $keystoreFilePath"
-          echo "Certificate File Path: $certificateFilePath"
+          echo "App File Path: ${{ env.appFilePath }}"
+          echo "Keystore File Path: ${{ env.keystoreFilePath }}"
+          echo "Certificate File Path: ${{ env.certificateFilePath }}"
           echo "Fusion Set ID: $fusionSetId"
           echo "Sign Fingerprint: $signFingerprint"
-          echo "Entitlements Path: $entitlementsPath"
-          echo "Mobile Provision Profiles Path: $mobileProvisionProfilesPath"
+          echo "Entitlements Path: ${{ env.entitlementsPath }}"
+          echo "Mobile Provision Profiles Path: ${{ env.mobileProvisionProfilesPath }}"
           echo "Build to Test: $buildToTest"
           echo "Build with Logs: $buildWithLogs"
           echo "Google Play Sign: $googlePlaySign"
           echo "Second Output: $secondOutput"
           echo "Environment: ${{ github.event.inputs.environment }}"
-
+          
+          # Run the Maven command with extracted parameters
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
-          -Dtest=PipelineTest#workFlowTest \
-          -DteamId="$teamId" \
-          -DsignOption="$signOption" \
-          -DappFilePath="${{ env.appFilePath }}" \
-          -DkeystoreFilePath="${{ env.keystoreFilePath }}" \
-          -DcertificateFilePath="${{ env.certificateFilePath }}" \
-          -DfusionSetId="$fusionSetId" \
-          -DsignFingerprint="$signFingerprint" \
-          -DentitlementsPath="${{ env.entitlementsPath }}" \
-          -DmobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}" \
-          -DbuildToTest="$buildToTest" \
-          -DbuildWithLogs="$buildWithLogs" \
-          -DgooglePlaySign="$googlePlaySign" \
-          -DsecondOutput="$secondOutput" \
-          -Denvironment="${{ github.event.inputs.environment }}" \
-          package
+            -Dtest=PipelineTest#workFlowTest \
+            -DteamId="$teamId" \
+            -DsignOption="$signOption" \
+            -DappFilePath="${{ env.appFilePath }}" \
+            -DkeystoreFilePath="${{ env.keystoreFilePath }}" \
+            -DcertificateFilePath="${{ env.certificateFilePath }}" \
+            -DfusionSetId="$fusionSetId" \
+            -DsignFingerprint="$signFingerprint" \
+            -DentitlementsPath="${{ env.entitlementsPath }}" \
+            -DmobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}" \
+            -DbuildToTest="$buildToTest" \
+            -DbuildWithLogs="$buildWithLogs" \
+            -DgooglePlaySign="$googlePlaySign" \
+            -DsecondOutput="$secondOutput" \
+            -Denvironment="${{ github.event.inputs.environment }}" \
+            package
         env:
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
           KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
           P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
+
 
