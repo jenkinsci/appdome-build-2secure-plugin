@@ -30,10 +30,6 @@ on:
         description: 'Build parameters in JSON format'
         required: true
         default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput"}'
-      secretParams:
-        description: 'Build parameters in JSON format'
-        required: true
-        default: '{"APPDOME_API_TOKEN":"default-APPDOME_API_TOKEN", "KEYSTORE_ALIAS":"default-KEYSTORE_ALIAS", "KEYSTORE_KEY_PASS":"default-KEYSTORE_KEY_PASS", "KEYSTORE_PASSWORD":"default-KEYSTORE_PASSWORD", "P12_PASSWORD":"default-P12_PASSWORD"}'
       logLevel:
         description: 'Set the log level for Maven builds'
         required: false
@@ -43,14 +39,9 @@ on:
           - info
           - warning
           - debug
-      dispatch_id:
-        description: 'run_unique_id'
-        required: true
-        type: string
 
 jobs:
   build-and-test:
-    name: run_${{ github.event.inputs.dispatch_id }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -61,15 +52,14 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'temurin'  # Updated to temurin
+          distribution: 'adopt'
           cache: 'maven'
-
 
       - name: Install jq
         run: sudo apt-get install jq
 
       - name: Download files from AWS S3 URLs
-        id: download_files
+        id: download_files  # Assign an ID to the step to use outputs
         run: |
           # Extract parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
@@ -91,7 +81,6 @@ jobs:
               curl -o /tmp/app.apk "$appFilePath"
               echo "Downloaded app file to /tmp/app.apk"
               localAppFilePath="/tmp/app.apk"
-              echo $localAppFilePath
           else
               echo "App file path is 'None', skipping download."
           fi
@@ -146,81 +135,32 @@ jobs:
               echo "Mobile provision profiles path is 'None', skipping download."
           fi
           
-          # Set outputs for next steps using Environment Files
-            echo "Setting environment variables for next steps..."
-          
-            # Print and set each variable
-            echo "appFilePath: $localAppFilePath"
-            echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
-          
-            printenv
-          
-            echo "keystoreFilePath: $localKeystoreFilePath"
-            echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
-          
-          
-          
-            echo "certificateFilePath: $localCertificateFilePath"
-            echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
-          
-            echo "entitlementsPath: $localEntitlementsPaths"
-            echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-          
-            echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
-            echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
-
-      - name: Parse Build Params
-        id: parse_params
-        run: |
-          echo "Parsing build parameters..."
-          buildParams=$(echo '${{ github.event.inputs.buildParams }}' | jq -r '.')
-          echo "teamId=$(echo "$buildParams" | jq -r '.teamId')" >> $GITHUB_ENV
-          echo "signOption=$(echo "$buildParams" | jq -r '.signOption')" >> $GITHUB_ENV
-          echo "appFilePath=$(echo "$buildParams" | jq -r '.appFilePath')" >> $GITHUB_ENV
-          echo "keystoreFilePath=$(echo "$buildParams" | jq -r '.keystoreFilePath')" >> $GITHUB_ENV
-          echo "certificateFilePath=$(echo "$buildParams" | jq -r '.certificateFilePath')" >> $GITHUB_ENV
-          echo "fusionSetId=$(echo "$buildParams" | jq -r '.fusionSetId')" >> $GITHUB_ENV
-          echo "signFingerprint=$(echo "$buildParams" | jq -r '.signFingerprint')" >> $GITHUB_ENV
-          echo "entitlementsPath=$(echo "$buildParams" | jq -r '.entitlementsPath')" >> $GITHUB_ENV
-          echo "mobileProvisionProfilesPath=$(echo "$buildParams" | jq -r '.mobileProvisionProfilesPath')" >> $GITHUB_ENV
-          echo "buildToTest=$(echo "$buildParams" | jq -r '.buildToTest')" >> $GITHUB_ENV
-          echo "buildWithLogs=$(echo "$buildParams" | jq -r '.buildWithLogs')" >> $GITHUB_ENV
-          echo "googlePlaySign=$(echo "$buildParams" | jq -r '.googlePlaySign')" >> $GITHUB_ENV
-          echo "secondOutput=$(echo "$buildParams" | jq -r '.secondOutput')" >> $GITHUB_ENV
-
-      - name: Parse Secret Params
-        id: parse_secrets
-        run: |
-          echo "Parsing secret parameters..."
-          secretParams=$(echo '${{ github.event.inputs.secretParams }}' | jq -r '.')
-          echo "APPDOME_API_TOKEN_PIPELINE=$(echo "$secretParams" | jq -r '.APPDOME_API_TOKEN')" >> $GITHUB_ENV
-          echo "KEYSTORE_ALIAS_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_ALIAS')" >> $GITHUB_ENV
-          echo "KEYSTORE_KEY_PASS_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_KEY_PASS')" >> $GITHUB_ENV
-          echo "KEYSTORE_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_PASSWORD')" >> $GITHUB_ENV
-          echo "P12_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.P12_PASSWORD')" >> $GITHUB_ENV
-
-      - name: Print Environment Variables after setting them
-        run: |
-          echo "appFilePath: ${{ env.appFilePath }}"
-          echo "keystoreFilePath: ${{ env.keystoreFilePath }}"
-          echo "certificateFilePath: ${{ env.certificateFilePath }}"
-          echo "entitlementsPath: ${{ env.entitlementsPath }}"
-          echo "mobileProvisionProfilesPath: ${{ env.mobileProvisionProfilesPath }}"
-
-      - name: Print all GitHub environment variables
-        run: |
-          echo "Printing all environment variables:"
-          printenv | sort
-
+          # Set outputs for next steps
+          echo "::set-output name=appFilePath::$localAppFilePath"
+          echo "::set-output name=keystoreFilePath::$localKeystoreFilePath"
+          echo "::set-output name=certificateFilePath::$localCertificateFilePath"
+          echo "::set-output name=entitlementsPath::$localEntitlementsPaths"
+          echo "::set-output name=mobileProvisionProfilesPath::$localMobileProvisionPaths"
 
       - name: Build and Test with Maven
         run: |
+          # Extract other parameters from JSON input
+          buildParams='${{ github.event.inputs.buildParams }}'
+          teamId=$(echo $buildParams | jq -r '.teamId')
+          signOption=$(echo $buildParams | jq -r '.signOption')
+          fusionSetId=$(echo $buildParams | jq -r '.fusionSetId')
+          signFingerprint=$(echo $buildParams | jq -r '.signFingerprint')
+          buildToTest=$(echo $buildParams | jq -r '.buildToTest')
+          buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
+          googlePlaySign=$(echo $buildParams | jq -r '.googlePlaySign')
+          secondOutput=$(echo $buildParams | jq -r '.secondOutput')
+          
           # Use outputs from the previous step for file paths
-          appFilePath="${{ env.appFilePath }}"
-          keystoreFilePath="${{ env.keystoreFilePath }}"
-          certificateFilePath="${{ env.certificateFilePath }}"
-          entitlementsPath="${{ env.entitlementsPath }}"
-          mobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}"
+          appFilePath="${{ steps.download_files.outputs.appFilePath }}"
+          keystoreFilePath="${{ steps.download_files.outputs.keystoreFilePath }}"
+          certificateFilePath="${{ steps.download_files.outputs.certificateFilePath }}"
+          entitlementsPath="${{ steps.download_files.outputs.entitlementsPath }}"
+          mobileProvisionProfilesPath="${{ steps.download_files.outputs.mobileProvisionProfilesPath }}"
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
@@ -257,8 +197,8 @@ jobs:
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
-          APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
-          KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
-          KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
-          KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
-          P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
+          APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PASS: ${{ secrets.KEYSTORE_KEY_PASS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
