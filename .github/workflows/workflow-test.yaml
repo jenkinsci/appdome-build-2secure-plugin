@@ -210,6 +210,13 @@ jobs:
 
       - name: Build and Test with Maven
         run: |
+          # Use outputs from the previous step for file paths
+          appFilePath="${{ env.appFilePath }}"
+          keystoreFilePath="${{ env.keystoreFilePath }}"
+          certificateFilePath="${{ env.certificateFilePath }}"
+          entitlementsPath="${{ env.entitlementsPath }}"
+          mobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}"
+          
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
           echo "teamId: $teamId"
@@ -227,7 +234,6 @@ jobs:
           echo "secondOutput: $secondOutput"
           
           # Run the Maven command with extracted parameters
-          # Run the Maven command with local file paths
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
             -Dtest=PipelineTest#workFlowTest \
             -DteamId="$teamId" \
