@@ -130,26 +130,31 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws Exception {
-        FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
-        String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
-        List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
-                .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
-                .collect(Collectors.toList());
-        // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
-        env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-        String debugMode = env.get("ACTIONS_STEP_DEBUG");
-        if ("true".equalsIgnoreCase(debugMode)) {
-            listener.getLogger().println("[debug] command : " + command);
+        try {
+            FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
+            String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
+            List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
+                    .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
+                    .collect(Collectors.toList());
+            // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
+            env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
+            String debugMode = env.get("ACTIONS_STEP_DEBUG");
+            if ("true".equalsIgnoreCase(debugMode)) {
+                listener.getLogger().println("[debug] command : " + command);
+            }
+            listener.getLogger().println("Launching Appdome engine");
+            return launcher.launch()
+                    .cmds(filteredCommandList)
+                    .pwd(scriptPath)
+                    .envs(env)
+                    .stdout(listener.getLogger())
+                    .stderr(listener.getLogger())
+                    .quiet(true)
+                    .join();
+        } catch (Exception e) {
+            listener.error("IDAN SOMETHONG 't run Appdome Builder, read logs for more information. error:" + e);
+            throw e;
         }
-        listener.getLogger().println("Launching Appdome engine");
-        return launcher.launch()
-                .cmds(filteredCommandList)
-                .pwd(scriptPath)
-                .envs(env)
-                .stdout(listener.getLogger())
-                .stderr(listener.getLogger())
-                .quiet(true)
-                .join();
     }
 
     private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
@@ -381,8 +386,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
      *
      * @param command The StringBuilder containing the command string to be cleaned directly.
      */
-    public static void cleanCommand(StringBuilder command)
-    {
+    public static void cleanCommand(StringBuilder command) {
         String[] parts = command.toString().split(" ");
         command.setLength(0); // Clear the original StringBuilder
 
