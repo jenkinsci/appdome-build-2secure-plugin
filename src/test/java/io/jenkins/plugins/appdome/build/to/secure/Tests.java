@@ -100,7 +100,8 @@ public class Tests {
         logger.info("teamId = " + teamId);
         logger.info("fingerprint  = " + fingerprint);
         logger.info("buildWithLogs  = " + buildWithLogs);
-        logger.info("buildWithLogs  = " + googleSigning);
+        googleSigning = false;
+        logger.info("googleSigning  = " + googleSigning);
 
         logger.info("androidPlatform =" + androidPlatform);
         logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
