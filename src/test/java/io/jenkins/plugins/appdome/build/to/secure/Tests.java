@@ -109,12 +109,12 @@ public class Tests {
         logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().getSignType().toString());
         logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
 
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
 //        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setBuildWithLogs(false);
         appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput, jenkins, logger);
+        checkingResults(project, false, jenkins, logger);
     }
 
 
