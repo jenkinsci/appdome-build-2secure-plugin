@@ -142,13 +142,27 @@ jobs:
           else
               echo "Mobile provision profiles path is 'None', skipping download."
           fi
+          # Set outputs for next steps using Environment Files
+
+          # Print and set each variable using Environment Files
+          echo "appFilePath: $localAppFilePath"
+            echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
           
-          # Set outputs for next steps
-          echo "::set-output name=appFilePath::$localAppFilePath"
-          echo "::set-output name=keystoreFilePath::$localKeystoreFilePath"
-          echo "::set-output name=certificateFilePath::$localCertificateFilePath"
-          echo "::set-output name=entitlementsPath::$localEntitlementsPaths"
-          echo "::set-output name=mobileProvisionProfilesPath::$localMobileProvisionPaths"
+          echo "keystoreFilePath: $localKeystoreFilePath"
+            echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+          
+          echo "certificateFilePath: $localCertificateFilePath"
+            echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+          
+          echo "entitlementsPath: $localEntitlementsPaths"
+            echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+          
+          echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
+            echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
+            
+            # Optional: Print environment variables for verification
+            printenv | grep 'appFilePath\|keystoreFilePath\|certificateFilePath\|entitlementsPath\|mobileProvisionProfilesPath'
+
 
       - name: Build and Test with Maven
         run: |
