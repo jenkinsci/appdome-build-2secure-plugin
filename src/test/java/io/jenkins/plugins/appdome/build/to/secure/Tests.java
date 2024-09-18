@@ -100,7 +100,6 @@ public class Tests {
         logger.info("teamId = " + teamId);
         logger.info("fingerprint  = " + fingerprint);
         logger.info("secondOutput  = " + secondOutput.getItem());
-        logger.info("BuildToTest  = " + buildToTest.getSelectedVendor().toString());
         logger.info("buildWithLogs  = " + buildWithLogs);
         logger.info("buildWithLogs  = " + googleSigning);
 
@@ -112,7 +111,7 @@ public class Tests {
         logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
-        appdomeBuilder.setBuildToTest(buildToTest);
+//        appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
