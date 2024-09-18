@@ -51,7 +51,7 @@ public class Tests {
 
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput,jenkins);
     }
@@ -73,6 +73,7 @@ public class Tests {
         androidPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins);
     }
@@ -95,7 +96,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins);
     }
@@ -119,7 +120,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins);
     }
@@ -142,7 +143,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins);
 
@@ -165,6 +166,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setOutputLocation("/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins);
 
