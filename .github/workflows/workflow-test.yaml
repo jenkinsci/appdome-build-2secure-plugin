@@ -189,8 +189,12 @@ jobs:
           echo ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
           echo ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
           echo ${{ env.P12_PASSWORD_PIPELINE }}
+      - name: Print all GitHub environment variables
+        run: |
+          echo "Printing all environment variables:"
+          printenv | sort
+    
 
-          
       - name: Build and Test with Maven
         run: |
           # Echo each parameter to verify parsing worked correctly
