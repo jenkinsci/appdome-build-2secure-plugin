@@ -451,6 +451,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                                 androidPlatform.getCertificateMethod();
                 listener.getLogger().println("GOING TO PRINT FINGER PRINT NOW:");
                 listener.getLogger().println("fingerprint is " + autoDev.getFingerprint());
+                listener.getLogger().println("autoDev.getGoogleSigning is " + autoDev.getGoogleSigning());
                 command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                         .append(FINGERPRINT_FLAG)
                         .append(autoDev.getFingerprint());
@@ -463,6 +464,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             default:
                 break;
         }
+        listener.getLogger().println("This is command: " + command);
     }
 
     public static boolean isHttpUrl(String urlString) {
