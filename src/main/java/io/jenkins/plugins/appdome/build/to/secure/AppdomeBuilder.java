@@ -130,165 +130,126 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws Exception {
-        try {
-            FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
-            String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
-            List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
-                    .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
-                    .collect(Collectors.toList());
-            // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
-            env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-            String debugMode = env.get("ACTIONS_STEP_DEBUG");
-//            if ("true".equalsIgnoreCase(debugMode)) {
+        FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
+        String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
+        List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
+                .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
+                .collect(Collectors.toList());
+        // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
+        env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
+        String debugMode = env.get("ACTIONS_STEP_DEBUG");
+        if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
-//            }
-            listener.getLogger().println("Launching Appdome engine");
-            return launcher.launch()
-                    .cmds(filteredCommandList)
-                    .pwd(scriptPath)
-                    .envs(env)
-                    .stdout(listener.getLogger())
-                    .stderr(listener.getLogger())
-                    .quiet(true)
-                    .join();
-        } catch (Exception e) {
-            listener.error("IDAN SOMETHONG 't run Appdome Builder, read logs for more information. error:" + e);
-            throw e;
         }
+        listener.getLogger().println("Launching Appdome engine");
+        return launcher.launch()
+                .cmds(filteredCommandList)
+                .pwd(scriptPath)
+                .envs(env)
+                .stdout(listener.getLogger())
+                .stderr(listener.getLogger())
+                .quiet(true)
+                .join();
     }
 
     private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
-        StringBuilder command = new StringBuilder();
-        try {
-            // Debug the start of command composition
-            listener.getLogger().println("[debug] Starting to compose Appdome command...");
+        //common:
+        StringBuilder command = new StringBuilder("./appdome_api.sh");
+        command.append(KEY_FLAG)
+                .append(this.token).
+                append(FUSION_SET_ID_FLAG)
+                .append(platform.getFusionSetId());
 
-            //common:
-            command.append("./appdome_api.sh")
-                    .append(KEY_FLAG)
-                    .append(this.token)
-                    .append(FUSION_SET_ID_FLAG)
-                    .append(platform.getFusionSetId());
+        //concatenate the team id if it is not empty:
+        if (!(Util.fixEmptyAndTrim(this.teamId) == null)) {
+            command.append(TEAM_ID_FLAG)
+                    .append(this.teamId);
+        }
 
-            listener.getLogger().println("[debug] Base command: " + command.toString());
+        String appPath = "";
+        //concatenate the app path if it is not empty:
+        if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
+            appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
+        } else {
+            appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
+                    appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
+        }
+        switch (platform.getPlatformType()) {
+            case ANDROID:
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                break;
+            case IOS:
+                ComposeIosCommand(command, env, appdomeWorkspace, launcher);
+                break;
+            default:
+                return null;
+        }
 
-            //concatenate the team id if it is not empty:
-            if (!(Util.fixEmptyAndTrim(this.teamId) == null)) {
-                command.append(TEAM_ID_FLAG)
-                        .append(this.teamId);
-                listener.getLogger().println("[debug] Team ID added to command: " + this.teamId);
-            }
+        if (appPath.isEmpty()) {
+            throw new RuntimeException("App path was not provided.");
+        } else {
+            command.append(APP_FLAG)
+                    .append("\"" + appPath + "\"");
+        }
 
-            String appPath = "";
-            try {
-                //concatenate the app path if it is not empty:
-                if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
-                    appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
-                } else {
-                    appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
-                            appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
-                }
+        if (this.buildWithLogs != null && this.buildWithLogs) {
+            command.append(BUILD_WITH_LOGS);
+        }
 
-                listener.getLogger().println("[debug] App path resolved: " + appPath);
+        if (this.buildToTest != null) {
+            command.append(BUILD_TO_TEST)
+                    .append(this.buildToTest.getSelectedVendor());
+        }
 
-            } catch (Exception e) {
-                listener.error("[error] Failed to resolve app path: " + e.getMessage());
-                throw e;
-            }
+        String basename = new File(appPath).getName();
+        ArgumentListBuilder args;
+        FilePath output_location;
 
-            // Determine platform-specific command
-            switch (platform.getPlatformType()) {
-                case ANDROID:
-                    listener.getLogger().println("[debug] Composing command for Android...");
-                    ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
-                    break;
-                case IOS:
-                    listener.getLogger().println("[debug] Composing command for iOS...");
-                    ComposeIosCommand(command, env, appdomeWorkspace, launcher);
-                    break;
-                default:
-                    listener.error("[error] Unsupported platform type: " + platform.getPlatformType());
-                    return null;
-            }
 
-            // Check if appPath is empty and throw error if necessary
-            if (appPath.isEmpty()) {
-                listener.error("[error] App path is empty.");
-                throw new RuntimeException("App path was not provided.");
-            } else {
-                command.append(APP_FLAG)
-                        .append("\"").append(appPath).append("\"");
-                listener.getLogger().println("[debug] Final app path added to command: " + appPath);
-            }
+        if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
+            setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
 
-            // Check for optional flags
-            if (this.buildWithLogs != null && this.buildWithLogs) {
-                command.append(BUILD_WITH_LOGS);
-                listener.getLogger().println("[debug] Added build with logs flag.");
-            }
+            command.append(OUTPUT_FLAG)
+                    .append(getOutputLocation());
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Certified_Secure.pdf");
+            command.append(DEOBFUSCATION_OUTPUT)
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Deobfuscation_Mapping_Files.zip");
 
-            if (this.buildToTest != null) {
-                command.append(BUILD_TO_TEST)
-                        .append(this.buildToTest.getSelectedVendor());
-                listener.getLogger().println("[debug] Added build to test with vendor: " + this.buildToTest.getSelectedVendor());
-            }
+        } else {
 
-            // Handle output locations
-            String basename = new File(appPath).getName();
-            FilePath output_location;
 
-            if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
-                setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
+            output_location = agentWorkspace.child("output");
+            output_location.mkdirs();
 
-                command.append(OUTPUT_FLAG)
-                        .append(getOutputLocation());
-                command.append(CERTIFIED_SECURE_FLAG)
-                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
-                        .append("Certified_Secure.pdf");
-                command.append(DEOBFUSCATION_OUTPUT)
-                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
-                        .append("Deobfuscation_Mapping_Files.zip");
+            setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
 
-                listener.getLogger().println("[debug] Output location (provided): " + getOutputLocation());
-            } else {
-                output_location = agentWorkspace.child("output");
-                output_location.mkdirs();
 
-                setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
+            command.append(OUTPUT_FLAG)
+                    .append(getOutputLocation());
 
-                command.append(OUTPUT_FLAG)
-                        .append(getOutputLocation());
-                command.append(CERTIFIED_SECURE_FLAG)
-                        .append(output_location.getRemote())
-                        .append(File.separator)
-                        .append("Certified_Secure.pdf");
-                command.append(DEOBFUSCATION_OUTPUT)
-                        .append(output_location.getRemote())
-                        .append(File.separator)
-                        .append("Deobfuscation_Mapping_Files.zip");
+            command.append(CERTIFIED_SECURE_FLAG)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Certified_Secure.pdf");
 
-                listener.getLogger().println("[debug] Output location (default): " + getOutputLocation());
-            }
+            command.append(DEOBFUSCATION_OUTPUT)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Deobfuscation_Mapping_Files.zip");
+        }
 
-            // Handle second output
-            if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
-                String secondOutputVar = this.getSecondOutput();
-                secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
-                command.append(SECOND_OUTPUT).append(secondOutputVar);
-                listener.getLogger().println("[debug] Second output added: " + secondOutputVar);
-            }
+        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
+            String secondOutputVar = this.getSecondOutput();
+            secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
+            command.append(SECOND_OUTPUT).append(secondOutputVar);
 
-            // Final debug of command before returning
-            listener.getLogger().println("[debug] Final composed command: " + command.toString());
-
-        } catch (Exception e) {
-            listener.error("[error] Failed to compose Appdome command: " + e.getMessage());
-            throw e;
         }
 
         return command.toString();
     }
-
 
     private String checkExtension(String outputLocation, String basename, Boolean isThisAutoDevPrivate, Boolean isThisSecondOutput) {
         int dotIndex = basename.lastIndexOf('.');
@@ -420,7 +381,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
      *
      * @param command The StringBuilder containing the command string to be cleaned directly.
      */
-    public static void cleanCommand(StringBuilder command) {
+    public static void cleanCommand(StringBuilder command)
+    {
         String[] parts = command.toString().split(" ");
         command.setLength(0); // Clear the original StringBuilder
 
@@ -438,121 +400,68 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
-        try {
-            // Log start of Android command composition
-            listener.getLogger().println("[debug] Starting to compose Android command...");
+        AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
-            AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
+        switch (androidPlatform.getCertificateMethod().getSignType()) {
+            case AUTO:
+                io.jenkins.plugins.appdome.build.to.secure.platform
+                        .android.certificate.method.AutoSign autoSign =
+                        (io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.AutoSign)
+                                androidPlatform.getCertificateMethod();
 
-            // Log the signing method for Android
-            listener.getLogger().println("[debug] Android sign type: " + androidPlatform.getCertificateMethod().getSignType());
+                command.append(SIGN_ON_APPDOME_FLAG)
+                        .append(KEYSTORE_FLAG)
+                        .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
+                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
+                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
+                        .append(KEYSTORE_PASS_FLAG)
+                        .append(autoSign.getKeystorePassword())
+                        .append(KEYSOTRE_ALIAS_FLAG)
+                        .append(autoSign.getKeystoreAlias())
+                        .append(KEY_PASS_FLAG)
+                        .append(autoSign.getKeyPass());
 
-            switch (androidPlatform.getCertificateMethod().getSignType()) {
-                case AUTO:
-                    try {
-                        listener.getLogger().println("[debug] Using AUTO signing...");
+                if (autoSign.getIsEnableGoogleSign()) {
+                    command.append(GOOGLE_PLAY_SIGN_FLAG);
+                    command.append(FINGERPRINT_FLAG)
+                            .append(autoSign.getGoogleSignFingerPrint());
+                }
+                break;
+            case PRIVATE:
+                io.jenkins.plugins.appdome.build.to.secure.platform
+                        .android.certificate.method.PrivateSign privateSign =
+                        (io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.PrivateSign)
+                                androidPlatform.getCertificateMethod();
+                command.append(PRIVATE_SIGN_FLAG)
+                        .append(FINGERPRINT_FLAG)
+                        .append(privateSign.getFingerprint());
+                if (privateSign.getGoogleSigning()) {
+                    command.append(GOOGLE_PLAY_SIGN_FLAG);
+                }
+                break;
+            case AUTODEV:
+                this.isAutoDevPrivateSign = true;
+                io.jenkins.plugins.appdome.build.to.secure.platform
+                        .android.certificate.method.AutoDevSign autoDev =
+                        (io.jenkins.plugins.appdome.build.to.secure.platform
+                                .android.certificate.method.AutoDevSign)
+                                androidPlatform.getCertificateMethod();
+                listener.getLogger().println("GOING TO PRINT FINGER PRINT NOW:");
+                listener.getLogger().println("fingerprint is " + autoDev.getFingerprint());
+                command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
+                        .append(FINGERPRINT_FLAG)
+                        .append(autoDev.getFingerprint());
 
-                        io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.AutoSign autoSign =
-                                (io.jenkins.plugins.appdome.build.to.secure.platform
-                                        .android.certificate.method.AutoSign)
-                                        androidPlatform.getCertificateMethod();
-
-                        command.append(SIGN_ON_APPDOME_FLAG)
-                                .append(KEYSTORE_FLAG)
-                                .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
-                                        ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
-                                        KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                        : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
-                                .append(KEYSTORE_PASS_FLAG)
-                                .append(autoSign.getKeystorePassword())
-                                .append(KEYSOTRE_ALIAS_FLAG)
-                                .append(autoSign.getKeystoreAlias())
-                                .append(KEY_PASS_FLAG)
-                                .append(autoSign.getKeyPass());
-
-                        listener.getLogger().println("[debug] AUTO signing command: " + command.toString());
-
-                        if (autoSign.getIsEnableGoogleSign()) {
-                            command.append(GOOGLE_PLAY_SIGN_FLAG);
-                            command.append(FINGERPRINT_FLAG)
-                                    .append(autoSign.getGoogleSignFingerPrint());
-                            listener.getLogger().println("[debug] Google Play signing enabled with fingerprint: " + autoSign.getGoogleSignFingerPrint());
-                        }
-                    } catch (Exception e) {
-                        listener.error("[error] Failed to compose AUTO sign command: " + e.getMessage());
-                        throw e;
-                    }
-                    break;
-
-                case PRIVATE:
-                    try {
-                        listener.getLogger().println("[debug] Using PRIVATE signing...");
-
-                        io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.PrivateSign privateSign =
-                                (io.jenkins.plugins.appdome.build.to.secure.platform
-                                        .android.certificate.method.PrivateSign)
-                                        androidPlatform.getCertificateMethod();
-
-                        command.append(PRIVATE_SIGN_FLAG)
-                                .append(FINGERPRINT_FLAG)
-                                .append(privateSign.getFingerprint());
-
-                        listener.getLogger().println("[debug] PRIVATE signing command: " + command.toString());
-
-                        if (privateSign.getGoogleSigning()) {
-                            command.append(GOOGLE_PLAY_SIGN_FLAG);
-                            listener.getLogger().println("[debug] Google Play signing enabled for PRIVATE sign.");
-                        }
-                    } catch (Exception e) {
-                        listener.error("[error] Failed to compose PRIVATE sign command: " + e.getMessage());
-                        throw e;
-                    }
-                    break;
-
-                case AUTODEV:
-                    try {
-                        this.isAutoDevPrivateSign = true;
-                        listener.getLogger().println("[debug] Using AUTODEV signing...");
-
-                        io.jenkins.plugins.appdome.build.to.secure.platform
-                                .android.certificate.method.AutoDevSign autoDev =
-                                (io.jenkins.plugins.appdome.build.to.secure.platform
-                                        .android.certificate.method.AutoDevSign)
-                                        androidPlatform.getCertificateMethod();
-
-                        // Check for null fingerprint
-                        String fingerprint = autoDev.getFingerprint();
-                        if (fingerprint == null || fingerprint.isEmpty()) {
-                            listener.error("[error] AUTODEV fingerprint is null or empty.");
-                            throw new Exception("AUTODEV fingerprint is required but not provided.");
-                        }
-                        command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
-                                .append(FINGERPRINT_FLAG)
-                                .append(fingerprint);
-
-                        listener.getLogger().println("[debug] AUTODEV signing command: " + command.toString());
-
-                        if (autoDev.getGoogleSigning() != null && autoDev.getGoogleSigning()) {
-                            command.append(GOOGLE_PLAY_SIGN_FLAG);
-                            listener.getLogger().println("[debug] Google Play signing enabled for AUTODEV sign.");
-                        }
-                    } catch (Exception e) {
-                        listener.error("[error] Failed to compose AUTODEV sign command: " + e.getMessage());
-                        throw e;
-                    }
-                    break;
-
-                case NONE:
-                default:
-                    listener.getLogger().println("[debug] No signing method selected.");
-                    break;
-            }
-
-        } catch (Exception e) {
-            listener.error("[error] Error occurred while composing Android command: " + e.getMessage());
-            throw e;
+                if (autoDev.getGoogleSigning()) {
+                    command.append(GOOGLE_PLAY_SIGN_FLAG);
+                }
+                break;
+            case NONE:
+            default:
+                break;
         }
     }
 
