@@ -92,6 +92,8 @@ public class Tests {
         }
 
         AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
+        googleSigning = false;
+
         autoDevSign.setGoogleSigning(googleSigning);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(fusionSet);
@@ -100,12 +102,10 @@ public class Tests {
         logger.info("teamId = " + teamId);
         logger.info("fingerprint  = " + fingerprint);
         logger.info("buildWithLogs  = " + buildWithLogs);
-        googleSigning = false;
         logger.info("googleSigning  = " + googleSigning);
 
         logger.info("androidPlatform =" + androidPlatform);
         logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
-
 
         logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().getSignType().toString());
         logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
