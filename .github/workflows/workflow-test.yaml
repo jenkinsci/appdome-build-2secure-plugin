@@ -145,12 +145,12 @@ jobs:
               echo "Mobile provision profiles path is 'None', skipping download."
           fi
           
-          # Set outputs for next steps using Environment Files
-          echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
-          echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
-          echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
-          echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-          echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
+          # Set outputs for next steps using Environment Files (Optional)
+          echo "appFilePath=$localAppFilePath"
+          echo "keystoreFilePath=$localKeystoreFilePath"
+          echo "certificateFilePath=$localCertificateFilePath"
+          echo "entitlementsPath=$localEntitlementsPaths"
+          echo "mobileProvisionProfilesPath=$localMobileProvisionPaths"
 
 
       - name: Parse Build Params
@@ -194,16 +194,22 @@ jobs:
           
       - name: Build and Test with Maven
         run: |
+          echo "Using the following local file paths for the build:"
+          echo "App File Path: $localAppFilePath"
+          echo "Keystore File Path: $localKeystoreFilePath"
+          echo "Certificate File Path: $localCertificateFilePath"
+          echo "Entitlements Path: $localEntitlementsPaths"
+          echo "Mobile Provision Profiles Path: $localMobileProvisionPaths"
           echo "Using the following parameters:"
           echo "Team ID: $teamId"
           echo "Sign Option: $signOption"
-          echo "App File Path: ${{ env.appFilePath }}"
-          echo "Keystore File Path: ${{ env.keystoreFilePath }}"
-          echo "Certificate File Path: ${{ env.certificateFilePath }}"
+          echo "App File Path: 
+          echo "Keystore File Path: 
+          echo "Certificate File Path: 
           echo "Fusion Set ID: $fusionSetId"
           echo "Sign Fingerprint: $signFingerprint"
-          echo "Entitlements Path: ${{ env.entitlementsPath }}"
-          echo "Mobile Provision Profiles Path: ${{ env.mobileProvisionProfilesPath }}"
+          echo "Entitlements Path: 
+          echo "Mobile Provision Profiles Path: 
           echo "Build to Test: $buildToTest"
           echo "Build with Logs: $buildWithLogs"
           echo "Google Play Sign: $googlePlaySign"
@@ -211,23 +217,24 @@ jobs:
           echo "Environment: ${{ github.event.inputs.environment }}"
           
           # Run the Maven command with extracted parameters
+          # Run the Maven command with local file paths
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
-            -Dtest=PipelineTest#workFlowTest \
-            -DteamId="$teamId" \
-            -DsignOption="$signOption" \
-            -DappFilePath="${{ env.appFilePath }}" \
-            -DkeystoreFilePath="${{ env.keystoreFilePath }}" \
-            -DcertificateFilePath="${{ env.certificateFilePath }}" \
-            -DfusionSetId="$fusionSetId" \
-            -DsignFingerprint="$signFingerprint" \
-            -DentitlementsPath="${{ env.entitlementsPath }}" \
-            -DmobileProvisionProfilesPath="${{ env.mobileProvisionProfilesPath }}" \
-            -DbuildToTest="$buildToTest" \
-            -DbuildWithLogs="$buildWithLogs" \
-            -DgooglePlaySign="$googlePlaySign" \
-            -DsecondOutput="$secondOutput" \
-            -Denvironment="${{ github.event.inputs.environment }}" \
-            package
+          -Dtest=PipelineTest#workFlowTest \
+          -DteamId="$teamId" \
+          -DsignOption="$signOption" \
+          -DappFilePath="$localAppFilePath" \
+          -DkeystoreFilePath="$localKeystoreFilePath" \
+          -DcertificateFilePath="$localCertificateFilePath" \
+          -DfusionSetId="$fusionSetId" \
+          -DsignFingerprint="$signFingerprint" \
+          -DentitlementsPath="$localEntitlementsPaths" \
+          -DmobileProvisionProfilesPath="$localMobileProvisionPaths" \
+          -DbuildToTest="$buildToTest" \
+          -DbuildWithLogs="$buildWithLogs" \
+          -DgooglePlaySign="$googlePlaySign" \
+          -DsecondOutput="$secondOutput" \
+          -Denvironment="${{ github.event.inputs.environment }}" \
+          package
         env:
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
