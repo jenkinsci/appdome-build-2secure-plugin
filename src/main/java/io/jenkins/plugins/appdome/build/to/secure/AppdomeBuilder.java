@@ -176,7 +176,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
         switch (platform.getPlatformType()) {
             case ANDROID:
-                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
                 break;
             case IOS:
                 ComposeIosCommand(command, env, appdomeWorkspace, launcher);
@@ -399,7 +399,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
         switch (androidPlatform.getCertificateMethod().getSignType()) {
@@ -449,13 +449,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         (io.jenkins.plugins.appdome.build.to.secure.platform
                                 .android.certificate.method.AutoDevSign)
                                 androidPlatform.getCertificateMethod();
-                listener.getLogger().println("GOING TO PRINT FINGER PRINT NOW:");
-                listener.getLogger().println("fingerprint is " + autoDev.getFingerprint());
-                listener.getLogger().println("autoDev.getGoogleSigning is " + autoDev.getGoogleSigning());
                 command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                         .append(FINGERPRINT_FLAG)
                         .append(autoDev.getFingerprint());
-
                 if (autoDev.getGoogleSigning()) {
                     command.append(GOOGLE_PLAY_SIGN_FLAG);
                 }
@@ -464,7 +460,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             default:
                 break;
         }
-        listener.getLogger().println("This is command: " + command);
     }
 
     public static boolean isHttpUrl(String urlString) {
