@@ -156,6 +156,26 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
+
+        // Loop through each item in the provisionProfiles list
+        for (StringWarp provisionProfile : provisionProfiles) {
+            String filePath = provisionProfile.getItem(); // Assuming StringWarp has a method to get the string
+
+            // Log the provision profile being checked
+            logger.info("Checking provision profile: " + filePath);
+
+            // Create a File object for the profile
+            File file = new File(filePath);
+
+            // Check if the file exists and log the result
+            if (file.exists()) {
+                // Log the size of the file
+                long fileSizeInBytes = file.length();
+                logger.info("Provision profile exists. Size: " + fileSizeInBytes + " bytes");
+            } else {
+                logger.warning("Provision profile does not exist: " + filePath);
+            }
+        }
         checkingResults(project, false, jenkins, logger);
 
     }
