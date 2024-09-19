@@ -150,9 +150,9 @@ jobs:
 
           # Download certificate file
           if [ "$certificateFilePath" != "None" ]; then
-            curl -L -o /tmp/certificate.pem "$certificateFilePath"
-            echo "Downloaded certificate file to /tmp/certificate.pem"
-            localCertificateFilePath="/tmp/certificate.pem"
+            curl -L -o /tmp/certificate.12 "$certificateFilePath"
+            echo "Downloaded certificate file to /tmp/certificate.p12"
+            localCertificateFilePath="/tmp/certificate.p12"
           else
             echo "Certificate file path is 'None', skipping download."
           fi
