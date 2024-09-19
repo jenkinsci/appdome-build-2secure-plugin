@@ -209,6 +209,9 @@ jobs:
           echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
           
+          echo "Debug: mobileProvisionProfilesPath before setting GITHUB_ENV: $localMobileProvisionPaths"
+          
+          
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
           
