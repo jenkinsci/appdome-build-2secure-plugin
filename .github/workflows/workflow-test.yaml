@@ -230,7 +230,7 @@ jobs:
           buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
           googlePlaySign=$(echo $buildParams | jq -r '.googlePlaySign')
           secondOutput=$(echo $buildParams | jq -r '.secondOutput')
-          outputName = $(echo $buildParams | jq -r '.outputName')
+          outputName=$(echo $buildParams | jq -r '.outputName')  # Fixed this line
           # Use the environment variables directly
           appFilePath="$appFilePath"
           keystoreFilePath="$keystoreFilePath"
