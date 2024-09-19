@@ -85,11 +85,30 @@ jobs:
           echo "KEYSTORE_KEY_PASS_PIPELINE: $KEYSTORE_KEY_PASS_PIPELINE"
           echo "KEYSTORE_PASSWORD_PIPELINE: $KEYSTORE_PASSWORD_PIPELINE"
           echo "P12_PASSWORD_PIPELINE: $P12_PASSWORD_PIPELINE"
-
+          
+          
+          
+          
       - name: Download files from AWS S3 URLs
         id: download_files  # Assign an ID to the step to use outputs
         run: |
+          # Function to get file extension from URL
+          get_file_extension() {
+            local url=$1
+            if [[ "$url" == *".apk"* ]]; then
+              echo "apk"
+            elif [[ "$url" == *".aab"* ]]; then
+              echo "aab"
+            elif [[ "$url" == *".ipa"* ]]; then
+              echo "ipa"
+            else
+              echo "unknown"
+            fi
+          }
+
+          # Create output directory
           mkdir -p /tmp/output
+
           # Extract parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
           appFilePath=$(echo $buildParams | jq -r '.appFilePath')
@@ -97,83 +116,80 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
-          
+
           # Initialize local file paths
           localAppFilePath=""
           localKeystoreFilePath=""
           localCertificateFilePath=""
           localEntitlementsPaths=""
           localMobileProvisionPaths=""
-          
-          # Download files using curl and store them locally, only if they are not "None"
+
+          # Download app file with dynamic extension
           if [ "$appFilePath" != "None" ]; then
-              curl -o /tmp/app.apk "$appFilePath"
-              echo "Downloaded app file to /tmp/app.apk"
-              localAppFilePath="/tmp/app.apk"
-          else
-              echo "App file path is 'None', skipping download."
-          fi
+            extension=$(get_file_extension "$appFilePath")
           
+            # Set a default name based on the detected extension
+            localFileName="/tmp/app.$extension"
+          
+            # Download the file
+            curl -L -o "$localFileName" "$appFilePath"
+            echo "Downloaded app file to $localFileName"
+            localAppFilePath="$localFileName"
+          else
+            echo "App file path is 'None', skipping download."
+          fi
+
+          # Download keystore file
           if [ "$keystoreFilePath" != "None" ]; then
-              curl -o /tmp/keystore.jks "$keystoreFilePath"
-              echo "Downloaded keystore file to /tmp/keystore.jks"
-              localKeystoreFilePath="/tmp/keystore.jks"
+            curl -L -o /tmp/keystore.keystore "$keystoreFilePath"
+            echo "Downloaded keystore file to /tmp/keystore.keystore"
+            localKeystoreFilePath="/tmp/keystore.keystore"
           else
-              echo "Keystore file path is 'None', skipping download."
+            echo "Keystore file path is 'None', skipping download."
           fi
-          
+
+          # Download certificate file
           if [ "$certificateFilePath" != "None" ]; then
-              curl -o /tmp/certificate.pem "$certificateFilePath"
-              echo "Downloaded certificate file to /tmp/certificate.pem"
-              localCertificateFilePath="/tmp/certificate.pem"
+            curl -L -o /tmp/certificate.pem "$certificateFilePath"
+            echo "Downloaded certificate file to /tmp/certificate.pem"
+            localCertificateFilePath="/tmp/certificate.pem"
           else
-              echo "Certificate file path is 'None', skipping download."
+            echo "Certificate file path is 'None', skipping download."
           fi
-          
+
           # Download entitlementsPath files, only if they are not "None"
-            if [ "$entitlementsPath" != "None" ]; then
+          if [ "$entitlementsPath" != "None" ]; then
             IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
             counter=1
             for url in "${entitlementUrls[@]}"; do
-            # Use a constant name for entitlement files
-            fileName="/tmp/entitlement${counter}.plist"
-            curl -o "$fileName" "$url"
-            if [ -z "$localEntitlementsPaths" ]; then
-            localEntitlementsPaths="$fileName"
-            else
-            localEntitlementsPaths="$localEntitlementsPaths,$fileName"
-            fi
-            counter=$((counter+1))
+              fileName="/tmp/entitlement${counter}.plist"
+              curl -L -o "$fileName" "$url"
+              localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+              counter=$((counter+1))
             done
-          echo "Downloaded entitlement files: $localEntitlementsPaths"
-            else
+            echo "Downloaded entitlement files: $localEntitlementsPaths"
+          else
             echo "Entitlements path is 'None', skipping download."
-            fi
-            
-            # Download mobileProvisionProfilesPath files, only if they are not "None"
-            if [ "$mobileProvisionProfilesPath" != "None" ]; then
+          fi
+
+          # Download mobileProvisionProfilesPath files, only if they are not "None"
+          if [ "$mobileProvisionProfilesPath" != "None" ]; then
             IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
             counter=1
             for url in "${provisionUrls[@]}"; do
-            # Use a constant name for provision files
-            fileName="/tmp/provision${counter}.mobileprovision"
-            curl -o "$fileName" "$url"
-            if [ -z "$localMobileProvisionPaths" ]; then
-            localMobileProvisionPaths="$fileName"
-            else
-            localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
-            fi
-            counter=$((counter+1))
+              fileName="/tmp/provision${counter}.mobileprovision"
+              curl -L -o "$fileName" "$url"
+              localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+              counter=$((counter+1))
             done
-          echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
-            else
+            echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+          else
             echo "Mobile provision profiles path is 'None', skipping download."
-            fi
-            
-            # Set outputs for next steps using Environment Files
-            echo "Setting environment variables for next steps..."
+          fi
           
-          # Print and set each variable using Environment Files
+          # Set outputs for next steps using Environment Files
+          echo "Setting environment variables for next steps..."
+          
           echo "appFilePath: $localAppFilePath"
             echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
           
@@ -188,9 +204,10 @@ jobs:
           
           echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
-
-            
-
+      
+      
+      
+      
 
       - name: Build and Test with Maven
         run: |
