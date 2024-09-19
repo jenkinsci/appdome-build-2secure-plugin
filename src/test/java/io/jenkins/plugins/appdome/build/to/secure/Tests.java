@@ -91,7 +91,7 @@ public class Tests {
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
                                                    Boolean googleSigning, String outputName, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoDevSignBuild");
-        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".sh";
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
@@ -199,7 +199,7 @@ public class Tests {
                                                       List<StringWarp> provisionProfiles, List<StringWarp> entitlements,
                                                       BuildToTest buildToTest, Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
         logger.info("Inside testIosAutoDevPrivateSignBuild");
-        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".ipa";
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".sh";
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
