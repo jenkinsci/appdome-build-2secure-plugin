@@ -77,7 +77,7 @@
                     <environmentVariables>
                         <JENKINS_VERSION>${jenkins.version}</JENKINS_VERSION>
                     </environmentVariables>
-                    <rerunFailingTestsCount>1</rerunFailingTestsCount>
+                    <rerunFailingTestsCount>0</rerunFailingTestsCount>
                     <printSummary>true</printSummary>
                     <useFile>false</useFile>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
