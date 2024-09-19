@@ -131,40 +131,48 @@ jobs:
           fi
           
           # Download entitlementsPath files, only if they are not "None"
-          if [ "$entitlementsPath" != "None" ]; then
-              IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
-              for url in "${entitlementUrls[@]}"; do
-                  fileName="/tmp/$(basename $url)"
-                  curl -o "$fileName" "$url"
-                  if [ -z "$localEntitlementsPaths" ]; then
-                      localEntitlementsPaths="$fileName"
-                  else
-                      localEntitlementsPaths="$localEntitlementsPaths,$fileName"
-                  fi
-              done
-              echo "Downloaded entitlement files: $localEntitlementsPaths"
-          else
-              echo "Entitlements path is 'None', skipping download."
-          fi
+            if [ "$entitlementsPath" != "None" ]; then
+            IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
+            counter=1
+            for url in "${entitlementUrls[@]}"; do
+            # Use a constant name for entitlement files
+            fileName="/tmp/entitlement${counter}.plist"
+            curl -o "$fileName" "$url"
+            if [ -z "$localEntitlementsPaths" ]; then
+            localEntitlementsPaths="$fileName"
+            else
+            localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+            fi
+            counter=$((counter+1))
+            done
+          echo "Downloaded entitlement files: $localEntitlementsPaths"
+            else
+            echo "Entitlements path is 'None', skipping download."
+            fi
+            
+            # Download mobileProvisionProfilesPath files, only if they are not "None"
+            if [ "$mobileProvisionProfilesPath" != "None" ]; then
+            IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
+            counter=1
+            for url in "${provisionUrls[@]}"; do
+            # Use a constant name for provision files
+            fileName="/tmp/provision${counter}.mobileprovision"
+            curl -o "$fileName" "$url"
+            if [ -z "$localMobileProvisionPaths" ]; then
+            localMobileProvisionPaths="$fileName"
+            else
+            localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+            fi
+            counter=$((counter+1))
+            done
+          echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+            else
+            echo "Mobile provision profiles path is 'None', skipping download."
+            fi
+            
+            # Set outputs for next steps using Environment Files
+            echo "Setting environment variables for next steps..."
           
-          # Download mobileProvisionProfilesPath files, only if they are not "None"
-          if [ "$mobileProvisionProfilesPath" != "None" ]; then
-              IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
-              for url in "${provisionUrls[@]}"; do
-                  fileName="/tmp/$(basename $url)"
-                  curl -o "$fileName" "$url"
-                  if [ -z "$localMobileProvisionPaths" ]; then
-                      localMobileProvisionPaths="$fileName"
-                  else
-                      localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
-                  fi
-              done
-              echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
-          else
-              echo "Mobile provision profiles path is 'None', skipping download."
-          fi
-          # Set outputs for next steps using Environment Files
-
           # Print and set each variable using Environment Files
           echo "appFilePath: $localAppFilePath"
             echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
@@ -180,6 +188,7 @@ jobs:
           
           echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
+
             
 
 
