@@ -156,6 +156,9 @@ jobs:
           else
             echo "Certificate file path is 'None', skipping download."
           fi
+          
+
+
 
           # Download entitlementsPath files, only if they are not "None"
           if [ "$entitlementsPath" != "None" ]; then
@@ -171,6 +174,8 @@ jobs:
           else
             echo "Entitlements path is 'None', skipping download."
           fi
+          
+          localEntitlementsPaths="${localEntitlementsPaths#,}"
 
           # Download mobileProvisionProfilesPath files, only if they are not "None"
             if [ "$mobileProvisionProfilesPath" != "None" ]; then
@@ -208,19 +213,10 @@ jobs:
             echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
           echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
             echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
-
           
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-          
 
-      - name: printenv
-        run: |
-          # Print all environment variables
-          printenv
-    
-      
-      
 
       - name: Build and Test with Maven
         run: |

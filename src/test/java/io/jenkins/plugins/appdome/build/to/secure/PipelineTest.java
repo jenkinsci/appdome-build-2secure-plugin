@@ -292,17 +292,17 @@ public class PipelineTest {
                 logger.info("iOS: sign on appdome");
                 Tests.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
-                        null, null, buildToTest, buildWithLogs, logger);
+                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, buildToTest, buildWithLogs, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, null, null, buildToTest, buildWithLogs, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
