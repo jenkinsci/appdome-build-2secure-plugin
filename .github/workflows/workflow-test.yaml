@@ -29,7 +29,7 @@ on:
       buildParams:
         description: 'Build parameters in JSON format'
         required: true
-        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput"}'
+        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app"}'
       secretParams:
         description: 'Build parameters in JSON format'
         required: true
@@ -230,7 +230,7 @@ jobs:
           buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
           googlePlaySign=$(echo $buildParams | jq -r '.googlePlaySign')
           secondOutput=$(echo $buildParams | jq -r '.secondOutput')
-          
+          outputName = $(echo $buildParams | jq -r '.outputName')
           # Use the environment variables directly
           appFilePath="$appFilePath"
           keystoreFilePath="$keystoreFilePath"
@@ -253,6 +253,7 @@ jobs:
           echo "buildWithLogs: $buildWithLogs"
           echo "googlePlaySign: $googlePlaySign"
           echo "secondOutput: $secondOutput"
+          echo "outputName: $outputName"
           
           # Run the Maven command with extracted parameters
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
@@ -270,6 +271,7 @@ jobs:
             -DbuildWithLogs="$buildWithLogs" \
             -DgooglePlaySign="$googlePlaySign" \
             -DsecondOutput="$secondOutput" \
+            -DoutputName="$outputName" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:

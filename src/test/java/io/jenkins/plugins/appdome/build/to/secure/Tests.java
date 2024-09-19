@@ -25,8 +25,10 @@ public class Tests {
     public static void testAndroidAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
                                                 String keystorePassword, String keystoreAlias, String keystoreKeyPass,
                                                 String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
-                                                Boolean buildWithLogs, Logger logger) throws Exception {
+                                                Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoSignBuild");
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         AutoGoogleSign autoGoogleSign = null;
@@ -53,15 +55,18 @@ public class Tests {
 
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
     public static void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Logger logger) throws Exception {
         logger.info("Inside testAndroidPrivateSignBuild");
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
         Boolean isSecondOutput = false;
         if (secondOutput != null) {
@@ -75,15 +80,19 @@ public class Tests {
         androidPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
     public static void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoDevSignBuild");
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         Boolean isSecondOutput = false;
@@ -107,7 +116,8 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
     }
@@ -116,9 +126,9 @@ public class Tests {
     public static void testIosAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                             String certificateFilePath, String certificatePassword, List<StringWarp>
                                                     provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
-                                            Boolean buildWithLogs, Logger logger) throws Exception {
+                                            Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
         logger.info("Inside testIosAutoSignBuild");
-
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".ipa";
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
         io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
@@ -131,7 +141,8 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins, logger);
     }
@@ -139,8 +150,9 @@ public class Tests {
 
     public static void testIosPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                                List<StringWarp> provisionProfiles, BuildToTest buildToTest,
-                                               Boolean buildWithLogs, Logger logger) throws Exception {
+                                               Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
         logger.info("Inside testIosPrivateSignBuild");
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".ipa";
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
@@ -154,7 +166,9 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
+
         project.getBuildersList().add(appdomeBuilder);
         logger.info("Printing provision profiles:");
         // Loop through each item in the provisionProfiles list
@@ -183,8 +197,10 @@ public class Tests {
 
     public static void testIosAutoDevPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet,
                                                       List<StringWarp> provisionProfiles, List<StringWarp> entitlements,
-                                                      BuildToTest buildToTest, Boolean buildWithLogs, Logger logger) throws Exception {
+                                                      BuildToTest buildToTest, Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
         logger.info("Inside testIosAutoDevPrivateSignBuild");
+        String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".ipa";
+
         FreeStyleProject project = jenkins.createFreeStyleProject();
 
         // Create configuration objects
@@ -197,7 +213,8 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
+        appdomeBuilder.setOutputLocation(output_location);
+        logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false, jenkins, logger);
 
@@ -245,5 +262,17 @@ public class Tests {
         jenkins.assertBuildStatus(Result.SUCCESS, build);
     }
 
+    private static String getFileExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return null;
+        }
+
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex >= 0) { // Make sure there is a '.' in the filename
+            return fileName.substring(dotIndex + 1).toLowerCase();
+        } else {
+            return null; // No extension found
+        }
+    }
 
 }

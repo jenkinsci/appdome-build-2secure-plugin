@@ -43,6 +43,8 @@ public class PipelineTest {
     private Boolean googlePlaySign;
     private String secondOutput;
 
+    private String outputName;
+
     @Before
     public void setUp() throws Exception {
         logger.info("Loading environment variables...");
@@ -113,8 +115,7 @@ public class PipelineTest {
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
-
-
+        this.outputName = System.getProperty("outputName", "protected_app");
     }
 
 
@@ -139,8 +140,11 @@ public class PipelineTest {
         if (this.mobileProvisionProfilesPath != null && this.mobileProvisionProfilesPath.isEmpty())
             this.mobileProvisionProfilesPath = null;
         if (this.buildWithLogs != null && !this.buildWithLogs) this.buildWithLogs = null;
+
         if (this.googlePlaySign != null && !this.googlePlaySign) this.googlePlaySign = null;
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
+        if (isNoneOrEmpty(this.outputName)) this.outputName = null;
+
     }
 
     // Helper method to check if a string is "None" or empty
@@ -269,19 +273,19 @@ public class PipelineTest {
                 Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, logger);
+                        this.buildWithLogs, this.outputName, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -302,17 +306,17 @@ public class PipelineTest {
                 logger.info("iOS: sign on appdome");
                 Tests.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
-                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, logger);
+                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, this.outputName, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
