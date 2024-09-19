@@ -173,20 +173,28 @@ jobs:
           fi
 
           # Download mobileProvisionProfilesPath files, only if they are not "None"
-          if [ "$mobileProvisionProfilesPath" != "None" ]; then
+            if [ "$mobileProvisionProfilesPath" != "None" ]; then
             IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
             counter=1
             for url in "${provisionUrls[@]}"; do
-              fileName="/tmp/provision${counter}.mobileprovision"
-              curl -L -o "$fileName" "$url"
-              localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
-              counter=$((counter+1))
+            # Use a constant name for provision files
+            fileName="/tmp/provision${counter}.mobileprovision"
+            curl -L -o "$fileName" "$url"
+            
+            # If localMobileProvisionPaths is empty, don't add the comma
+            if [ -z "$localMobileProvisionPaths" ]; then
+            localMobileProvisionPaths="$fileName"
+            else
+            localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+            fi
+            
+            counter=$((counter+1))
             done
-            echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
-          else
+          echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+            else
             echo "Mobile provision profiles path is 'None', skipping download."
-          fi
-          
+            fi
+
           # Set outputs for next steps using Environment Files
           echo "Setting environment variables for next steps..."
           

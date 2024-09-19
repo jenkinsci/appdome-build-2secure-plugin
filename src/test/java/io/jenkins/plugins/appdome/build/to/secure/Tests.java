@@ -159,7 +159,7 @@ public class Tests {
         logger.info("Printing provision profiles:");
         // Loop through each item in the provisionProfiles list
         for (StringWarp provisionProfile : provisionProfiles) {
-            String filePath = provisionProfile.getItem(); // Assuming StringWarp has a method to get the string
+            String filePath = provisionProfile.getProvisioningProfiles(); // Assuming StringWarp has a method to get the string
 
             // Log the provision profile being checked
             logger.info("Checking provision profile: " + filePath);
