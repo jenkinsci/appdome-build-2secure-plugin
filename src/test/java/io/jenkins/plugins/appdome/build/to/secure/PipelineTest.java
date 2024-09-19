@@ -160,7 +160,17 @@ public class PipelineTest {
             File file = new File(filePath);
             if (!file.exists()) {
                 logger.severe(description + " does not exist: " + filePath);
+
+                // Get the directory name and list the contents
+                File dir = file.getParentFile();  // Get the parent directory
+                if (dir != null && dir.exists() && dir.isDirectory()) {
+                    String[] files = dir.list();
+                    logger.info("Contents of directory " + dir.getAbsolutePath() + ": " + Arrays.toString(files));
+                } else {
+                    logger.warning("The parent directory does not exist or is not a directory.");
+                }
                 throw new IllegalArgumentException(description + " does not exist: " + filePath);
+
             } else {
                 logger.info(description + " exists: " + filePath);
             }
