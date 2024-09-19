@@ -92,30 +92,24 @@ public class Tests {
         }
 
         AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
-        googleSigning = false;
+        if (googleSigning == null) {
+            googleSigning = false;
+        } else if (googleSigning) {
+            googleSigning = true;
+        }
 
         autoDevSign.setGoogleSigning(googleSigning);
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
-        logger.info("secret = " + Secret.fromString(token));
-        logger.info("teamId = " + teamId);
-        logger.info("fingerprint  = " + fingerprint);
-        logger.info("buildWithLogs  = " + buildWithLogs);
-        logger.info("googleSigning  = " + googleSigning);
 
-        logger.info("androidPlatform =" + androidPlatform);
-        logger.info("androidPlatform getFusionSetId=" + androidPlatform.getFusionSetId());
 
-        logger.info("androidPlatform getCertificateMethod=" + androidPlatform.getCertificateMethod().getSignType().toString());
-        logger.info("androidPlatform getAppPath = " + androidPlatform.getAppPath());
-
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null);
-//        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(false);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
+        appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false, jenkins, logger);
+        checkingResults(project, isSecondOutput, jenkins, logger);
     }
 
 
