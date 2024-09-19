@@ -156,7 +156,7 @@ public class Tests {
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation("/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/");
         project.getBuildersList().add(appdomeBuilder);
-
+        logger.info("Printing provision profiles:");
         // Loop through each item in the provisionProfiles list
         for (StringWarp provisionProfile : provisionProfiles) {
             String filePath = provisionProfile.getItem(); // Assuming StringWarp has a method to get the string
