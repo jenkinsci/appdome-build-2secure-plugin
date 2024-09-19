@@ -150,7 +150,7 @@ jobs:
 
           # Download certificate file
           if [ "$certificateFilePath" != "None" ]; then
-            curl -L -o /tmp/certificate.12 "$certificateFilePath"
+            curl -L -o /tmp/certificate.p12 "$certificateFilePath"
             echo "Downloaded certificate file to /tmp/certificate.p12"
             localCertificateFilePath="/tmp/certificate.p12"
           else
