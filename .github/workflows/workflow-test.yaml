@@ -213,8 +213,11 @@ jobs:
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
           
 
-      
-      
+      - name: printenv
+        run: |
+          # Print all environment variables
+          printenv
+    
       
       
 
