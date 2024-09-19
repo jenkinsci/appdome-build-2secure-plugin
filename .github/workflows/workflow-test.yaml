@@ -206,12 +206,13 @@ jobs:
           
           echo "certificateFilePath: $localCertificateFilePath"
             echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+          echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
+            echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
           
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
           
-          echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
-            echo "mobileProvisionProfilesPath=$localMobileProvisionProfilesPath" >> $GITHUB_ENV
+
       
       
       
