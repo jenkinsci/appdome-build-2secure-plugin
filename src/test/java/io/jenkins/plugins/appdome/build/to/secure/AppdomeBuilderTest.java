@@ -21,13 +21,14 @@ import org.jvnet.hudson.test.JenkinsRule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
 public class AppdomeBuilderTest {
 
     @Rule
-    public JenkinsRule jenkins;
+    public JenkinsRule jenkins = new JenkinsRule();
     private static final String PATH_TO_FILES = "downloaded_files/";
     final String androidFusionSet = "8c693120-7cab-11ee-8275-c54d0e1c9b7a";
     final String iosFusionSet = "13ded0a0-7cad-11ee-b531-29c8c84aedcc";
@@ -56,19 +57,6 @@ public class AppdomeBuilderTest {
     private String keystoreKeyPass;
     private String keystorePassword;
     private String p12Password;
-
-    public AppdomeBuilderTest(JenkinsRule jenkins) {
-        if (jenkins != null) {
-            this.jenkins = jenkins;
-        } else {
-            this.jenkins = new JenkinsRule();
-        }
-    }
-
-    public JenkinsRule getJenkins()
-    {
-        return this.jenkins;
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -217,7 +205,6 @@ public class AppdomeBuilderTest {
 
         appdomeBuilder.setBuildToTest(null);
 
-
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false);
     }
@@ -344,146 +331,5 @@ public class AppdomeBuilderTest {
 
     }
 
-    public void testAndroidAutoSignBuild(String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
-                                         String keystorePassword, String keystoreAlias, String keystoreKeyPass,
-                                         String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
-                                         Boolean buildWithLogs) throws Exception {
 
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        // Create configuration objects
-        AutoGoogleSign autoGoogleSign = null;
-        if (fingerprint != null) {
-            autoGoogleSign = new AutoGoogleSign(fingerprint);
-        }
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
-
-        AutoSign autoSign =
-                new AutoSign(keystoreFilePath,
-                        Secret.fromString(keystorePassword), Secret.fromString(keystoreAlias),
-                        Secret.fromString(keystoreKeyPass), autoGoogleSign);
-
-        AndroidPlatform androidPlatform = new AndroidPlatform(autoSign);
-        androidPlatform.setFusionSetId(fusionSet);
-        androidPlatform.setAppPath(appPath);
-
-
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform, secondOutput);
-
-        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput);
-    }
-
-    public void testAndroidPrivateSignBuild(String token, String teamId, String appPath, String fusionSet, String fingerprint,
-                                            StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                            Boolean googleSigning) throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
-        // Create configuration objects
-        PrivateSign privateSign = new PrivateSign(fingerprint);
-        privateSign.setGoogleSigning(googleSigning);
-        AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
-        androidPlatform.setFusionSetId(fusionSet);
-        androidPlatform.setAppPath(appPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput);
-    }
-
-    public void testAndroidAutoDevSignBuild(String token, String teamId, String appPath, String fusionSet, String fingerprint,
-                                            StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                            Boolean googleSigning) throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        // Create configuration objects
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
-        AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
-        autoDevSign.setGoogleSigning(googleSigning);
-        AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
-        androidPlatform.setFusionSetId(fusionSet);
-        androidPlatform.setAppPath(appPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
-        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, isSecondOutput);
-    }
-
-
-    public void testIosAutoSignBuild(String token, String teamId, String appPath, String fusionSet,
-                                     String certificateFilePath, String certificatePassword, List<StringWarp>
-                                             provisionProfiles, List<StringWarp> entitlements, BuildToTest buildToTest,
-                                     Boolean buildWithLogs) throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        // Create configuration objects
-        io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign autoSign
-                = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoSign(certificateFilePath, Secret.fromString(certificatePassword), provisionProfiles, entitlements);
-
-        IosPlatform iosPlatform = new IosPlatform(autoSign);
-        iosPlatform.setFusionSetId(fusionSet);
-        iosPlatform.setAppPath(appPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
-        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false);
-    }
-
-
-    public void testIosPrivateSignBuild(String token, String teamId, String appPath, String fusionSet,
-                                        List<StringWarp> provisionProfiles, BuildToTest buildToTest,
-                                        Boolean buildWithLogs) throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-
-        // Create configuration objects
-        io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.PrivateSign privateSign
-                = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                PrivateSign(provisionProfiles);
-        IosPlatform iosPlatform = new IosPlatform(privateSign);
-        iosPlatform.setFusionSetId(fusionSet);
-        iosPlatform.setAppPath(appPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
-        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false);
-
-    }
-
-
-    public void testIosAutoDevPrivateSignBuild(String token, String teamId, String appPath, String fusionSet,
-                                               List<StringWarp> provisionProfiles, List<StringWarp> entitlements,
-                                               BuildToTest buildToTest, Boolean buildWithLogs) throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-
-        // Create configuration objects
-        io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign
-                autoDevSign = new io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.
-                AutoDevSign(provisionProfiles, entitlements);
-        IosPlatform iosPlatform = new IosPlatform(autoDevSign);
-        iosPlatform.setFusionSetId(fusionSet);
-        iosPlatform.setAppPath(appPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
-        appdomeBuilder.setBuildToTest(buildToTest);
-        appdomeBuilder.setBuildWithLogs(buildWithLogs);
-        project.getBuildersList().add(appdomeBuilder);
-        checkingResults(project, false);
-
-    }
 }

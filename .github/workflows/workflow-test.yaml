@@ -1,16 +1,16 @@
 name: Maven CI
 
 on:
-  push:
-    branches:
-      - main
-      - testing-enviorment
-    tags:
-      - v*
-  pull_request:
-    branches:
-      - main
-      - testing-enviorment
+  #  push:
+  #    branches:
+  #      - main
+  #      - testing-enviorment
+  #    tags:
+  #      - v*
+  #  pull_request:
+  #    branches:
+  #      - main
+  #      - testing-enviorment
   workflow_dispatch:
     inputs:
       branch:
@@ -26,58 +26,14 @@ on:
           - development
           - staging
           - production
-      teamId:
-        description: 'Team ID for the plugin'
+      buildParams:
+        description: 'Build parameters in JSON format'
         required: true
-        default: 'default-teamId'
-      signOption:
-        description: 'Signing option'
+        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app"}'
+      secretParams:
+        description: 'Build parameters in JSON format'
         required: true
-        default: 'default-signOption'
-      appFilePath:
-        description: 'App file path'
-        required: true
-        default: 'default-appFilePath'
-      keystoreFilePath:
-        description: 'Keystore file path'
-        required: true
-        default: 'default-keystoreFilePath'
-      certificateFilePath:
-        description: 'Certificate file path'
-        required: true
-        default: 'default-certificateFilePath'
-      fusionSetId:
-        description: 'Fusion Set ID'
-        required: true
-        default: 'default-fusionSetId'
-      signFingerprint:
-        description: 'Sign Fingerprint'
-        required: true
-        default: 'default-signFingerprint'
-      entitlementsPath:
-        description: 'Entitlements path (comma-separated)'
-        required: true
-        default: 'default1,default2'
-      mobileProvisionProfilesPath:
-        description: 'Mobile provision profiles path (comma-separated)'
-        required: true
-        default: 'default1,default2'
-      buildToTest:
-        description: 'Build to test'
-        required: true
-        default: 'default-buildToTest'
-      buildWithLogs:
-        description: 'Build with logs (true/false)'
-        required: true
-        default: 'false'
-      googlePlaySign:
-        description: 'Google Play Signing (true/false)'
-        required: true
-        default: 'false'
-      secondOutput:
-        description: 'Second output'
-        required: true
-        default: 'default-secondOutput'
+        default: '{"APPDOME_API_TOKEN":"default-APPDOME_API_TOKEN", "KEYSTORE_ALIAS":"default-KEYSTORE_ALIAS", "KEYSTORE_KEY_PASS":"default-KEYSTORE_KEY_PASS", "KEYSTORE_PASSWORD":"default-KEYSTORE_PASSWORD", "P12_PASSWORD":"default-P12_PASSWORD"}'
       logLevel:
         description: 'Set the log level for Maven builds'
         required: false
@@ -87,8 +43,14 @@ on:
           - info
           - warning
           - debug
+      dispatch_id:
+        description: 'run_unique_id'
+        required: true
+        type: string
+
 jobs:
   build-and-test:
+    name: run_${{ github.event.inputs.dispatch_id }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -99,8 +61,220 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'maven'
 
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      - name: Parse Secret Params
+        id: parse_secrets
+        run: |
+          echo "Parsing secret parameters..."
+          secretParams=$(echo '${{ github.event.inputs.secretParams }}' | jq -r '.')
+          echo "APPDOME_API_TOKEN_PIPELINE=$(echo "$secretParams" | jq -r '.APPDOME_API_TOKEN')" >> $GITHUB_ENV
+          echo "KEYSTORE_ALIAS_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_ALIAS')" >> $GITHUB_ENV
+          echo "KEYSTORE_KEY_PASS_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_KEY_PASS')" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.KEYSTORE_PASSWORD')" >> $GITHUB_ENV
+          echo "P12_PASSWORD_PIPELINE=$(echo "$secretParams" | jq -r '.P12_PASSWORD')" >> $GITHUB_ENV
+          
+          
+      - name: Download files from AWS S3 URLs
+        id: download_files  # Assign an ID to the step to use outputs
+        run: |
+          # Function to get file extension from URL
+          get_file_extension() {
+            local url=$1
+            if [[ "$url" == *".apk"* ]]; then
+              echo "apk"
+            elif [[ "$url" == *".aab"* ]]; then
+              echo "aab"
+            elif [[ "$url" == *".ipa"* ]]; then
+              echo "ipa"
+            else
+              echo "unknown"
+            fi
+          }
+
+          # Create output directory
+          mkdir -p /tmp/output
+
+          # Extract parameters from JSON input
+          buildParams='${{ github.event.inputs.buildParams }}'
+          appFilePath=$(echo $buildParams | jq -r '.appFilePath')
+          keystoreFilePath=$(echo $buildParams | jq -r '.keystoreFilePath')
+          certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
+          entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
+          mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
+
+          # Initialize local file paths
+          localAppFilePath=""
+          localKeystoreFilePath=""
+          localCertificateFilePath=""
+          localEntitlementsPaths=""
+          localMobileProvisionPaths=""
+
+          # Download app file with dynamic extension
+          if [ "$appFilePath" != "None" ]; then
+            extension=$(get_file_extension "$appFilePath")
+          
+            # Set a default name based on the detected extension
+            localFileName="/tmp/app.$extension"
+          
+            # Download the file
+            curl -L -o "$localFileName" "$appFilePath"
+            echo "Downloaded app file to $localFileName"
+            localAppFilePath="$localFileName"
+          else
+            echo "App file path is 'None', skipping download."
+          fi
+
+          # Download keystore file
+          if [ "$keystoreFilePath" != "None" ]; then
+            curl -L -o /tmp/keystore.keystore "$keystoreFilePath"
+            echo "Downloaded keystore file to /tmp/keystore.keystore"
+            localKeystoreFilePath="/tmp/keystore.keystore"
+          else
+            echo "Keystore file path is 'None', skipping download."
+          fi
+
+          # Download certificate file
+          if [ "$certificateFilePath" != "None" ]; then
+            curl -L -o /tmp/certificate.p12 "$certificateFilePath"
+            echo "Downloaded certificate file to /tmp/certificate.p12"
+            localCertificateFilePath="/tmp/certificate.p12"
+          else
+            echo "Certificate file path is 'None', skipping download."
+          fi
+          
+
+
+
+          # Download entitlementsPath files, only if they are not "None"
+          if [ "$entitlementsPath" != "None" ]; then
+            IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
+            counter=1
+            for url in "${entitlementUrls[@]}"; do
+              fileName="/tmp/entitlement${counter}.plist"
+              curl -L -o "$fileName" "$url"
+              localEntitlementsPaths="$localEntitlementsPaths,$fileName"
+              counter=$((counter+1))
+            done
+            echo "Downloaded entitlement files: $localEntitlementsPaths"
+          else
+            echo "Entitlements path is 'None', skipping download."
+          fi
+          
+          localEntitlementsPaths="${localEntitlementsPaths#,}"
+
+          # Download mobileProvisionProfilesPath files, only if they are not "None"
+            if [ "$mobileProvisionProfilesPath" != "None" ]; then
+            IFS=',' read -ra provisionUrls <<< "$mobileProvisionProfilesPath"
+            counter=1
+            for url in "${provisionUrls[@]}"; do
+            # Use a constant name for provision files
+            fileName="/tmp/provision${counter}.mobileprovision"
+            curl -L -o "$fileName" "$url"
+            
+            # If localMobileProvisionPaths is empty, don't add the comma
+            if [ -z "$localMobileProvisionPaths" ]; then
+            localMobileProvisionPaths="$fileName"
+            else
+            localMobileProvisionPaths="$localMobileProvisionPaths,$fileName"
+            fi
+            
+            counter=$((counter+1))
+            done
+          echo "Downloaded mobile provision profiles: $localMobileProvisionPaths"
+            else
+            echo "Mobile provision profiles path is 'None', skipping download."
+            fi
+
+          # Set outputs for next steps using Environment Files
+          echo "Setting environment variables for next steps..."
+          
+          echo "appFilePath: $localAppFilePath"
+            echo "appFilePath=$localAppFilePath" >> $GITHUB_ENV
+          
+          echo "keystoreFilePath: $localKeystoreFilePath"
+            echo "keystoreFilePath=$localKeystoreFilePath" >> $GITHUB_ENV
+          
+          echo "certificateFilePath: $localCertificateFilePath"
+            echo "certificateFilePath=$localCertificateFilePath" >> $GITHUB_ENV
+          echo "mobileProvisionProfilesPath: $localMobileProvisionPaths"
+            echo "mobileProvisionProfilesPath=$localMobileProvisionPaths" >> $GITHUB_ENV
+          
+          echo "entitlementsPath: $localEntitlementsPaths"
+            echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+
+
       - name: Build and Test with Maven
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=PipelineTest#workFlowTest -DteamId='default-teamId' -DsignOption='default-signOption' -DappFilePath='default-appFilePath' -DkeystoreFilePath='default-keystoreFilePath' -DcertificateFilePath='default-certificateFilePath' -DfusionSetId='default-fusionSetId' -DsignFingerprint='default-signFingerprint' -DentitlementsPath='default1,default2' -DmobileProvisionProfilesPath='default1,default2' -DbuildToTest='default-buildToTest' -DbuildWithLogs='false' -DgooglePlaySign='false' -DsecondOutput='default-secondOutput' package
+        run: |
+          # Extract other parameters from JSON input
+          buildParams='${{ github.event.inputs.buildParams }}'
+          teamId=$(echo $buildParams | jq -r '.teamId')
+          signOption=$(echo $buildParams | jq -r '.signOption')
+          fusionSetId=$(echo $buildParams | jq -r '.fusionSetId')
+          signFingerprint=$(echo $buildParams | jq -r '.signFingerprint')
+          buildToTest=$(echo $buildParams | jq -r '.buildToTest')
+          buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
+          googlePlaySign=$(echo $buildParams | jq -r '.googlePlaySign')
+          secondOutput=$(echo $buildParams | jq -r '.secondOutput')
+          outputName=$(echo $buildParams | jq -r '.outputName')  # Fixed this line
+          # Use the environment variables directly
+          appFilePath="$appFilePath"
+          keystoreFilePath="$keystoreFilePath"
+          certificateFilePath="$certificateFilePath"
+          entitlementsPath="$entitlementsPath"
+          mobileProvisionProfilesPath="$mobileProvisionProfilesPath"
+          
+          # Echo each parameter to verify parsing worked correctly
+          echo "Parsed Parameters:"
+          echo "teamId: $teamId"
+          echo "signOption: $signOption"
+          echo "appFilePath: $appFilePath"
+          echo "keystoreFilePath: $keystoreFilePath"
+          echo "certificateFilePath: $certificateFilePath"
+          echo "fusionSetId: $fusionSetId"
+          echo "signFingerprint: $signFingerprint"
+          echo "entitlementsPath: $entitlementsPath"
+          echo "mobileProvisionProfilesPath: $mobileProvisionProfilesPath"
+          echo "buildToTest: $buildToTest"
+          echo "buildWithLogs: $buildWithLogs"
+          echo "googlePlaySign: $googlePlaySign"
+          echo "secondOutput: $secondOutput"
+          echo "outputName: $outputName"
+          
+          # Run the Maven command with extracted parameters
+          mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
+            -Dtest=PipelineTest#workFlowTest \
+            -DteamId="$teamId" \
+            -DsignOption="$signOption" \
+            -DappFilePath="$appFilePath" \
+            -DkeystoreFilePath="$keystoreFilePath" \
+            -DcertificateFilePath="$certificateFilePath" \
+            -DfusionSetId="$fusionSetId" \
+            -DsignFingerprint="$signFingerprint" \
+            -DentitlementsPath="$entitlementsPath" \
+            -DmobileProvisionProfilesPath="$mobileProvisionProfilesPath" \
+            -DbuildToTest="$buildToTest" \
+            -DbuildWithLogs="$buildWithLogs" \
+            -DgooglePlaySign="$googlePlaySign" \
+            -DsecondOutput="$secondOutput" \
+            -DoutputName="$outputName" \
+            -Denvironment="${{ github.event.inputs.environment }}" \
+            package
+        env:
+          APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
+          KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
+          KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
+          KEYSTORE_PASSWORD: ${{ env.KEYSTORE_PASSWORD_PIPELINE }}
+          P12_PASSWORD: ${{ env.P12_PASSWORD_PIPELINE }}
+
+      # Step to upload the downloaded files as artifacts (using wildcard)
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: downloaded-files-artifact
+          path: /home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/*
+          if-no-files-found: warn

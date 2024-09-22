@@ -18,7 +18,7 @@ def main():
         'ipa_app_3.ipa': 'Thomas/PipelineFiles/Apps/Trends256-ForWatchKit.ipa',
         'certificate_file1.p12': 'Thomas/PipelineFiles/AutomationCert.p12',
         'certificate_file2.p12': 'Thomas/PipelineFiles/meirtsvi75.p12',
-        'ipa_1_mobile_provisioning.mobileprovision': 'Thomas/PipelineFiles/Automation.mobileprovision',
+        'ipa_1_mobile_provisioning.mobileprovision': 'Thomas/PipelineFiles/Appdome_Automation.mobileprovision',
         'ipa_1_entitlements.plist': 'Thomas/PipelineFiles/AutomationEntitlements.plist',
         'ipa_2_mobile_provisioning_1.mobileprovision': 'Thomas/PipelineFiles/Trendsappstoredist.mobileprovision',
         'ipa_2_mobile_provisioning_2.mobileprovision': 'Thomas/PipelineFiles/Trends_watchkit_appstoredist.mobileprovision',
