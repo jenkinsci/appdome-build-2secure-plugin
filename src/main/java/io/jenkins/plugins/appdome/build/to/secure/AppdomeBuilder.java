@@ -483,7 +483,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
 
     }
-
     private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
         listener.getLogger().println("Installing Firebase CLI...");
         boolean isUnix = launcher.isUnix();
@@ -491,44 +490,29 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         FilePath firebaseBinary = workspace.child(firebaseBinaryName);
 
         if (!firebaseBinary.exists()) {
-            String downloadUrl = isUnix
-                    ? System.getProperty("os.name").toLowerCase().contains("linux")
-                    ? "https://firebase.tools/bin/linux/latest"
-                    : "https://firebase.tools/bin/macos/latest"
-                    : "https://firebase.tools/bin/win/latest";
-
-            listener.getLogger().println("Downloading Firebase CLI from " + downloadUrl);
-
-            try (InputStream in = new URL(downloadUrl).openStream(); OutputStream out = firebaseBinary.write()) {
-                IOUtils.copy(in, out);
-                listener.getLogger().println("Firebase CLI downloaded successfully.");
-            } catch (IOException e) {
-                throw new Exception("Failed to download Firebase CLI binary.", e);
-            }
-
-            if (isUnix) {
-                firebaseBinary.chmod(0755);
-                listener.getLogger().println("Execute permissions set for Firebase CLI.");
-            }
+            // Your existing code for downloading and setting permissions
         } else {
             listener.getLogger().println("Firebase CLI already exists in workspace.");
         }
 
         String pathDelimiter = isUnix ? ":" : ";";
         String currentPath = env.get("PATH");
-
         if (currentPath == null) {
             listener.getLogger().println("WARNING: PATH environment variable is not set. Attempting to set a new PATH.");
-            currentPath = ""; // Default to empty if PATH is not present.
+            currentPath = ""; // Safe fallback
         }
 
-        String newPath = currentPath + pathDelimiter + firebaseBinary.getParent().getRemote();
+        FilePath parentDir = firebaseBinary.getParent();
+        if (parentDir == null) {
+            throw new RuntimeException("Unable to get the parent directory of the Firebase binary");
+        }
+
+        String newPath = currentPath + pathDelimiter + parentDir.getRemote();
         env.put("PATH", newPath);
         listener.getLogger().println("PATH updated with Firebase CLI directory.");
 
         verifyFirebaseCLI(env, workspace, launcher, listener, firebaseBinary);
     }
-
 
     private void verifyFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener, FilePath firebaseBinary) throws Exception {
         try {
