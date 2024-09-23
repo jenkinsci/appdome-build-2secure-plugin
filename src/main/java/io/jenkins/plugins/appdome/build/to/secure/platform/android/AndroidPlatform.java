@@ -31,13 +31,16 @@ public class AndroidPlatform extends Platform {
         this.certificateMethod = certificateMethod;
     }
 
-    public Boolean getIsCrashlytics()
-    {
+    public Boolean getIsCrashlytics() {
+        if (this.isCrashlytics == null) {
+            this.isCrashlytics = false;
+        } else {
+            this.isCrashlytics = true;
+        }
         return this.isCrashlytics;
     }
 
-    public void setIsCrashlytics(Boolean isCrashlytics)
-    {
+    public void setIsCrashlytics(Boolean isCrashlytics) {
         this.isCrashlytics = isCrashlytics;
     }
 
