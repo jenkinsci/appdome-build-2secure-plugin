@@ -516,13 +516,19 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
         String pathDelimiter = isUnix ? ":" : ";";
-        String newPath = env.get("PATH") + pathDelimiter + firebaseBinary.getParent().getRemote();
+
+        // Check if PATH is null and handle it
+        String currentPath = env.get("PATH");
+        if (currentPath == null) {
+            currentPath = "";  // If PATH is null, initialize it to an empty string
+        }
+
+        String newPath = currentPath + pathDelimiter + firebaseBinary.getParent().getRemote();
         env.put("PATH", newPath);
         listener.getLogger().println("PATH updated with Firebase CLI directory.");
 
         verifyFirebaseCLI(env, workspace, launcher, listener, firebaseBinary);
     }
-
 
 
     private void verifyFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener, FilePath firebaseBinary) throws Exception {
