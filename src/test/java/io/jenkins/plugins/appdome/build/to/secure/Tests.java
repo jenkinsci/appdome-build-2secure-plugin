@@ -6,6 +6,7 @@ import hudson.model.FreeStyleProject;
 import hudson.model.Result;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoDevSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoGoogleSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
@@ -25,7 +26,7 @@ public class Tests {
     public static void testAndroidAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
                                                 String keystorePassword, String keystoreAlias, String keystoreKeyPass,
                                                 String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
-                                                Boolean buildWithLogs, String outputName, Logger logger) throws Exception {
+                                                Boolean buildWithLogs, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoSignBuild");
         String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
 
@@ -40,6 +41,7 @@ public class Tests {
             isSecondOutput = true;
         }
 
+
         AutoSign autoSign =
                 new AutoSign(keystoreFilePath,
                         Secret.fromString(keystorePassword), Secret.fromString(keystoreAlias),
@@ -49,13 +51,17 @@ public class Tests {
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
 
-
+        if (crashlytics != null) {
+            androidPlatform.setCrashlytics(crashlytics);
+        }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform, secondOutput);
 
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
+
+
         logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, isSecondOutput, jenkins, logger);
@@ -63,7 +69,7 @@ public class Tests {
 
     public static void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, String outputName, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
         logger.info("Inside testAndroidPrivateSignBuild");
         String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + getFileExtension(appPath);
 
@@ -78,6 +84,9 @@ public class Tests {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
+        if (crashlytics != null) {
+            androidPlatform.setCrashlytics(crashlytics);
+        }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setBuildToTest(buildToTest);
@@ -89,7 +98,7 @@ public class Tests {
 
     public static void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, String outputName, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoDevSignBuild");
         String output_location = "/home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/" + outputName + ".sh";
 
@@ -111,7 +120,9 @@ public class Tests {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
-
+        if (crashlytics != null) {
+            androidPlatform.setCrashlytics(crashlytics);
+        }
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);

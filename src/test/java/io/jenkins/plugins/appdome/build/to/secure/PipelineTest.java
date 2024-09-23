@@ -4,6 +4,7 @@ import java.io.File;
 
 import hudson.EnvVars;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +37,10 @@ public class PipelineTest {
     private String fusionSetId;
     private String signFingerprint;
 
+    private String googleCredFilePath;
+
+    private String firebaseAppId;
+
     private List<StringWarp> entitlementsPath;
     private List<StringWarp> mobileProvisionProfilesPath;
     private BuildToTest buildToTest;
@@ -67,7 +72,7 @@ public class PipelineTest {
         // Check if files exist for each entitlement and provision profile path
         checkFilesExist(this.entitlementsPath, "Entitlements Path");
         checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
-
+        checkFileExists(this.googleCredFilePath, "Google cred file");
     }
 
 
@@ -101,6 +106,8 @@ public class PipelineTest {
         this.certificateFilePath = System.getProperty("certificateFilePath", "default-certificateFilePath");
         this.fusionSetId = System.getProperty("fusionSetId", "default-fusionSetId");
         this.signFingerprint = System.getProperty("signFingerprint", "default-signFingerprint");
+        this.googleCredFilePath = System.getProperty("googleCredFilePath", "default-googleCredFilePath");
+        this.firebaseAppId = System.getProperty("firebaseAppId", "default-firebaseAppId");
 
         // Convert CSV from system properties to List<StringWarp> for entitlements and provisions
         String entitlementsCsv = System.getProperty("entitlementsPath", "default1,default2");
@@ -144,7 +151,8 @@ public class PipelineTest {
         if (this.googlePlaySign != null && !this.googlePlaySign) this.googlePlaySign = null;
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
         if (isNoneOrEmpty(this.outputName)) this.outputName = null;
-
+        if (isNoneOrEmpty(this.firebaseAppId)) this.firebaseAppId = null;
+        if (isNoneOrEmpty(this.googleCredFilePath)) this.googleCredFilePath = null;
     }
 
     // Helper method to check if a string is "None" or empty
@@ -267,25 +275,29 @@ public class PipelineTest {
             }
         }
         logger.info("signOption is " + signOption);
+        Crashlytics crashlytics = null;
+        if (this.firebaseAppId != null && this.googleCredFilePath != null) {
+            crashlytics = new Crashlytics(this.googleCredFilePath, this.firebaseAppId);
+        }
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("Android: sign on appdome");
                 Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.outputName, logger);
+                        this.buildWithLogs, this.outputName, crashlytics, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
