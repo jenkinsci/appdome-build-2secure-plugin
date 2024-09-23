@@ -483,6 +483,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
 
     }
+
     private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
         listener.getLogger().println("Installing Firebase CLI...");
         boolean isUnix = launcher.isUnix();
@@ -510,29 +511,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String newPath = currentPath + pathDelimiter + parentDir.getRemote();
         env.put("PATH", newPath);
         listener.getLogger().println("PATH updated with Firebase CLI directory.");
-
-        verifyFirebaseCLI(env, workspace, launcher, listener, firebaseBinary);
     }
-
-    private void verifyFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener, FilePath firebaseBinary) throws Exception {
-        try {
-            int result = launcher.launch()
-                    .cmds(firebaseBinary.getRemote(), "--version")
-                    .envs(env)
-                    .stdout(listener.getLogger())
-                    .stderr(listener.getLogger())
-                    .quiet(true)
-                    .pwd(workspace)
-                    .join();
-            if (result != 0) {
-                throw new Exception("Firebase CLI verification failed.");
-            }
-            listener.getLogger().println("Firebase CLI verified successfully.");
-        } catch (IOException | InterruptedException e) {
-            throw new Exception("Error verifying Firebase CLI installation.", e);
-        }
-    }
-
 
     public static boolean isHttpUrl(String urlString) {
         String regex = "^https?://.*$";
