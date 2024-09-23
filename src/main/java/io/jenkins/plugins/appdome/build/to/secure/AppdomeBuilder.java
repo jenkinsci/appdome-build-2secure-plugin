@@ -491,12 +491,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         FilePath firebaseBinary = workspace.child(firebaseBinaryName);
 
         if (!firebaseBinary.exists()) {
-            String downloadUrl = "https://firebase.tools/bin/win/latest";
-            if (isUnix) {
-                downloadUrl = System.getProperty("os.name").toLowerCase().contains("linux")
-                        ? "https://firebase.tools/bin/linux/latest"
-                        : "https://firebase.tools/bin/macos/latest";
-            }
+            String downloadUrl = isUnix
+                    ? System.getProperty("os.name").toLowerCase().contains("linux")
+                    ? "https://firebase.tools/bin/linux/latest"
+                    : "https://firebase.tools/bin/macos/latest"
+                    : "https://firebase.tools/bin/win/latest";
 
             listener.getLogger().println("Downloading Firebase CLI from " + downloadUrl);
 
@@ -516,11 +515,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
         String pathDelimiter = isUnix ? ":" : ";";
-
-        // Check if PATH is null and handle it
         String currentPath = env.get("PATH");
+
         if (currentPath == null) {
-            currentPath = "";  // If PATH is null, initialize it to an empty string
+            listener.getLogger().println("WARNING: PATH environment variable is not set. Attempting to set a new PATH.");
+            currentPath = ""; // Default to empty if PATH is not present.
         }
 
         String newPath = currentPath + pathDelimiter + firebaseBinary.getParent().getRemote();
