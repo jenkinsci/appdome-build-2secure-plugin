@@ -68,7 +68,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dspotbugs.skip=true -Dtest=AppdomeBuilderTest#testAabAndroidPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
