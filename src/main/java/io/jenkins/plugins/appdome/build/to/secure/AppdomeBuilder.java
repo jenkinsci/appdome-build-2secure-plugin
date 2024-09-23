@@ -491,24 +491,32 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         FilePath firebaseBinary = workspace.child(firebaseBinaryName);
 
         if (!firebaseBinary.exists()) {
-            // Your existing code for downloading and setting permissions
+            String downloadUrl = "https://firebase.tools/bin/win/latest";
+            if (isUnix) {
+                downloadUrl = System.getProperty("os.name").toLowerCase().contains("linux")
+                        ? "https://firebase.tools/bin/linux/latest"
+                        : "https://firebase.tools/bin/macos/latest";
+            }
+
+            listener.getLogger().println("Downloading Firebase CLI from " + downloadUrl);
+
+            try (InputStream in = new URL(downloadUrl).openStream(); OutputStream out = firebaseBinary.write()) {
+                IOUtils.copy(in, out);
+                listener.getLogger().println("Firebase CLI downloaded successfully.");
+            } catch (IOException e) {
+                throw new Exception("Failed to download Firebase CLI binary.", e);
+            }
+
+            if (isUnix) {
+                firebaseBinary.chmod(0755);
+                listener.getLogger().println("Execute permissions set for Firebase CLI.");
+            }
         } else {
             listener.getLogger().println("Firebase CLI already exists in workspace.");
         }
 
         String pathDelimiter = isUnix ? ":" : ";";
-        String currentPath = env.get("PATH");
-        if (currentPath == null) {
-            listener.getLogger().println("WARNING: PATH environment variable is not set. Attempting to set a new PATH.");
-            currentPath = ""; // Safe fallback
-        }
-
-        FilePath parentDir = firebaseBinary.getParent();
-        if (parentDir == null) {
-            throw new RuntimeException("Unable to get the parent directory of the Firebase binary");
-        }
-
-        String newPath = currentPath + pathDelimiter + parentDir.getRemote();
+        String newPath = env.get("PATH") + pathDelimiter + firebaseBinary.getParent().getRemote();
         env.put("PATH", newPath);
         listener.getLogger().println("PATH updated with Firebase CLI directory.");
     }
