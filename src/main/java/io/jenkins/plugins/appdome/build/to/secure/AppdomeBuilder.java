@@ -5,10 +5,7 @@ import hudson.*;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import hudson.util.ArgumentListBuilder;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.util.Secret;
+import hudson.util.*;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
@@ -23,8 +20,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -176,7 +173,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
         switch (platform.getPlatformType()) {
             case ANDROID:
-                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
                 break;
             case IOS:
                 ComposeIosCommand(command, env, appdomeWorkspace, launcher);
@@ -381,8 +378,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
      *
      * @param command The StringBuilder containing the command string to be cleaned directly.
      */
-    public static void cleanCommand(StringBuilder command)
-    {
+    public static void cleanCommand(StringBuilder command) {
         String[] parts = command.toString().split(" ");
         command.setLength(0); // Clear the original StringBuilder
 
@@ -399,7 +395,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
         switch (androidPlatform.getCertificateMethod().getSignType()) {
@@ -460,7 +456,94 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             default:
                 break;
         }
+
+        if (androidPlatform.getIsCrashlytics()) {
+
+            if (!androidPlatform.getFirebaseAppId().isEmpty() &&
+                    !androidPlatform.getGoogleCredFile().isEmpty()) {
+
+                listener.getLogger().println("The Firebase app id inserted: " + androidPlatform.getFirebaseAppId());
+                try {
+                    installFirebaseCLI(env, appdomeWorkspace, launcher, listener);
+                } catch (Exception e) {
+                    listener.getLogger().println("Failed to install Firebase CLI binary: " + e);
+                    listener.getLogger().println("continue without it.");
+                }
+                listener.getLogger().println("Firebase CLI installed successfully");
+                command.append(FIREBASE_APP_ID).append(androidPlatform.getFirebaseAppId());
+                String google_Cred_file = DownloadFilesOrContinue(androidPlatform.getGoogleCredFile(),
+                        appdomeWorkspace, launcher);
+                if (google_Cred_file.isEmpty()) {
+                    listener.getLogger().println("Could not download or find the google Credentials json file. will continue without it.");
+                } else {
+                    env.put("GOOGLE_APPLICATION_CREDENTIALS", google_Cred_file);
+                }
+            }
+        }
+
+
     }
+
+    private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
+        listener.getLogger().println("Installing Firebase CLI...");
+        boolean isUnix = launcher.isUnix();
+        String firebaseBinaryName = isUnix ? "firebase" : "firebase.exe";
+        FilePath firebaseBinary = workspace.child(firebaseBinaryName);
+
+        if (!firebaseBinary.exists()) {
+            String downloadUrl = "https://firebase.tools/bin/win/latest";
+            if (isUnix) {
+                downloadUrl = System.getProperty("os.name").toLowerCase().contains("linux")
+                        ? "https://firebase.tools/bin/linux/latest"
+                        : "https://firebase.tools/bin/macos/latest";
+            }
+
+            listener.getLogger().println("Downloading Firebase CLI from " + downloadUrl);
+
+            try (InputStream in = new URL(downloadUrl).openStream(); OutputStream out = firebaseBinary.write()) {
+                IOUtils.copy(in, out);
+                listener.getLogger().println("Firebase CLI downloaded successfully.");
+            } catch (IOException e) {
+                throw new Exception("Failed to download Firebase CLI binary.", e);
+            }
+
+            if (isUnix) {
+                firebaseBinary.chmod(0755);
+                listener.getLogger().println("Execute permissions set for Firebase CLI.");
+            }
+        } else {
+            listener.getLogger().println("Firebase CLI already exists in workspace.");
+        }
+
+        String pathDelimiter = isUnix ? ":" : ";";
+        String newPath = env.get("PATH") + pathDelimiter + firebaseBinary.getParent().getRemote();
+        env.put("PATH", newPath);
+        listener.getLogger().println("PATH updated with Firebase CLI directory.");
+
+        verifyFirebaseCLI(env, workspace, launcher, listener, firebaseBinary);
+    }
+
+
+
+    private void verifyFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener, FilePath firebaseBinary) throws Exception {
+        try {
+            int result = launcher.launch()
+                    .cmds(firebaseBinary.getRemote(), "--version")
+                    .envs(env)
+                    .stdout(listener.getLogger())
+                    .stderr(listener.getLogger())
+                    .quiet(true)
+                    .pwd(workspace)
+                    .join();
+            if (result != 0) {
+                throw new Exception("Firebase CLI verification failed.");
+            }
+            listener.getLogger().println("Firebase CLI verified successfully.");
+        } catch (IOException | InterruptedException e) {
+            throw new Exception("Error verifying Firebase CLI installation.", e);
+        }
+    }
+
 
     public static boolean isHttpUrl(String urlString) {
         String regex = "^https?://.*$";
