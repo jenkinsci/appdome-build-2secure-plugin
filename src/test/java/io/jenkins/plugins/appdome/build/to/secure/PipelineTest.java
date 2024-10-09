@@ -37,8 +37,6 @@ public class PipelineTest {
     private String fusionSetId;
     private String signFingerprint;
 
-    private String googleCredFilePath;
-
     private String firebaseAppId;
 
     private List<StringWarp> entitlementsPath;
@@ -72,7 +70,6 @@ public class PipelineTest {
         // Check if files exist for each entitlement and provision profile path
         checkFilesExist(this.entitlementsPath, "Entitlements Path");
         checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
-        checkFileExists(this.googleCredFilePath, "Google cred file");
     }
 
 
@@ -106,7 +103,6 @@ public class PipelineTest {
         this.certificateFilePath = System.getProperty("certificateFilePath", "default-certificateFilePath");
         this.fusionSetId = System.getProperty("fusionSetId", "default-fusionSetId");
         this.signFingerprint = System.getProperty("signFingerprint", "default-signFingerprint");
-        this.googleCredFilePath = System.getProperty("googleCredFilePath", "default-googleCredFilePath");
         this.firebaseAppId = System.getProperty("firebaseAppId", "default-firebaseAppId");
 
         // Convert CSV from system properties to List<StringWarp> for entitlements and provisions
@@ -152,7 +148,6 @@ public class PipelineTest {
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
         if (isNoneOrEmpty(this.outputName)) this.outputName = null;
         if (isNoneOrEmpty(this.firebaseAppId)) this.firebaseAppId = null;
-        if (isNoneOrEmpty(this.googleCredFilePath)) this.googleCredFilePath = null;
     }
 
     // Helper method to check if a string is "None" or empty
@@ -276,8 +271,8 @@ public class PipelineTest {
         }
         logger.info("signOption is " + signOption);
         Crashlytics crashlytics = null;
-        if (this.firebaseAppId != null && this.googleCredFilePath != null) {
-            crashlytics = new Crashlytics(this.googleCredFilePath, this.firebaseAppId);
+        if (this.firebaseAppId != null) {
+            crashlytics = new Crashlytics(this.firebaseAppId);
         }
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":

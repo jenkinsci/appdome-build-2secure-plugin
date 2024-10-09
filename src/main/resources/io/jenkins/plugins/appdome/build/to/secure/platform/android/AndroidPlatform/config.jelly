@@ -15,10 +15,6 @@
 
     <!-- Optional Crashlytics Configuration -->
     <f:optionalBlock name="crashlytics" title="Crashlytics" field="isCrashlytics">
-        <f:entry title="Google Credentials File" field="googleCredFile">
-            <f:textbox/>
-        </f:entry>
-
         <f:entry title="Firebase App ID" field="firebaseAppId">
             <f:textbox/>
         </f:entry>

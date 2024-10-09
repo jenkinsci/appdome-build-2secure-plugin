@@ -44,10 +44,6 @@ public class AndroidPlatform extends Platform {
         this.isCrashlytics = isCrashlytics;
     }
 
-    public String getGoogleCredFile() {
-        return this.crashlytics.getGoogleCredFile();
-    }
-
     public String getFirebaseAppId() {
         return this.crashlytics.getFirebaseAppId();
     }
@@ -82,7 +78,7 @@ public class AndroidPlatform extends Platform {
 
     @DataBoundSetter
     public void setCrashlytics(Crashlytics crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
-        if (!crashlytics.getFirebaseAppId().isEmpty() && !crashlytics.getGoogleCredFile().isEmpty()) {
+        if (!crashlytics.getFirebaseAppId().isEmpty()) {
             this.isCrashlytics = true;
             this.crashlytics = crashlytics;
         } else {

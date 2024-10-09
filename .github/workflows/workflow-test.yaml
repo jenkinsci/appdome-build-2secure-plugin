@@ -29,7 +29,7 @@ on:
       buildParams:
         description: 'Build parameters in JSON format'
         required: true
-        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId","googleCredFile":"default-googleCredJsonFile"}'
+        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId"}'
       secretParams:
         description: 'Build parameters in JSON format'
         required: true
@@ -106,7 +106,6 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
-          googleCredFilePath=$(echo $buildParams | jq -r '.googleCredFile')
 
           # Initialize local file paths
           localAppFilePath=""
@@ -114,7 +113,6 @@ jobs:
           localCertificateFilePath=""
           localEntitlementsPaths=""
           localMobileProvisionPaths=""
-          localGoogleCredFilePath=""
 
           # Download app file with dynamic extension
           if [ "$appFilePath" != "None" ]; then
@@ -148,18 +146,7 @@ jobs:
           else
             echo "Certificate file path is 'None', skipping download."
           fi
-          
-          
-          # Download google cred file
-          if [ "$googleCredFilePath" != "None" ]; then
-            curl -L -o /tmp/googleCredFile.json "$googleCredFilePath"
-            echo "Downloaded googleCred file to /tmp/googleCredFile.json"
-            localGoogleCredFilePath="/tmp/googleCredFile.json"
-          else
-            echo "google cred file file path is 'None', skipping google cred file."
-          fi
-          
-          
+                    
           # Download entitlementsPath files, only if they are not "None"
           if [ "$entitlementsPath" != "None" ]; then
             IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
@@ -216,9 +203,6 @@ jobs:
           
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-          
-          echo "google cred file: $localGoogleCredFilePath"
-            echo "GoogleCredFilePath=$localGoogleCredFilePath" >> $GITHUB_ENV
 
 
       - name: Build and Test with Maven
@@ -241,7 +225,6 @@ jobs:
           certificateFilePath="$certificateFilePath"
           entitlementsPath="$entitlementsPath"
           mobileProvisionProfilesPath="$mobileProvisionProfilesPath"
-          googleCredFilePath="$googleCredFilePath"
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
@@ -260,7 +243,6 @@ jobs:
           echo "googlePlaySign: $googlePlaySign"
           echo "secondOutput: $secondOutput"
           echo "outputName: $outputName"
-          echo "googleCredFile: $googleCredFilePath"
           
           # Run the Maven command with extracted parameters
           mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify \
@@ -279,7 +261,6 @@ jobs:
             -DgooglePlaySign="$googlePlaySign" \
             -DsecondOutput="$secondOutput" \
             -DoutputName="$outputName" \
-            -DgoogleCredFilePath="$googleCredFilePath" \
             -DfirebaseAppId="$firebaseAppId" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package

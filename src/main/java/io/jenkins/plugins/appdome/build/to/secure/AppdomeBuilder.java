@@ -459,8 +459,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
         if (androidPlatform.getIsCrashlytics()) {
 
-            if (!androidPlatform.getFirebaseAppId().isEmpty() &&
-                    !androidPlatform.getGoogleCredFile().isEmpty()) {
+            if (!androidPlatform.getFirebaseAppId().isEmpty()) {
 
                 listener.getLogger().println("The Firebase app id inserted: " + androidPlatform.getFirebaseAppId());
                 try {
@@ -471,16 +470,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 }
                 listener.getLogger().println("Firebase CLI installed successfully");
                 command.append(FIREBASE_APP_ID).append(androidPlatform.getFirebaseAppId());
-                String google_Cred_file = DownloadFilesOrContinue(androidPlatform.getGoogleCredFile(),
-                        appdomeWorkspace, launcher);
-                if (google_Cred_file.isEmpty()) {
-                    listener.getLogger().println("Could not download or find the google Credentials json file. will continue without it.");
-                } else {
-                    env.put("GOOGLE_APPLICATION_CREDENTIALS", google_Cred_file);
-                }
             }
         }
-
 
     }
 
