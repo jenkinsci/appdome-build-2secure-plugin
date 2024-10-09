@@ -9,7 +9,7 @@ public interface AppdomeBuilderConstants {
     String MOBILE_PROVISION_PROFILE_PATHS_ENV = "MOBILE_PROVISION_PROFILE_PATHS";
     String ENTITLEMENTS_PATHS_ENV = "ENTITLEMENTS_PATHS";
     String APPDOME_HEADER_ENV_NAME = "APPDOME_CLIENT_HEADER";
-    String APPDOME_BUILDE2SECURE_VERSION = "Jenkins/1.2.5";
+    String APPDOME_BUILDE2SECURE_VERSION = "Jenkins/1.2.8";
 
     /**
      * FLAGS
@@ -36,6 +36,8 @@ public interface AppdomeBuilderConstants {
     String BUILD_TO_TEST = " --build_to_test_vendor ";
     String SECOND_OUTPUT = " --second_output ";
     String DEOBFUSCATION_OUTPUT = " --deobfuscation_script_output ";
+
+    String FIREBASE_APP_ID = " --app_id ";
 
 
 }

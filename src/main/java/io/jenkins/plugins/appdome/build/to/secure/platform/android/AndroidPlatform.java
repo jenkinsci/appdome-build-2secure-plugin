@@ -21,12 +21,33 @@ import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilder.isHttpUr
 public class AndroidPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
+    private Crashlytics crashlytics;  // Changed from crashlyticsPublisher to crashlytics
+
+    private Boolean isCrashlytics;
 
     @DataBoundConstructor
     public AndroidPlatform(CertificateMethod certificateMethod) {
         super(PlatformType.ANDROID);
         this.certificateMethod = certificateMethod;
     }
+
+    public Boolean getIsCrashlytics() {
+        if (this.isCrashlytics == null) {
+            this.isCrashlytics = false;
+        } else {
+            this.isCrashlytics = true;
+        }
+        return this.isCrashlytics;
+    }
+
+    public void setIsCrashlytics(Boolean isCrashlytics) {
+        this.isCrashlytics = isCrashlytics;
+    }
+
+    public String getFirebaseAppId() {
+        return this.crashlytics.getFirebaseAppId();
+    }
+
 
     public String getAppPath() {
         return super.getAppPath();
@@ -50,6 +71,22 @@ public class AndroidPlatform extends Platform {
         return certificateMethod;
     }
 
+
+    public Crashlytics getCrashlytics() {  // Changed from getCrashlyticsPublisher to getCrashlytics
+        return crashlytics;
+    }
+
+    @DataBoundSetter
+    public void setCrashlytics(Crashlytics crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
+        if (!crashlytics.getFirebaseAppId().isEmpty()) {
+            this.isCrashlytics = true;
+            this.crashlytics = crashlytics;
+        } else {
+            this.isCrashlytics = false;
+            this.crashlytics = null;
+        }
+    }
+
     public DescriptorExtensionList<CertificateMethod, Descriptor<CertificateMethod>> getCertificateMethodDescriptors() {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
     }
@@ -67,10 +104,9 @@ public class AndroidPlatform extends Platform {
                         " in the environment variable named 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
-            }else if (appPath != null && isHttpUrl(appPath)) {
+            } else if (appPath != null && isHttpUrl(appPath)) {
                 return FormValidation.ok("Application remote url provided.");
-            }
-             else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
+            } else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
                 return FormValidation.error("Android app - File extension is not allowed," +
                         " allowed extensions are: '.apk' or '.aab'. Please rename your file or upload a different file.");
             }
