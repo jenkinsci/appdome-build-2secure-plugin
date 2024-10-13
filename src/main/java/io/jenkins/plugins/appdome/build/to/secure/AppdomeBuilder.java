@@ -1,6 +1,7 @@
 package io.jenkins.plugins.appdome.build.to.secure;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.*;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
@@ -153,8 +154,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         //common:
         StringBuilder command = new StringBuilder("./appdome_api.sh");
         command.append(KEY_FLAG)
-                .append(this.token).
-                append(FUSION_SET_ID_FLAG)
+                .append(this.token)
+                .append(FUSION_SET_ID_FLAG)
                 .append(platform.getFusionSetId());
 
         //concatenate the team id if it is not empty:
@@ -474,7 +475,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
     }
-
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
     private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
         listener.getLogger().println("Installing Firebase CLI...");
         boolean isUnix = launcher.isUnix();
@@ -517,6 +518,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return urlString.matches(regex);
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
     private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
         if (paths == null) {
             return "NULL";
