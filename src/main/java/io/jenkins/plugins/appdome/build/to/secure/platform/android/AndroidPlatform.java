@@ -5,6 +5,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
@@ -45,7 +46,11 @@ public class AndroidPlatform extends Platform {
     }
 
     public String getFirebaseAppId() {
-        return this.crashlytics.getFirebaseAppId();
+        if (this.crashlytics != null) {
+            return this.crashlytics.getFirebaseAppId();
+        }
+        else
+            return null;
     }
 
 
@@ -126,6 +131,24 @@ public class AndroidPlatform extends Platform {
             return FormValidation.ok("Chosen fusionSet: " + fusionSetId);
         }
 
+        @POST
+        public FormValidation doCheckFirebaseAppId(@QueryParameter String firebaseAppId) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure correct permission
+
+            if (StringUtils.isBlank(firebaseAppId)) {
+                return FormValidation.error("Firebase App ID must be provided.");
+            } else if (firebaseAppId.contains(" ")) {
+                return FormValidation.error("White spaces are not allowed in Firebase App ID.");
+            }
+
+            // Additional validation logic
+            try {
+                // Simulate additional checks here
+                return FormValidation.ok("Chosen Firebase App ID: " + firebaseAppId);
+            } catch (Exception e) {
+                return FormValidation.error("An error occurred: " + e.getMessage());
+            }
+        }
         @Override
         public String getDisplayName() {
             return "Android";

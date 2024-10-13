@@ -116,14 +116,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             }
             if (exitCode == 0) {
                 listener.getLogger().println("Executed Build successfully");
-                listener.getLogger().println("The requested output location is " + this.outputLocation);
-
-                try {
-                    Files.list(Paths.get(this.outputLocation))
-                            .forEach(path -> listener.getLogger().println("File: " + path.getFileName()));
-                } catch (IOException e) {
-                    listener.getLogger().println("Error listing files in output location: " + e.getMessage());
-                }
             } else {
 
                 listener.error("Couldn't run Appdome Builder, exitcode " + exitCode + ".\nCouldn't run Appdome Builder, read logs for more information.");
@@ -470,21 +462,20 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
         if (androidPlatform.getIsCrashlytics()) {
-
-            if (!androidPlatform.getFirebaseAppId().isEmpty()) {
-
+            if (androidPlatform.getFirebaseAppId() != null && !androidPlatform.getFirebaseAppId().isEmpty()) {
                 listener.getLogger().println("The Firebase app id inserted: " + androidPlatform.getFirebaseAppId());
                 try {
                     installFirebaseCLI(env, appdomeWorkspace, launcher, listener);
+                    listener.getLogger().println("Firebase CLI installed successfully");
+                    command.append(FIREBASE_APP_ID).append(androidPlatform.getFirebaseAppId());
                 } catch (Exception e) {
                     listener.getLogger().println("Failed to install Firebase CLI binary: " + e);
-                    listener.getLogger().println("continue without it.");
+                    listener.getLogger().println("Continuing without it.");
                 }
-                listener.getLogger().println("Firebase CLI installed successfully");
-                command.append(FIREBASE_APP_ID).append(androidPlatform.getFirebaseAppId());
+            } else {
+                listener.getLogger().println("No Firebase App ID provided; upload to Firebase and Crashlytics will not proceed.");
             }
         }
-
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
