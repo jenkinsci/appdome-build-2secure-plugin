@@ -27,6 +27,10 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.io.IOException;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
 
@@ -94,6 +98,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public void perform(@NonNull Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+
         int exitCode;
         FilePath appdomeWorkspace = workspace.createTempDir("AppdomeBuild", "Build");
         listener.getLogger().println("Appdome Build2Secure " + APPDOME_BUILDE2SECURE_VERSION);
@@ -110,9 +115,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
             }
             if (exitCode == 0) {
-                listener
-                        .getLogger()
-                        .println("Executed Build successfully");
+                listener.getLogger().println("Executed Build successfully");
+                listener.getLogger().println("The requested output location is " + this.outputLocation);
+
+                try {
+                    Files.list(Paths.get(this.outputLocation))
+                            .forEach(path -> listener.getLogger().println("File: " + path.getFileName()));
+                } catch (IOException e) {
+                    listener.getLogger().println("Error listing files in output location: " + e.getMessage());
+                }
             } else {
 
                 listener.error("Couldn't run Appdome Builder, exitcode " + exitCode + ".\nCouldn't run Appdome Builder, read logs for more information.");
@@ -475,6 +486,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
     }
+
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
     private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
         listener.getLogger().println("Installing Firebase CLI...");
