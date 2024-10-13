@@ -29,7 +29,7 @@ on:
       buildParams:
         description: 'Build parameters in JSON format'
         required: true
-        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId"}'
+        default: '{"appdomeServerBaseUrl":"default-appdomeServerBaseUrl",teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId"}'
       secretParams:
         description: 'Build parameters in JSON format'
         required: true
@@ -209,6 +209,8 @@ jobs:
         run: |
           # Extract other parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
+          echo "APPDOME_SERVER_BASE_URL=$(echo "$buildParams" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
+          appdomeServerBaseUrl=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
           teamId=$(echo $buildParams | jq -r '.teamId')
           signOption=$(echo $buildParams | jq -r '.signOption')
           fusionSetId=$(echo $buildParams | jq -r '.fusionSetId')
@@ -228,6 +230,7 @@ jobs:
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
+          echo "appdomeServerBaseUrl: $appdomeServerBaseUrl"
           echo "teamId: $teamId"
           echo "signOption: $signOption"
           echo "appFilePath: $appFilePath"
@@ -265,6 +268,7 @@ jobs:
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
+          APPDOME_SERVER_BASE_URL:
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
