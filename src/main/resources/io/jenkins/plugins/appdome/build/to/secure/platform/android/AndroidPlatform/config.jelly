@@ -13,6 +13,12 @@
 
     <f:dropdownDescriptorSelector field="certificateMethod" title="Sign Method" descriptors="${it.CertificateMethodDescriptors}"/>
 
+    <!-- Optional Crashlytics Configuration -->
+    <f:optionalBlock name="crashlytics" title="Crashlytics" field="isCrashlytics">
+        <f:entry title="Firebase App ID" field="firebaseAppId">
+            <f:textbox/>
+        </f:entry>
+    </f:optionalBlock>
 
 
 </j:jelly>

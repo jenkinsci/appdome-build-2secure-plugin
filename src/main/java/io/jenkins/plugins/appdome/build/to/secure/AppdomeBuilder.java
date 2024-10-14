@@ -1,14 +1,12 @@
 package io.jenkins.plugins.appdome.build.to.secure;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.*;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import hudson.util.ArgumentListBuilder;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.util.Secret;
+import hudson.util.*;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
@@ -23,12 +21,16 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.io.IOException;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
 
@@ -96,6 +98,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     public void perform(@NonNull Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+
         int exitCode;
         FilePath appdomeWorkspace = workspace.createTempDir("AppdomeBuild", "Build");
         listener.getLogger().println("Appdome Build2Secure " + APPDOME_BUILDE2SECURE_VERSION);
@@ -112,9 +115,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 deleteAppdomeWorkspacce(listener, appdomeWorkspace);
             }
             if (exitCode == 0) {
-                listener
-                        .getLogger()
-                        .println("Executed Build successfully");
+                listener.getLogger().println("Executed Build successfully");
             } else {
 
                 listener.error("Couldn't run Appdome Builder, exitcode " + exitCode + ".\nCouldn't run Appdome Builder, read logs for more information.");
@@ -156,8 +157,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         //common:
         StringBuilder command = new StringBuilder("./appdome_api.sh");
         command.append(KEY_FLAG)
-                .append(this.token).
-                append(FUSION_SET_ID_FLAG)
+                .append(this.token)
+                .append(FUSION_SET_ID_FLAG)
                 .append(platform.getFusionSetId());
 
         //concatenate the team id if it is not empty:
@@ -176,7 +177,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
         switch (platform.getPlatformType()) {
             case ANDROID:
-                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher);
+                ComposeAndroidCommand(command, env, appdomeWorkspace, launcher, listener);
                 break;
             case IOS:
                 ComposeIosCommand(command, env, appdomeWorkspace, launcher);
@@ -381,8 +382,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
      *
      * @param command The StringBuilder containing the command string to be cleaned directly.
      */
-    public static void cleanCommand(StringBuilder command)
-    {
+    public static void cleanCommand(StringBuilder command) {
         String[] parts = command.toString().split(" ");
         command.setLength(0); // Clear the original StringBuilder
 
@@ -399,7 +399,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher) throws Exception {
+    private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
         switch (androidPlatform.getCertificateMethod().getSignType()) {
@@ -460,6 +460,60 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             default:
                 break;
         }
+
+        if (androidPlatform.getIsCrashlytics()) {
+            if (androidPlatform.getFirebaseAppId() != null && !androidPlatform.getFirebaseAppId().isEmpty()) {
+                listener.getLogger().println("The Firebase app id inserted: " + androidPlatform.getFirebaseAppId());
+                try {
+                    installFirebaseCLI(env, appdomeWorkspace, launcher, listener);
+                    listener.getLogger().println("Firebase CLI installed successfully");
+                    command.append(FIREBASE_APP_ID).append(androidPlatform.getFirebaseAppId());
+                } catch (Exception e) {
+                    listener.getLogger().println("Failed to install Firebase CLI binary: " + e);
+                    listener.getLogger().println("Continuing without it.");
+                }
+            } else {
+                listener.getLogger().println("No Firebase App ID provided; upload to Firebase and Crashlytics will not proceed.");
+            }
+        }
+    }
+
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
+    private void installFirebaseCLI(EnvVars env, FilePath workspace, Launcher launcher, TaskListener listener) throws Exception {
+        listener.getLogger().println("Installing Firebase CLI...");
+        boolean isUnix = launcher.isUnix();
+        String firebaseBinaryName = isUnix ? "firebase" : "firebase.exe";
+        FilePath firebaseBinary = workspace.child(firebaseBinaryName);
+
+        if (!firebaseBinary.exists()) {
+            String downloadUrl = "https://firebase.tools/bin/win/latest";
+            if (isUnix) {
+                downloadUrl = System.getProperty("os.name").toLowerCase().contains("linux")
+                        ? "https://firebase.tools/bin/linux/latest"
+                        : "https://firebase.tools/bin/macos/latest";
+            }
+
+            listener.getLogger().println("Downloading Firebase CLI from " + downloadUrl);
+
+            try (InputStream in = new URL(downloadUrl).openStream(); OutputStream out = firebaseBinary.write()) {
+                IOUtils.copy(in, out);
+                listener.getLogger().println("Firebase CLI downloaded successfully.");
+            } catch (IOException e) {
+                throw new Exception("Failed to download Firebase CLI binary.", e);
+            }
+
+            if (isUnix) {
+                firebaseBinary.chmod(0755);
+                listener.getLogger().println("Execute permissions set for Firebase CLI.");
+            }
+        } else {
+            listener.getLogger().println("Firebase CLI already exists in workspace.");
+        }
+
+        String pathDelimiter = isUnix ? ":" : ";";
+        String newPath = env.get("PATH") + pathDelimiter + firebaseBinary.getParent().getRemote();
+        env.put("PATH", newPath);
+        listener.getLogger().println("PATH updated with Firebase CLI directory.");
     }
 
     public static boolean isHttpUrl(String urlString) {
@@ -467,6 +521,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         return urlString.matches(regex);
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
     private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
         if (paths == null) {
             return "NULL";
