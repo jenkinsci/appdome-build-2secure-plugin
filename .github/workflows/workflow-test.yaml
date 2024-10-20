@@ -209,7 +209,7 @@ jobs:
         run: |
           # Extract other parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
-          echo "APPDOME_SERVER_BASE_URL=$(echo "$buildParams" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
+          echo "APPDOME_SERVER_BASE_URL_PIPELINE=$(echo "$buildParams" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
           appdomeServerBaseUrl=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
           teamId=$(echo $buildParams | jq -r '.teamId')
           signOption=$(echo $buildParams | jq -r '.signOption')
@@ -268,7 +268,7 @@ jobs:
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
-          APPDOME_SERVER_BASE_URL:
+          APPDOME_SERVER_BASE_URL: ${{ env.APPDOME_SERVER_BASE_URL_PIPELINE }}
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
