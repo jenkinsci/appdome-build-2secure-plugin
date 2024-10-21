@@ -273,7 +273,7 @@ jobs:
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
-          APPDOME_SERVER_BASE_URL: ${{ env.APPDOME_SERVER_BASE_URL_PIPELINE }}
+          APPDOME_SERVER_BASE_URL: ${{ env.APPDOME_SERVER_BASE_URL }}
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}
