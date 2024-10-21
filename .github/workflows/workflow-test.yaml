@@ -209,7 +209,7 @@ jobs:
         run: |
           # Extract other parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
-          echo "APPDOME_SERVER_BASE_URL_PIPELINE=$(echo "$buildParams" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
+          echo "APPDOME_SERVER_BASE_URL_PIPELINE=$(echo \"$buildParams\" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
           appdomeServerBaseUrl=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
           teamId=$(echo $buildParams | jq -r '.teamId')
           signOption=$(echo $buildParams | jq -r '.signOption')
@@ -237,7 +237,7 @@ jobs:
           echo "keystoreFilePath: $keystoreFilePath"
           echo "certificateFilePath: $certificateFilePath"
           echo "fusionSetId: $fusionSetId"
-          echo "firebaseAppId: firebaseAppId"
+          echo "firebaseAppId: $firebaseAppId"
           echo "signFingerprint: $signFingerprint"
           echo "entitlementsPath: $entitlementsPath"
           echo "mobileProvisionProfilesPath: $mobileProvisionProfilesPath"
