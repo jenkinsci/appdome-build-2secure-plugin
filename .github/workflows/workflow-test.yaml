@@ -29,7 +29,7 @@ on:
       buildParams:
         description: 'Build parameters in JSON format'
         required: true
-        default: '{"teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app"}'
+        default: '{"appdomeServerBaseUrl":"default-appdomeServerBaseUrl",teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId"}'
       secretParams:
         description: 'Build parameters in JSON format'
         required: true
@@ -106,6 +106,7 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
+          APPDOME_SERVER_BASE_URL=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
 
           # Initialize local file paths
           localAppFilePath=""
@@ -146,10 +147,7 @@ jobs:
           else
             echo "Certificate file path is 'None', skipping download."
           fi
-          
-
-
-
+                    
           # Download entitlementsPath files, only if they are not "None"
           if [ "$entitlementsPath" != "None" ]; then
             IFS=',' read -ra entitlementUrls <<< "$entitlementsPath"
@@ -206,15 +204,19 @@ jobs:
           
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
-
+          
+          echo "APPDOME_SERVER_BASE_URL: $APPDOME_SERVER_BASE_URL"
+            echo "APPDOME_SERVER_BASE_URL=$APPDOME_SERVER_BASE_URL" >> $GITHUB_ENV
 
       - name: Build and Test with Maven
         run: |
           # Extract other parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
+          appdomeServerBaseUrl=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
           teamId=$(echo $buildParams | jq -r '.teamId')
           signOption=$(echo $buildParams | jq -r '.signOption')
           fusionSetId=$(echo $buildParams | jq -r '.fusionSetId')
+          firebaseAppId=$(echo $buildParams | jq -r '.firebaseAppId')
           signFingerprint=$(echo $buildParams | jq -r '.signFingerprint')
           buildToTest=$(echo $buildParams | jq -r '.buildToTest')
           buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
@@ -230,12 +232,14 @@ jobs:
           
           # Echo each parameter to verify parsing worked correctly
           echo "Parsed Parameters:"
+          echo "appdomeServerBaseUrl: $appdomeServerBaseUrl"
           echo "teamId: $teamId"
           echo "signOption: $signOption"
           echo "appFilePath: $appFilePath"
           echo "keystoreFilePath: $keystoreFilePath"
           echo "certificateFilePath: $certificateFilePath"
           echo "fusionSetId: $fusionSetId"
+          echo "firebaseAppId: $firebaseAppId"
           echo "signFingerprint: $signFingerprint"
           echo "entitlementsPath: $entitlementsPath"
           echo "mobileProvisionProfilesPath: $mobileProvisionProfilesPath"
@@ -262,9 +266,11 @@ jobs:
             -DgooglePlaySign="$googlePlaySign" \
             -DsecondOutput="$secondOutput" \
             -DoutputName="$outputName" \
+            -DfirebaseAppId="$firebaseAppId" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
+          APPDOME_SERVER_BASE_URL: ${{ env.APPDOME_SERVER_BASE_URL }}
           APPDOME_API_TOKEN: ${{ env.APPDOME_API_TOKEN_PIPELINE }}
           KEYSTORE_ALIAS: ${{ env.KEYSTORE_ALIAS_PIPELINE }}
           KEYSTORE_KEY_PASS: ${{ env.KEYSTORE_KEY_PASS_PIPELINE }}

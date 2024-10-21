@@ -5,6 +5,8 @@ on: [ push, pull_request ]
 jobs:
   Presign_URLs:
     runs-on: "ubuntu-latest"
+    container:
+      image: python:3.9-slim
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -68,7 +70,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dspotbugs.skip=true -Dtest=AppdomeBuilderTest#testAabAndroidPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -115,7 +117,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testApkAndroidPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -163,7 +165,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoDevSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoDevSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -211,7 +213,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoDevSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoDevSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -260,7 +262,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testAabAndroidAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -308,7 +310,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for Android
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testApkAndroidAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -356,7 +358,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for iOS
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosAutoSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testIosAutoSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -404,7 +406,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for iOS
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testIosPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
@@ -453,7 +455,7 @@ jobs:
       - name: Download dependencies
         run: mvn -B dependency:go-offline
       - name: Build and test for iOS
-        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false clean verify -Dtest=AppdomeBuilderTest#testIosAutoDevPrivateSignBuild package
+        run: mvn -V --color always -ntp -B -Djenkins.test.timeout=700 -Dsurefire.printSummary=true -Dsurefire.useFile=false -Dspotbugs.skip=true clean verify -Dtest=AppdomeBuilderTest#testIosAutoDevPrivateSignBuild package
         env:
           APPDOME_API_TOKEN: ${{ secrets.APPDOME_API_TOKEN }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}

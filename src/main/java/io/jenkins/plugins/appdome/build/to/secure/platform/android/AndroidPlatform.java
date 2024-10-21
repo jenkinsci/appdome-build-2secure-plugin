@@ -5,6 +5,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
@@ -21,12 +22,37 @@ import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilder.isHttpUr
 public class AndroidPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
+    private Crashlytics crashlytics;  // Changed from crashlyticsPublisher to crashlytics
+
+    private Boolean isCrashlytics;
 
     @DataBoundConstructor
     public AndroidPlatform(CertificateMethod certificateMethod) {
         super(PlatformType.ANDROID);
         this.certificateMethod = certificateMethod;
     }
+
+    public Boolean getIsCrashlytics() {
+        if (this.isCrashlytics == null) {
+            this.isCrashlytics = false;
+        } else {
+            this.isCrashlytics = true;
+        }
+        return this.isCrashlytics;
+    }
+
+    public void setIsCrashlytics(Boolean isCrashlytics) {
+        this.isCrashlytics = isCrashlytics;
+    }
+
+    public String getFirebaseAppId() {
+        if (this.crashlytics != null) {
+            return this.crashlytics.getFirebaseAppId();
+        }
+        else
+            return null;
+    }
+
 
     public String getAppPath() {
         return super.getAppPath();
@@ -50,6 +76,22 @@ public class AndroidPlatform extends Platform {
         return certificateMethod;
     }
 
+
+    public Crashlytics getCrashlytics() {  // Changed from getCrashlyticsPublisher to getCrashlytics
+        return crashlytics;
+    }
+
+    @DataBoundSetter
+    public void setCrashlytics(Crashlytics crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
+        if (!crashlytics.getFirebaseAppId().isEmpty()) {
+            this.isCrashlytics = true;
+            this.crashlytics = crashlytics;
+        } else {
+            this.isCrashlytics = false;
+            this.crashlytics = null;
+        }
+    }
+
     public DescriptorExtensionList<CertificateMethod, Descriptor<CertificateMethod>> getCertificateMethodDescriptors() {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
     }
@@ -67,10 +109,9 @@ public class AndroidPlatform extends Platform {
                         " in the environment variable named 'APP_PATH'.");
             } else if (appPath != null && appPath.contains(" ")) {
                 return FormValidation.error("White spaces are not allowed in the path.");
-            }else if (appPath != null && isHttpUrl(appPath)) {
+            } else if (appPath != null && isHttpUrl(appPath)) {
                 return FormValidation.ok("Application remote url provided.");
-            }
-             else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
+            } else if (appPath != null && !(appPath.endsWith(".aab") || appPath.endsWith(".apk"))) {
                 return FormValidation.error("Android app - File extension is not allowed," +
                         " allowed extensions are: '.apk' or '.aab'. Please rename your file or upload a different file.");
             }
@@ -90,6 +131,24 @@ public class AndroidPlatform extends Platform {
             return FormValidation.ok("Chosen fusionSet: " + fusionSetId);
         }
 
+        @POST
+        public FormValidation doCheckFirebaseAppId(@QueryParameter String firebaseAppId) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure correct permission
+
+            if (StringUtils.isBlank(firebaseAppId)) {
+                return FormValidation.error("Firebase App ID must be provided.");
+            } else if (firebaseAppId.contains(" ")) {
+                return FormValidation.error("White spaces are not allowed in Firebase App ID.");
+            }
+
+            // Additional validation logic
+            try {
+                // Simulate additional checks here
+                return FormValidation.ok("Chosen Firebase App ID: " + firebaseAppId);
+            } catch (Exception e) {
+                return FormValidation.error("An error occurred: " + e.getMessage());
+            }
+        }
         @Override
         public String getDisplayName() {
             return "Android";
