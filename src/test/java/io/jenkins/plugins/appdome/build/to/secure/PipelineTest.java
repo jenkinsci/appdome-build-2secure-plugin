@@ -76,7 +76,7 @@ public class PipelineTest {
     private void configureGlobalProperties() {
         EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
         EnvVars env = prop.getEnvVars();
-        env.put("APPDOME_SERVER_BASE_URL", "https://qamaster.dev.appdome.com");
+//        env.put("APPDOME_SERVER_BASE_URL", "https://qamaster.dev.appdome.com");
         this.jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
