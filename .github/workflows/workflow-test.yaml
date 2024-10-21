@@ -106,7 +106,7 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
-          APPDOME_SERVER_BASE_URL_PIPELINE=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
+          APPDOME_SERVER_BASE_URL=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
 
           # Initialize local file paths
           localAppFilePath=""
@@ -205,8 +205,8 @@ jobs:
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
           
-          echo "APPDOME_SERVER_BASE_URL: $APPDOME_SERVER_BASE_URL_PIPELINE"
-            echo "APPDOME_SERVER_BASE_URL=$APPDOME_SERVER_BASE_URL_PIPELINE" >> $GITHUB_ENV
+          echo "APPDOME_SERVER_BASE_URL: $APPDOME_SERVER_BASE_URL"
+            echo "APPDOME_SERVER_BASE_URL=$APPDOME_SERVER_BASE_URL" >> $GITHUB_ENV
 
       - name: Print all environment variables
         run: printenv
