@@ -106,6 +106,7 @@ jobs:
           certificateFilePath=$(echo $buildParams | jq -r '.certificateFilePath')
           entitlementsPath=$(echo $buildParams | jq -r '.entitlementsPath')
           mobileProvisionProfilesPath=$(echo $buildParams | jq -r '.mobileProvisionProfilesPath')
+          APPDOME_SERVER_BASE_URL_PIPELINE=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
 
           # Initialize local file paths
           localAppFilePath=""
@@ -203,13 +204,15 @@ jobs:
           
           echo "entitlementsPath: $localEntitlementsPaths"
             echo "entitlementsPath=$localEntitlementsPaths" >> $GITHUB_ENV
+          
+          echo "APPDOME_SERVER_BASE_URL_PIPELINE: $APPDOME_SERVER_BASE_URL_PIPELINE"
+            echo "APPDOME_SERVER_BASE_URL_PIPELINE=$APPDOME_SERVER_BASE_URL_PIPELINE" >> $GITHUB_ENV
 
 
       - name: Build and Test with Maven
         run: |
           # Extract other parameters from JSON input
           buildParams='${{ github.event.inputs.buildParams }}'
-          echo "APPDOME_SERVER_BASE_URL_PIPELINE=$(echo \"$buildParams\" | jq -r '.appdomeServerBaseUrl')" >> $GITHUB_ENV
           appdomeServerBaseUrl=$(echo $buildParams | jq -r '.appdomeServerBaseUrl')
           teamId=$(echo $buildParams | jq -r '.teamId')
           signOption=$(echo $buildParams | jq -r '.signOption')
