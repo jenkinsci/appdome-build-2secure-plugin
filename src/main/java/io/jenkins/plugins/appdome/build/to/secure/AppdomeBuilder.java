@@ -139,7 +139,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
         String debugMode = env.get("ACTIONS_STEP_DEBUG");
-        listener.getLogger().println("The server host is " + env.get("APPDOME_SERVER_BASE_URL"));
         if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
         }

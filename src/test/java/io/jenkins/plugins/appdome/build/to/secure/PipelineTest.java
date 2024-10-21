@@ -56,7 +56,6 @@ public class PipelineTest {
         logger.info("Loading system properties...");
         loadSystemProperties();
 
-        configureGlobalProperties();
         checkAndSetNullValues();
         logger.info("Printing all variables...");
         printAllValues();  // Print all values after setup for visibility
@@ -70,14 +69,6 @@ public class PipelineTest {
         // Check if files exist for each entitlement and provision profile path
         checkFilesExist(this.entitlementsPath, "Entitlements Path");
         checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
-    }
-
-
-    private void configureGlobalProperties() {
-        EnvironmentVariablesNodeProperty prop = new EnvironmentVariablesNodeProperty();
-        EnvVars env = prop.getEnvVars();
-//        env.put("APPDOME_SERVER_BASE_URL", "https://qamaster.dev.appdome.com");
-        this.jenkins.jenkins.getGlobalNodeProperties().add(prop);
     }
 
     /**
