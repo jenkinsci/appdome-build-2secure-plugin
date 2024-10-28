@@ -438,7 +438,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 command.append(PRIVATE_SIGN_FLAG)
                         .append(FINGERPRINT_FLAG)
                         .append(privateSign.getFingerprint());
-                if (privateSign.getGoogleSigning()) {
+                if (privateSign.getGoogleSigning() != null ? privateSign.getGoogleSigning() : false) {
                     command.append(GOOGLE_PLAY_SIGN_FLAG);
                 }
                 break;

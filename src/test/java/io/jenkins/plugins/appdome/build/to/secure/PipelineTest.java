@@ -63,12 +63,20 @@ public class PipelineTest {
         logger.info("Checking if files exist:");
         // Check if files exist for paths that are not empty
         checkFileExists(this.appFilePath, "App File Path");
-        checkFileExists(this.keystoreFilePath, "Keystore File Path");
-        checkFileExists(this.certificateFilePath, "Certificate File Path");
+        if (!Objects.equals(this.keystoreFilePath, "null")) {
+            checkFileExists(this.keystoreFilePath, "Keystore File Path");
+        }
+        if (!Objects.equals(this.certificateFilePath, "null")) {
+            checkFileExists(this.certificateFilePath, "Certificate File Path");
+        }
 
         // Check if files exist for each entitlement and provision profile path
-        checkFilesExist(this.entitlementsPath, "Entitlements Path");
-        checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
+        if (!Objects.equals(this.entitlementsPath.get(0).getItem(), "null")) {
+            checkFilesExist(this.entitlementsPath, "Entitlements Path");
+        }
+        if (!Objects.equals(this.mobileProvisionProfilesPath.get(0).getItem(), "null")) {
+            checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,7 @@ public class Tests {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
-        if (crashlytics != null) {
+        if (!Objects.equals(crashlytics.getFirebaseAppId(), "null")) {
             androidPlatform.setCrashlytics(crashlytics);
         }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
