@@ -57,8 +57,8 @@ public class PipelineTest {
         loadSystemProperties();
 
         checkAndSetNullValues();
-        logger.info("Printing all variables...");
-        printAllValues();  // Print all values after setup for visibility
+//        logger.info("Printing all variables...");
+//        printAllValues();  // Print all values after setup for visibility
 
         logger.info("Checking if files exist:");
         // Check if files exist for paths that are not empty
