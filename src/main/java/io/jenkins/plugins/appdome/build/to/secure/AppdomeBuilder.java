@@ -41,6 +41,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private String outputLocation;
     private StringWarp secondOutput;
     private Boolean buildWithLogs;
+    private Boolean workflowOutputLogs;
     private BuildToTest buildToTest;
 
     private boolean isAutoDevPrivateSign = false;
@@ -91,6 +92,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         this.buildWithLogs = buildWithLogs;
     }
 
+    public Boolean getWorkflowOutputLogs() {
+        return this.workflowOutputLogs;
+    }
+
+    @DataBoundSetter
+    public void setWorkflowOutputLogs(Boolean workflowOutputLogs) {
+        this.workflowOutputLogs = workflowOutputLogs;
+    }
+
     @DataBoundSetter
     public void setOutputLocation(String outputLocation) {
         this.outputLocation = outputLocation;
@@ -137,7 +147,6 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .collect(Collectors.toList());
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-        listener.getLogger().println("[debug] command : " + command);
         String debugMode = env.get("ACTIONS_STEP_DEBUG");
         if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
@@ -221,6 +230,11 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(DEOBFUSCATION_OUTPUT)
                     .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Deobfuscation_Mapping_Files.zip");
+            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+                command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
+                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append("workflow_output_logs.log");
+            }
 
         } else {
 
@@ -248,6 +262,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Deobfuscation_Mapping_Files.zip");
+
+            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+
+                command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
+                        .append(output_location.getRemote())
+                        .append(File.separator)
+                        .append("workflow_output_logs.log");
+            }
         }
 
         if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
