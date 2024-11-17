@@ -36,7 +36,11 @@ public class AndroidPlatform extends Platform {
         if (this.isCrashlytics == null) {
             this.isCrashlytics = false;
         } else {
-            this.isCrashlytics = true;
+            if (getFirebaseAppId() != null) {
+                this.isCrashlytics = true;
+            } else {
+                this.isCrashlytics = false;
+            }
         }
         return this.isCrashlytics;
     }
@@ -48,8 +52,7 @@ public class AndroidPlatform extends Platform {
     public String getFirebaseAppId() {
         if (this.crashlytics != null) {
             return this.crashlytics.getFirebaseAppId();
-        }
-        else
+        } else
             return null;
     }
 
@@ -149,6 +152,7 @@ public class AndroidPlatform extends Platform {
                 return FormValidation.error("An error occurred: " + e.getMessage());
             }
         }
+
         @Override
         public String getDisplayName() {
             return "Android";

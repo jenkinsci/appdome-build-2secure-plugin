@@ -424,9 +424,12 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(autoSign.getKeyPass());
 
                 if (autoSign.getIsEnableGoogleSign()) {
+                    String signFingerPrint = autoSign.getGoogleSignFingerPrint();
                     command.append(GOOGLE_PLAY_SIGN_FLAG);
-                    command.append(FINGERPRINT_FLAG)
-                            .append(autoSign.getGoogleSignFingerPrint());
+                    if (Util.fixEmptyAndTrim(signFingerPrint) != null) {
+                        command.append(FINGERPRINT_FLAG)
+                                .append(signFingerPrint);
+                    }
                 }
                 break;
             case PRIVATE:
