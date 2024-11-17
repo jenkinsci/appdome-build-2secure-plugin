@@ -212,9 +212,12 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
-            command.append(CERTIFIED_SECURE_FLAG)
+            command.append(CERTIFIED_SECURE_PDF_FLAG)
                     .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_JSON_FLAG)
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Certified_Secure.json");
             command.append(DEOBFUSCATION_OUTPUT)
                     .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Deobfuscation_Mapping_Files.zip");
@@ -231,10 +234,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
 
-            command.append(CERTIFIED_SECURE_FLAG)
+            command.append(CERTIFIED_SECURE_PDF_FLAG)
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Certified_Secure.pdf");
+
+            command.append(CERTIFIED_SECURE_JSON_FLAG)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Certified_Secure.json");
 
             command.append(DEOBFUSCATION_OUTPUT)
                     .append(output_location.getRemote())
