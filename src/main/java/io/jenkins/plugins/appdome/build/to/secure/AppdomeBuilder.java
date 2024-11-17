@@ -21,16 +21,15 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.io.IOException;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
 
@@ -138,6 +137,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .collect(Collectors.toList());
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
+        listener.getLogger().println("[debug] command : " + command);
         String debugMode = env.get("ACTIONS_STEP_DEBUG");
         if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
@@ -477,6 +477,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 }
             } else {
                 listener.getLogger().println("No Firebase App ID provided; upload to Firebase and Crashlytics will not proceed.");
+            }
+        }
+
+
+        if (androidPlatform.getIsDatadog()) {
+            if (androidPlatform.getDatadogKey() != null && !androidPlatform.getDatadogKey().isEmpty()) {
+                listener.getLogger().println("The Datadog key inserted: " + androidPlatform.getDatadogKey());
+                command.append(DATADOG_API_KEY).append(androidPlatform.getDatadogKey());
             }
         }
     }

@@ -36,8 +36,8 @@ public interface AppdomeBuilderConstants {
     String BUILD_TO_TEST = " --build_to_test_vendor ";
     String SECOND_OUTPUT = " --second_output ";
     String DEOBFUSCATION_OUTPUT = " --deobfuscation_script_output ";
-
     String FIREBASE_APP_ID = " --app_id ";
+    String DATADOG_API_KEY = " --datadog_api_key ";
 
 
 }
