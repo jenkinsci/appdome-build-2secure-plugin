@@ -46,6 +46,7 @@ public class PipelineTest {
     private List<StringWarp> mobileProvisionProfilesPath;
     private BuildToTest buildToTest;
     private Boolean buildWithLogs;
+    private Boolean workflowOutputLogs;
     private Boolean googlePlaySign;
     private String secondOutput;
 
@@ -137,6 +138,8 @@ public class PipelineTest {
         this.buildToTest = new BuildToTest(System.getProperty("buildToTest", "default-buildToTest"));
 
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
+        this.buildWithLogs = Boolean.parseBoolean(System.getProperty("workflowOutputLogs", "false"));
+
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
         this.outputName = System.getProperty("outputName", "protected_app");
@@ -164,6 +167,7 @@ public class PipelineTest {
         if (this.mobileProvisionProfilesPath != null && this.mobileProvisionProfilesPath.isEmpty())
             this.mobileProvisionProfilesPath = null;
         if (this.buildWithLogs != null && !this.buildWithLogs) this.buildWithLogs = null;
+        if (this.workflowOutputLogs != null && !this.workflowOutputLogs) this.workflowOutputLogs = null;
 
         if (this.googlePlaySign != null && !this.googlePlaySign) this.googlePlaySign = null;
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
@@ -313,19 +317,19 @@ public class PipelineTest {
                 Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.outputName, crashlytics, datadog, logger);
+                        this.buildWithLogs, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -346,17 +350,17 @@ public class PipelineTest {
                 logger.info("iOS: sign on appdome");
                 Tests.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
-                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -390,6 +394,7 @@ public class PipelineTest {
 
         logger.info("Build To Test: " + (this.buildToTest != null ? this.buildToTest.getSelectedVendor() : "null"));
         logger.info("Build With Logs: " + (this.buildWithLogs != null ? this.buildWithLogs : "null"));
+        logger.info("Workflow output logs: " + (this.workflowOutputLogs != null ? this.workflowOutputLogs : "null"));
         logger.info("Google Play Sign: " + (this.googlePlaySign != null ? this.googlePlaySign : "null"));
         logger.info("Second Output: " + (this.secondOutput != null ? this.secondOutput : "null"));
     }
