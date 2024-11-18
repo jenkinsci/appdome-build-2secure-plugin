@@ -89,14 +89,6 @@ public class PipelineTest {
         if (!dir.exists()) {
             dir.mkdirs(); // Create directories if they do not exist
         }
-        File file = new File(dir, "workflow_output_logs.log");
-        if (!file.exists()) {
-            try {
-                file.createNewFile(); // Create the file if it does not exist
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 
@@ -138,7 +130,7 @@ public class PipelineTest {
         this.buildToTest = new BuildToTest(System.getProperty("buildToTest", "default-buildToTest"));
 
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
-        this.buildWithLogs = Boolean.parseBoolean(System.getProperty("workflowOutputLogs", "false"));
+        this.workflowOutputLogs = Boolean.parseBoolean(System.getProperty("workflowOutputLogs", "false"));
 
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
@@ -297,7 +289,7 @@ public class PipelineTest {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
         }
-        if (this.buildWithLogs) {
+        if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
             File file = new File(PLUGIN_TMP_OUTPUT + "workflow_output_logs.logs");
             try {
                 if (file.createNewFile()) {
