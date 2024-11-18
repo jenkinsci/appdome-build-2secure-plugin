@@ -53,7 +53,7 @@ public class PipelineTest {
 
     @Before
     public void setUp() throws Exception {
-        createOutputLocation()
+        createOutputLocation();
         logger.info("Loading environment variables...");
         loadEnvironmentVariables();
 
