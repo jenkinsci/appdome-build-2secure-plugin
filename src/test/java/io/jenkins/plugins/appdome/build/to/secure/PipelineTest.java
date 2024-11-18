@@ -299,7 +299,16 @@ public class PipelineTest {
         }
         if (this.buildWithLogs) {
             File file = new File(PLUGIN_TMP_OUTPUT + "workflow_output_logs.logs");
-            file.createNewFile();
+            try {
+                if (file.createNewFile()) {
+                    System.out.println("File created successfully: " + file.getName());
+                } else {
+                    System.out.println("File already exists: " + file.getName());
+                }
+            } catch (IOException e) {
+                System.err.println("An error occurred while creating the file: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         logger.info("signOption is " + signOption);
