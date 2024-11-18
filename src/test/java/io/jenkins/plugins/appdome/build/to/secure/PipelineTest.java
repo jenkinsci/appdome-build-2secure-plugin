@@ -5,6 +5,7 @@ import java.io.File;
 import hudson.EnvVars;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.Datadog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class PipelineTest {
     private String signFingerprint;
 
     private String firebaseAppId;
-
+    private String datadogKey;
     private List<StringWarp> entitlementsPath;
     private List<StringWarp> mobileProvisionProfilesPath;
     private BuildToTest buildToTest;
@@ -103,6 +104,8 @@ public class PipelineTest {
         this.fusionSetId = System.getProperty("fusionSetId", "default-fusionSetId");
         this.signFingerprint = System.getProperty("signFingerprint", "default-signFingerprint");
         this.firebaseAppId = System.getProperty("firebaseAppId", "default-firebaseAppId");
+        this.datadogKey = System.getProperty("datadogKey", "default-datadogKey");
+
 
         // Convert CSV from system properties to List<StringWarp> for entitlements and provisions
         String entitlementsCsv = System.getProperty("entitlementsPath", "default1,default2");
@@ -147,6 +150,9 @@ public class PipelineTest {
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
         if (isNoneOrEmpty(this.outputName)) this.outputName = null;
         if (isNoneOrEmpty(this.firebaseAppId)) this.firebaseAppId = null;
+        if (isNoneOrEmpty(this.datadogKey)) this.datadogKey = null;
+
+
     }
 
     // Helper method to check if a string is "None" or empty
@@ -273,25 +279,30 @@ public class PipelineTest {
         if (this.firebaseAppId != null) {
             crashlytics = new Crashlytics(this.firebaseAppId);
         }
+        Datadog datadog = null;
+        if (this.datadogKey!=null)
+        {
+            datadog = new Datadog(datadogKey);
+        }
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
                 logger.info("Android: sign on appdome");
                 Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.outputName, crashlytics, datadog, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics,datadog, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics,datadog, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");

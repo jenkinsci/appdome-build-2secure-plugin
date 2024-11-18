@@ -7,6 +7,7 @@ import hudson.model.Result;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.Datadog;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoDevSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoGoogleSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
@@ -28,7 +29,7 @@ public class Tests {
     public static void testAndroidAutoSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String keystoreFilePath,
                                                 String keystorePassword, String keystoreAlias, String keystoreKeyPass,
                                                 String fingerprint, StringWarp secondOutput, BuildToTest buildToTest,
-                                                Boolean buildWithLogs, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
+                                                Boolean buildWithLogs, String outputName, Crashlytics crashlytics, Datadog datadog, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoSignBuild");
         String output_location = PLUGIN_TMP_OUTPUT + outputName + "." + getFileExtension(appPath);
 
@@ -56,11 +57,16 @@ public class Tests {
         if (crashlytics != null) {
             androidPlatform.setCrashlytics(crashlytics);
         }
+
+        if (datadog != null) {
+            androidPlatform.setDatadog(datadog);
+        }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform, secondOutput);
 
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
 
 
@@ -71,7 +77,7 @@ public class Tests {
 
     public static void testAndroidPrivateSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Datadog datadog, Logger logger) throws Exception {
         logger.info("Inside testAndroidPrivateSignBuild");
         String output_location = PLUGIN_TMP_OUTPUT + outputName + "." + getFileExtension(appPath);
 
@@ -89,8 +95,12 @@ public class Tests {
         if (crashlytics != null) {
             androidPlatform.setCrashlytics(crashlytics);
         }
+        if (datadog != null) {
+            androidPlatform.setDatadog(datadog);
+        }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setOutputLocation(output_location);
         logger.info("The protected app will be saved to: " + output_location);
@@ -100,7 +110,7 @@ public class Tests {
 
     public static void testAndroidAutoDevSignBuild(JenkinsRule jenkins, String token, String teamId, String appPath, String fusionSet, String fingerprint,
                                                    StringWarp secondOutput, BuildToTest buildToTest, Boolean buildWithLogs,
-                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Logger logger) throws Exception {
+                                                   Boolean googleSigning, String outputName, Crashlytics crashlytics, Datadog datadog, Logger logger) throws Exception {
         logger.info("Inside testAndroidAutoDevSignBuild");
         String output_location = PLUGIN_TMP_OUTPUT + outputName + ".sh";
 
@@ -125,10 +135,13 @@ public class Tests {
         if (crashlytics != null) {
             androidPlatform.setCrashlytics(crashlytics);
         }
-
+        if (datadog != null) {
+            androidPlatform.setDatadog(datadog);
+        }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
         logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
@@ -154,6 +167,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
         logger.info("The protected app will be saved to: " + output_location);
         project.getBuildersList().add(appdomeBuilder);
@@ -179,6 +193,7 @@ public class Tests {
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
         logger.info("The protected app will be saved to: " + output_location);
 
@@ -225,6 +240,7 @@ public class Tests {
         iosPlatform.setAppPath(appPath);
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null);
         appdomeBuilder.setBuildToTest(buildToTest);
+        appdomeBuilder.setWorkflowOutputLogs(buildWithLogs);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
         appdomeBuilder.setOutputLocation(output_location);
         logger.info("The protected app will be saved to: " + output_location);

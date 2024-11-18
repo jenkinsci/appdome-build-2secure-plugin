@@ -29,7 +29,7 @@ on:
       buildParams:
         description: 'Build parameters in JSON format'
         required: true
-        default: '{"appdomeServerBaseUrl":"default-appdomeServerBaseUrl",teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId"}'
+        default: '{"appdomeServerBaseUrl":"default-appdomeServerBaseUrl",teamId":"default-teamId", "signOption":"default-signOption", "appFilePath":"default-appFilePath", "keystoreFilePath":"default-keystoreFilePath", "certificateFilePath":"default-certificateFilePath", "fusionSetId":"default-fusionSetId", "signFingerprint":"default-signFingerprint", "entitlementsPath":"default1,default2", "mobileProvisionProfilesPath":"default1,default2", "buildToTest":"default-buildToTest", "buildWithLogs":"false", "googlePlaySign":"false", "secondOutput":"default-secondOutput","outputName":"protected_app","firebaseAppId":"default-firebaseAppId","datadogKey":"default-datadogKey"}'
       secretParams:
         description: 'Build parameters in JSON format'
         required: true
@@ -217,6 +217,7 @@ jobs:
           signOption=$(echo $buildParams | jq -r '.signOption')
           fusionSetId=$(echo $buildParams | jq -r '.fusionSetId')
           firebaseAppId=$(echo $buildParams | jq -r '.firebaseAppId')
+          datadogKey=$(echo $buildParams | jq -r '.datadogKey')
           signFingerprint=$(echo $buildParams | jq -r '.signFingerprint')
           buildToTest=$(echo $buildParams | jq -r '.buildToTest')
           buildWithLogs=$(echo $buildParams | jq -r '.buildWithLogs')
@@ -240,6 +241,7 @@ jobs:
           echo "certificateFilePath: $certificateFilePath"
           echo "fusionSetId: $fusionSetId"
           echo "firebaseAppId: $firebaseAppId"
+          echo "datadogKey: $datadogKey"
           echo "signFingerprint: $signFingerprint"
           echo "entitlementsPath: $entitlementsPath"
           echo "mobileProvisionProfilesPath: $mobileProvisionProfilesPath"
@@ -267,6 +269,7 @@ jobs:
             -DsecondOutput="$secondOutput" \
             -DoutputName="$outputName" \
             -DfirebaseAppId="$firebaseAppId" \
+            -DdatadogKey="$datadogKey" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
