@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +53,7 @@ public class PipelineTest {
 
     @Before
     public void setUp() throws Exception {
+        createOutputLocation()
         logger.info("Loading environment variables...");
         loadEnvironmentVariables();
 
@@ -80,6 +82,22 @@ public class PipelineTest {
             checkFilesExist(this.mobileProvisionProfilesPath, "Mobile Provision Profiles Path");
         }
     }
+
+    private void createOutputLocation() {
+        File dir = new File(PLUGIN_TMP_OUTPUT);
+        if (!dir.exists()) {
+            dir.mkdirs(); // Create directories if they do not exist
+        }
+        File file = new File(dir, "workflow_output_logs.log");
+        if (!file.exists()) {
+            try {
+                file.createNewFile(); // Create the file if it does not exist
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     /**
      * Loads environment variables used across various tests.
@@ -275,9 +293,8 @@ public class PipelineTest {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
         }
-        if (this.buildWithLogs)
-        {
-            File file = new File(PLUGIN_TMP_OUTPUT +"workflow_output_logs.logs");
+        if (this.buildWithLogs) {
+            File file = new File(PLUGIN_TMP_OUTPUT + "workflow_output_logs.logs");
             file.createNewFile();
         }
 
@@ -287,8 +304,7 @@ public class PipelineTest {
             crashlytics = new Crashlytics(this.firebaseAppId);
         }
         Datadog datadog = null;
-        if (this.datadogKey!=null)
-        {
+        if (this.datadogKey != null) {
             datadog = new Datadog(datadogKey);
         }
         switch (this.signOption) {
@@ -303,13 +319,13 @@ public class PipelineTest {
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics,datadog, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics,datadog, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
