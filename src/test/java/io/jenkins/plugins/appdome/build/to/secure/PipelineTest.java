@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.appdome.build.to.secure.Tests.PLUGIN_TMP_OUTPUT;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -274,6 +275,12 @@ public class PipelineTest {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
         }
+        if (this.buildWithLogs)
+        {
+            File file = new File(PLUGIN_TMP_OUTPUT +"workflow_output_logs.logs");
+            file.createNewFile();
+        }
+
         logger.info("signOption is " + signOption);
         Crashlytics crashlytics = null;
         if (this.firebaseAppId != null) {
