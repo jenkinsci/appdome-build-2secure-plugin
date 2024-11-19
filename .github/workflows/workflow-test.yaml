@@ -272,7 +272,7 @@ jobs:
             -DoutputName="$outputName" \
             -DfirebaseAppId="$firebaseAppId" \
             -DdatadogKey="$datadogKey" \
-            -DWorkflowOutputLogs="$workflowOutputLogs" \
+            -DworkflowOutputLogs="$workflowOutputLogs" \
             -Denvironment="${{ github.event.inputs.environment }}" \
             package
         env:
