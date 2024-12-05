@@ -55,6 +55,9 @@
         <f:checkbox name="buildWithLogs" field="buildWithLogs" default="false"/>
     </f:entry>
 
+    <f:entry title="Show workflow output logs" description="Show workflow output logs and save to a file.">
+        <f:checkbox name="workflowOutputLogs" field="workflowOutputLogs" default="false"/>
+    </f:entry>
 
 
 

@@ -21,16 +21,15 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.io.IOException;
 
 import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilderConstants.*;
 
@@ -42,6 +41,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private String outputLocation;
     private StringWarp secondOutput;
     private Boolean buildWithLogs;
+    private Boolean workflowOutputLogs;
     private BuildToTest buildToTest;
 
     private boolean isAutoDevPrivateSign = false;
@@ -90,6 +90,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setBuildWithLogs(Boolean buildWithLogs) {
         this.buildWithLogs = buildWithLogs;
+    }
+
+    public Boolean getWorkflowOutputLogs() {
+        return this.workflowOutputLogs;
+    }
+
+    @DataBoundSetter
+    public void setWorkflowOutputLogs(Boolean workflowOutputLogs) {
+        this.workflowOutputLogs = workflowOutputLogs;
     }
 
     @DataBoundSetter
@@ -212,12 +221,20 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
-            command.append(CERTIFIED_SECURE_FLAG)
+            command.append(CERTIFIED_SECURE_PDF_FLAG)
                     .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Certified_Secure.pdf");
+            command.append(CERTIFIED_SECURE_JSON_FLAG)
+                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append("Certified_Secure.json");
             command.append(DEOBFUSCATION_OUTPUT)
                     .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
                     .append("Deobfuscation_Mapping_Files.zip");
+            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+                command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
+                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append("workflow_output_logs.log");
+            }
 
         } else {
 
@@ -231,15 +248,28 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
 
-            command.append(CERTIFIED_SECURE_FLAG)
+            command.append(CERTIFIED_SECURE_PDF_FLAG)
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Certified_Secure.pdf");
+
+            command.append(CERTIFIED_SECURE_JSON_FLAG)
+                    .append(output_location.getRemote())
+                    .append(File.separator)
+                    .append("Certified_Secure.json");
 
             command.append(DEOBFUSCATION_OUTPUT)
                     .append(output_location.getRemote())
                     .append(File.separator)
                     .append("Deobfuscation_Mapping_Files.zip");
+
+            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+
+                command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
+                        .append(output_location.getRemote())
+                        .append(File.separator)
+                        .append("workflow_output_logs.log");
+            }
         }
 
         if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
@@ -477,6 +507,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 }
             } else {
                 listener.getLogger().println("No Firebase App ID provided; upload to Firebase and Crashlytics will not proceed.");
+            }
+        }
+
+
+        if (androidPlatform.getIsDatadog()) {
+            if (androidPlatform.getDatadogKey() != null && !androidPlatform.getDatadogKey().isEmpty()) {
+                listener.getLogger().println("The Datadog key inserted: " + androidPlatform.getDatadogKey());
+                command.append(DATADOG_API_KEY).append(androidPlatform.getDatadogKey());
             }
         }
     }
