@@ -8,8 +8,8 @@ import hudson.util.FormValidation;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
-import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -55,10 +55,11 @@ public class AndroidPlatform extends Platform {
     }
 
     @DataBoundSetter
-    public void setCrashlytics(Crashlytics crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
-        if (!crashlytics.getFirebaseAppId().isEmpty()) {
+    public void setCrashlytics(String crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
+        if (crashlytics != null) {
             this.isCrashlytics = true;
-            this.crashlytics = crashlytics;
+            Crashlytics cl = new Crashlytics(crashlytics);
+            this.crashlytics = cl;
         } else {
             this.isCrashlytics = false;
             this.crashlytics = null;
@@ -91,10 +92,11 @@ public class AndroidPlatform extends Platform {
     }
 
     @DataBoundSetter
-    public void setDatadog(Datadog datadog) {
-        if (!datadog.getDatadogKey().isEmpty()) {
+    public void setDatadog(String datadog) {
+        if (datadog != null) {
             this.isDatadog = true;
-            this.datadog = datadog;
+            Datadog dt = new Datadog(datadog);
+            this.datadog = dt;
         } else {
             this.isDatadog = false;
             this.datadog = null;
