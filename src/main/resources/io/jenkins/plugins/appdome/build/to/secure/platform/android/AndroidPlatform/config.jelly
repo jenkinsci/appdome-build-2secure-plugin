@@ -21,4 +21,12 @@
     </f:optionalBlock>
 
 
+    <!-- Optional Datadog Configuration -->
+    <f:optionalBlock name="datadog" title="Datadog" field="isDatadog">
+        <f:entry title="Datadog Key" field="datadogKey">
+            <f:textbox/>
+        </f:entry>
+    </f:optionalBlock>
+
+
 </j:jelly>
