@@ -8,8 +8,8 @@ import hudson.util.FormValidation;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformDescriptor;
-import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -22,9 +22,12 @@ import static io.jenkins.plugins.appdome.build.to.secure.AppdomeBuilder.isHttpUr
 public class AndroidPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
-    private Crashlytics crashlytics;  // Changed from crashlyticsPublisher to crashlytics
-
+    private Crashlytics crashlytics;
     private Boolean isCrashlytics;
+
+
+    private Datadog datadog;
+    private Boolean isDatadog;
 
     @DataBoundConstructor
     public AndroidPlatform(CertificateMethod certificateMethod) {
@@ -32,6 +35,8 @@ public class AndroidPlatform extends Platform {
         this.certificateMethod = certificateMethod;
     }
 
+
+    //    Crashlytics
     public Boolean getIsCrashlytics() {
         if (this.isCrashlytics == null) {
             this.isCrashlytics = false;
@@ -45,8 +50,20 @@ public class AndroidPlatform extends Platform {
         return this.isCrashlytics;
     }
 
-    public void setIsCrashlytics(Boolean isCrashlytics) {
-        this.isCrashlytics = isCrashlytics;
+    public Crashlytics getCrashlytics() {  // Changed from getCrashlyticsPublisher to getCrashlytics
+        return crashlytics;
+    }
+
+    @DataBoundSetter
+    public void setCrashlytics(String crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
+        if (crashlytics != null) {
+            this.isCrashlytics = true;
+            Crashlytics cl = new Crashlytics(crashlytics);
+            this.crashlytics = cl;
+        } else {
+            this.isCrashlytics = false;
+            this.crashlytics = null;
+        }
     }
 
     public String getFirebaseAppId() {
@@ -54,6 +71,44 @@ public class AndroidPlatform extends Platform {
             return this.crashlytics.getFirebaseAppId();
         } else
             return null;
+    }
+
+    //    DATADOG
+    public Boolean getIsDatadog() {
+        if (this.isDatadog == null) {
+            this.isDatadog = false;
+        } else {
+            if (getDatadogKey() != null) {
+                this.isDatadog = true;
+            } else {
+                this.isDatadog = false;
+            }
+        }
+        return this.isDatadog;
+    }
+
+    public Datadog getDatadog() {
+        return datadog;
+    }
+
+    @DataBoundSetter
+    public void setDatadog(String datadog) {
+        if (datadog != null) {
+            this.isDatadog = true;
+            Datadog dt = new Datadog(datadog);
+            this.datadog = dt;
+        } else {
+            this.isDatadog = false;
+            this.datadog = null;
+        }
+    }
+
+    public String getDatadogKey() {
+        if (this.datadog != null) {
+            return this.datadog.getDatadogKey();
+        } else {
+            return null;
+        }
     }
 
 
@@ -79,21 +134,6 @@ public class AndroidPlatform extends Platform {
         return certificateMethod;
     }
 
-
-    public Crashlytics getCrashlytics() {  // Changed from getCrashlyticsPublisher to getCrashlytics
-        return crashlytics;
-    }
-
-    @DataBoundSetter
-    public void setCrashlytics(Crashlytics crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
-        if (!crashlytics.getFirebaseAppId().isEmpty()) {
-            this.isCrashlytics = true;
-            this.crashlytics = crashlytics;
-        } else {
-            this.isCrashlytics = false;
-            this.crashlytics = null;
-        }
-    }
 
     public DescriptorExtensionList<CertificateMethod, Descriptor<CertificateMethod>> getCertificateMethodDescriptors() {
         return Jenkins.get().getDescriptorList(CertificateMethod.class);
@@ -148,6 +188,26 @@ public class AndroidPlatform extends Platform {
             try {
                 // Simulate additional checks here
                 return FormValidation.ok("Chosen Firebase App ID: " + firebaseAppId);
+            } catch (Exception e) {
+                return FormValidation.error("An error occurred: " + e.getMessage());
+            }
+        }
+
+
+        @POST
+        public FormValidation doCheckDatadogKey(@QueryParameter String datadogKey) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure correct permission
+
+            if (StringUtils.isBlank(datadogKey)) {
+                return FormValidation.error("Firebase App ID must be provided.");
+            } else if (datadogKey.contains(" ")) {
+                return FormValidation.error("White spaces are not allowed in Firebase App ID.");
+            }
+
+            // Additional validation logic
+            try {
+                // Simulate additional checks here
+                return FormValidation.ok("Datadog key: " + datadogKey);
             } catch (Exception e) {
                 return FormValidation.error("An error occurred: " + e.getMessage());
             }

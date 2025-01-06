@@ -5,17 +5,20 @@ import java.io.File;
 import hudson.EnvVars;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.Datadog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.appdome.build.to.secure.Tests.PLUGIN_TMP_OUTPUT;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -38,11 +41,12 @@ public class PipelineTest {
     private String signFingerprint;
 
     private String firebaseAppId;
-
+    private String datadogKey;
     private List<StringWarp> entitlementsPath;
     private List<StringWarp> mobileProvisionProfilesPath;
     private BuildToTest buildToTest;
     private Boolean buildWithLogs;
+    private Boolean workflowOutputLogs;
     private Boolean googlePlaySign;
     private String secondOutput;
 
@@ -50,6 +54,7 @@ public class PipelineTest {
 
     @Before
     public void setUp() throws Exception {
+        createOutputLocation();
         logger.info("Loading environment variables...");
         loadEnvironmentVariables();
 
@@ -79,6 +84,14 @@ public class PipelineTest {
         }
     }
 
+    private void createOutputLocation() {
+        File dir = new File(PLUGIN_TMP_OUTPUT);
+        if (!dir.exists()) {
+            dir.mkdirs(); // Create directories if they do not exist
+        }
+    }
+
+
     /**
      * Loads environment variables used across various tests.
      */
@@ -103,6 +116,8 @@ public class PipelineTest {
         this.fusionSetId = System.getProperty("fusionSetId", "default-fusionSetId");
         this.signFingerprint = System.getProperty("signFingerprint", "default-signFingerprint");
         this.firebaseAppId = System.getProperty("firebaseAppId", "default-firebaseAppId");
+        this.datadogKey = System.getProperty("datadogKey", "default-datadogKey");
+
 
         // Convert CSV from system properties to List<StringWarp> for entitlements and provisions
         String entitlementsCsv = System.getProperty("entitlementsPath", "default1,default2");
@@ -115,6 +130,8 @@ public class PipelineTest {
         this.buildToTest = new BuildToTest(System.getProperty("buildToTest", "default-buildToTest"));
 
         this.buildWithLogs = Boolean.parseBoolean(System.getProperty("buildWithLogs", "false"));
+        this.workflowOutputLogs = Boolean.parseBoolean(System.getProperty("workflowOutputLogs", "false"));
+
         this.googlePlaySign = Boolean.parseBoolean(System.getProperty("googlePlaySign", "false"));
         this.secondOutput = System.getProperty("secondOutput", "default-secondOutput");
         this.outputName = System.getProperty("outputName", "protected_app");
@@ -142,11 +159,15 @@ public class PipelineTest {
         if (this.mobileProvisionProfilesPath != null && this.mobileProvisionProfilesPath.isEmpty())
             this.mobileProvisionProfilesPath = null;
         if (this.buildWithLogs != null && !this.buildWithLogs) this.buildWithLogs = null;
+        if (this.workflowOutputLogs != null && !this.workflowOutputLogs) this.workflowOutputLogs = null;
 
         if (this.googlePlaySign != null && !this.googlePlaySign) this.googlePlaySign = null;
         if (isNoneOrEmpty(this.secondOutput)) this.secondOutput = null;
         if (isNoneOrEmpty(this.outputName)) this.outputName = null;
         if (isNoneOrEmpty(this.firebaseAppId)) this.firebaseAppId = null;
+        if (isNoneOrEmpty(this.datadogKey)) this.datadogKey = null;
+
+
     }
 
     // Helper method to check if a string is "None" or empty
@@ -268,10 +289,28 @@ public class PipelineTest {
                 stringWarpSecondOutput = new StringWarp(secondOutput);
             }
         }
+        if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+            File file = new File(PLUGIN_TMP_OUTPUT + "workflow_output_logs.logs");
+            try {
+                if (file.createNewFile()) {
+                    System.out.println("File created successfully: " + file.getName());
+                } else {
+                    System.out.println("File already exists: " + file.getName());
+                }
+            } catch (IOException e) {
+                System.err.println("An error occurred while creating the file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
         logger.info("signOption is " + signOption);
         Crashlytics crashlytics = null;
         if (this.firebaseAppId != null) {
             crashlytics = new Crashlytics(this.firebaseAppId);
+        }
+        Datadog datadog = null;
+        if (this.datadogKey != null) {
+            datadog = new Datadog(datadogKey);
         }
         switch (this.signOption) {
             case "SIGN_ON_APPDOME":
@@ -279,19 +318,19 @@ public class PipelineTest {
                 Tests.testAndroidAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.keystoreFilePath, this.keystorePassword, this.keystoreAlias,
                         this.keystoreKeyPass, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("Android: private sign");
                 Tests.testAndroidPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("Android: auto dev sign");
                 Tests.testAndroidAutoDevSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.signFingerprint, stringWarpSecondOutput, this.buildToTest,
-                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, logger);
+                        this.buildWithLogs, this.googlePlaySign, this.outputName, crashlytics, datadog, this.workflowOutputLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -312,17 +351,17 @@ public class PipelineTest {
                 logger.info("iOS: sign on appdome");
                 Tests.testIosAutoSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
                         this.fusionSetId, this.certificateFilePath, this.certificatePassword,
-                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             case "PRIVATE_SIGNING":
                 logger.info("iOS: private sign");
                 Tests.testIosPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             case "AUTO_DEV_SIGNING":
                 logger.info("iOS: auto dev sign");
                 Tests.testIosAutoDevPrivateSignBuild(this.jenkins, this.token, this.teamId, this.appFilePath,
-                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, logger);
+                        this.fusionSetId, this.mobileProvisionProfilesPath, this.entitlementsPath, buildToTest, buildWithLogs, this.outputName, this.workflowOutputLogs, logger);
                 break;
             default:
                 logger.info("That's not a valid sign option.");
@@ -356,6 +395,7 @@ public class PipelineTest {
 
         logger.info("Build To Test: " + (this.buildToTest != null ? this.buildToTest.getSelectedVendor() : "null"));
         logger.info("Build With Logs: " + (this.buildWithLogs != null ? this.buildWithLogs : "null"));
+        logger.info("Workflow output logs: " + (this.workflowOutputLogs != null ? this.workflowOutputLogs : "null"));
         logger.info("Google Play Sign: " + (this.googlePlaySign != null ? this.googlePlaySign : "null"));
         logger.info("Second Output: " + (this.secondOutput != null ? this.secondOutput : "null"));
     }

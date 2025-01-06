@@ -31,13 +31,15 @@ public interface AppdomeBuilderConstants {
     String AUTO_DEV_PRIVATE_SIGN_FLAG = " --auto_dev_private_signing ";
     String GOOGLE_PLAY_SIGN_FLAG = " --google_play_signing ";
     String FINGERPRINT_FLAG = " --signing_fingerprint ";
-    String CERTIFIED_SECURE_FLAG = " --certificate_output ";
+    String CERTIFIED_SECURE_PDF_FLAG = " --certificate_output ";
+    String CERTIFIED_SECURE_JSON_FLAG = " --certificate_json ";
     String BUILD_WITH_LOGS = " --build_logs ";
     String BUILD_TO_TEST = " --build_to_test_vendor ";
     String SECOND_OUTPUT = " --second_output ";
     String DEOBFUSCATION_OUTPUT = " --deobfuscation_script_output ";
-
     String FIREBASE_APP_ID = " --app_id ";
+    String DATADOG_API_KEY = " --datadog_api_key ";
+    String WORKFLOW_OUTPUT_LOGS_FLAG = " --workflow_output_logs ";
 
 
 }
