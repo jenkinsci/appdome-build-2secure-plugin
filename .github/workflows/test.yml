@@ -37,7 +37,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -84,7 +84,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -132,7 +132,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -180,7 +180,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -229,7 +229,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -277,7 +277,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -325,7 +325,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -373,7 +373,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
@@ -422,7 +422,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Download Presigned URLs Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: presigned-urls
           path: presigned_urls
