@@ -23,11 +23,8 @@ public class AndroidPlatform extends Platform {
 
     private final CertificateMethod certificateMethod;
     private Crashlytics crashlytics;
-    private Boolean isCrashlytics;
-
 
     private Datadog datadog;
-    private Boolean isDatadog;
 
     @DataBoundConstructor
     public AndroidPlatform(CertificateMethod certificateMethod) {
