@@ -26,7 +26,7 @@
         <url>https://github.com/${gitHubRepo}</url>
     </scm>
     <properties>
-        <revision>1.2.9</revision>
+        <revision>1.2.10</revision>
         <changelist>-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.361.4</jenkins.version>
