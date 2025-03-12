@@ -49,7 +49,7 @@ public class AndroidPlatform extends Platform {
 
     public String getFirebaseAppId() {
         if (this.crashlytics != null) {
-            return this.crashlytics.getFirebaseAppId().toString();
+            return this.crashlytics.getFirebaseAppId();
         } else
             return null;
     }

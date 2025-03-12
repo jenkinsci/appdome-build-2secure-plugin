@@ -9,7 +9,6 @@ import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.util.Secret;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoDevSign;
-import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoGoogleSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
@@ -21,7 +20,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
@@ -97,7 +95,7 @@ public class AppdomeBuilderTest {
 
     private String buildFilePath(String filename) {
         File file = new File(PATH_TO_FILES, filename);
-        System.out.println(filename + " : " + file.getAbsolutePath().toString());
+        System.out.println(filename + " : " + file.getAbsolutePath());
         if (!file.exists()) {
             throw new IllegalStateException("Required file not found: " + file.getAbsolutePath());
         }

@@ -15,6 +15,7 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.metho
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.PrivateSign;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
+import org.apache.commons.io.IOUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -222,17 +223,17 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             command.append(OUTPUT_FLAG)
                     .append(getOutputLocation());
             command.append(CERTIFIED_SECURE_PDF_FLAG)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(getOutputLocation(), 0, this.outputLocation.lastIndexOf("/") + 1)
                     .append("Certified_Secure.pdf");
             command.append(CERTIFIED_SECURE_JSON_FLAG)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(getOutputLocation(), 0, this.outputLocation.lastIndexOf("/") + 1)
                     .append("Certified_Secure.json");
             command.append(DEOBFUSCATION_OUTPUT)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(getOutputLocation(), 0, this.outputLocation.lastIndexOf("/") + 1)
                     .append("Deobfuscation_Mapping_Files.zip");
             if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
                 command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
-                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append(getOutputLocation(), 0, this.outputLocation.lastIndexOf("/") + 1)
                         .append("workflow_output_logs.log");
             }
 
@@ -242,7 +243,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             output_location = agentWorkspace.child("output");
             output_location.mkdirs();
 
-            setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
+            setOutputLocation(checkExtension(output_location + "/", "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
 
 
             command.append(OUTPUT_FLAG)
@@ -300,8 +301,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             dotIndex = outputLocation.lastIndexOf('.');
             outputLocation = outputLocation.substring(0, dotIndex); // Remove the extension from outputLocation
         } else if (!outputLocation.endsWith("/")) {
-            outputName = new File(outputLocation).getName().toString();
-            outputLocation = new File(outputLocation).getParent().toString();
+            outputName = new File(outputLocation).getName();
+            outputLocation = new File(outputLocation).getParent();
         }
 
         // Overwrite the extension based on the provided booleans
