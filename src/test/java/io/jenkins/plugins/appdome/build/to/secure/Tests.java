@@ -55,11 +55,11 @@ public class Tests {
         androidPlatform.setAppPath(appPath);
 
         if (crashlytics != null) {
-            androidPlatform.setCrashlytics(crashlytics.getFirebaseAppId());
+            androidPlatform.setCrashlytics(new Crashlytics(crashlytics.getFirebaseAppId()));
         }
 
         if (datadog != null) {
-            androidPlatform.setDatadog(datadog.getDatadogKey());
+            androidPlatform.setDatadog(new Datadog(datadog.getDatadogKey()));
         }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
                 androidPlatform, secondOutput);
@@ -93,10 +93,10 @@ public class Tests {
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
         if (crashlytics != null) {
-            androidPlatform.setCrashlytics(crashlytics.getFirebaseAppId());
+            androidPlatform.setCrashlytics(new Crashlytics(crashlytics.getFirebaseAppId()));
         }
-        if (datadog != null) {
-            androidPlatform.setDatadog(datadog.getDatadogKey());
+        if (androidPlatform.getDatadog() != null) {
+            androidPlatform.setDatadog(new Datadog(androidPlatform.getDatadog().getDatadogKey()));
         }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildWithLogs(buildWithLogs);
@@ -133,10 +133,10 @@ public class Tests {
         androidPlatform.setFusionSetId(fusionSet);
         androidPlatform.setAppPath(appPath);
         if (crashlytics != null) {
-            androidPlatform.setCrashlytics(crashlytics.getFirebaseAppId());
+            androidPlatform.setCrashlytics(new Crashlytics(crashlytics.getFirebaseAppId()));
         }
         if (datadog != null) {
-            androidPlatform.setDatadog(datadog.getDatadogKey());
+            androidPlatform.setDatadog(new Datadog(datadog.getDatadogKey()));
         }
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, secondOutput);
         appdomeBuilder.setBuildToTest(buildToTest);

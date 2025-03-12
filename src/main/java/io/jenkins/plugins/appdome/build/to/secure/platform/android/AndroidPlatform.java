@@ -38,16 +38,7 @@ public class AndroidPlatform extends Platform {
 
     //    Crashlytics
     public Boolean getIsCrashlytics() {
-        if (this.isCrashlytics == null) {
-            this.isCrashlytics = false;
-        } else {
-            if (getFirebaseAppId() != null) {
-                this.isCrashlytics = true;
-            } else {
-                this.isCrashlytics = false;
-            }
-        }
-        return this.isCrashlytics;
+        return this.crashlytics != null && this.crashlytics.getFirebaseAppId() != null;
     }
 
     public Crashlytics getCrashlytics() {  // Changed from getCrashlyticsPublisher to getCrashlytics
@@ -55,36 +46,20 @@ public class AndroidPlatform extends Platform {
     }
 
     @DataBoundSetter
-    public void setCrashlytics(String crashlytics) {  // Changed from setCrashlyticsPublisher to setCrashlytics
-        if (crashlytics != null) {
-            this.isCrashlytics = true;
-            Crashlytics cl = new Crashlytics(crashlytics);
-            this.crashlytics = cl;
-        } else {
-            this.isCrashlytics = false;
-            this.crashlytics = null;
-        }
+    public void setCrashlytics(Crashlytics crashlytics) {
+        this.crashlytics = crashlytics;
     }
 
     public String getFirebaseAppId() {
         if (this.crashlytics != null) {
-            return this.crashlytics.getFirebaseAppId();
+            return this.crashlytics.getFirebaseAppId().toString();
         } else
             return null;
     }
 
     //    DATADOG
     public Boolean getIsDatadog() {
-        if (this.isDatadog == null) {
-            this.isDatadog = false;
-        } else {
-            if (getDatadogKey() != null) {
-                this.isDatadog = true;
-            } else {
-                this.isDatadog = false;
-            }
-        }
-        return this.isDatadog;
+        return this.datadog != null && this.datadog.getDatadogKey() != null;
     }
 
     public Datadog getDatadog() {
@@ -92,15 +67,8 @@ public class AndroidPlatform extends Platform {
     }
 
     @DataBoundSetter
-    public void setDatadog(String datadog) {
-        if (datadog != null) {
-            this.isDatadog = true;
-            Datadog dt = new Datadog(datadog);
-            this.datadog = dt;
-        } else {
-            this.isDatadog = false;
-            this.datadog = null;
-        }
+    public void setDatadog(Datadog datadog) {
+        this.datadog = datadog;
     }
 
     public String getDatadogKey() {

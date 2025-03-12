@@ -285,7 +285,7 @@ jobs:
 
       # Step to upload the downloaded files as artifacts (using wildcard)
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: downloaded-files-artifact
           path: /home/runner/work/appdome-build-2secure-plugin/appdome-build-2secure-plugin/tmp/output/*
