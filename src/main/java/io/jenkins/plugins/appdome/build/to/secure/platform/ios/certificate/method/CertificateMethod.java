@@ -30,7 +30,7 @@ public class CertificateMethod implements Describable<CertificateMethod>, Extens
         if (strList != null) {
             StringBuilder concatenatePath = new StringBuilder();
             for (StringWarp path : strList) {
-                concatenatePath.append(((StringWarp) path).getItem()).append(',');
+                concatenatePath.append(path.getItem()).append(',');
             }
             return concatenatePath.substring(0, concatenatePath.length() - 1).trim();
         }
