@@ -36,6 +36,9 @@ public class StringWarp extends AbstractDescribableImpl<StringWarp> {
         return this.item;
     }
 
+    public String getDynamicCertificate() {
+        return this.item;
+    }
 
 
     @Symbol("StringWarp")

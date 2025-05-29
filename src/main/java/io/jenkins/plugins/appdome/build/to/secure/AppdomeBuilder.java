@@ -40,6 +40,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private final Platform platform;
     private String outputLocation;
     private StringWarp secondOutput;
+
+    private StringWarp dynamicCertificate;
+
     private Boolean buildWithLogs;
     private Boolean workflowOutputLogs;
     private BuildToTest buildToTest;
@@ -47,11 +50,12 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     private boolean isAutoDevPrivateSign = false;
 
     @DataBoundConstructor
-    public AppdomeBuilder(Secret token, String teamId, Platform platform, StringWarp secondOutput) {
+    public AppdomeBuilder(Secret token, String teamId, Platform platform, StringWarp secondOutput, StringWarp dynamicCertificate) {
         this.teamId = teamId;
         this.token = token;
         this.platform = platform;
         this.secondOutput = secondOutput;
+        this.dynamicCertificate = dynamicCertificate;
 
     }
 
@@ -148,6 +152,8 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
         String debugMode = env.get("ACTIONS_STEP_DEBUG");
+        listener.getLogger().println("[debug] command : " + command);
+
         if ("true".equalsIgnoreCase(debugMode)) {
             listener.getLogger().println("[debug] command : " + command);
         }
@@ -276,9 +282,12 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             String secondOutputVar = this.getSecondOutput();
             secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
             command.append(SECOND_OUTPUT).append(secondOutputVar);
-
         }
 
+
+        if (!(Util.fixEmptyAndTrim(this.getDynamicCertificate()) == null)) {
+            command.append(DYNAMIC_CERTIFICATE).append(DownloadFilesOrContinue(this.getDynamicCertificate(), appdomeWorkspace, launcher));
+        }
         return command.toString();
     }
 
@@ -677,6 +686,18 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setSecondOutput(StringWarp secondOutput) {
         this.secondOutput = secondOutput;
+    }
+
+    @DataBoundSetter
+    public void setDynamicCertificate(StringWarp dynamicCertificate) {
+        this.dynamicCertificate = dynamicCertificate;
+    }
+
+    public String getDynamicCertificate() {
+        if (dynamicCertificate != null) {
+            return dynamicCertificate.getDynamicCertificate();
+        }
+        return null;
     }
 
 
