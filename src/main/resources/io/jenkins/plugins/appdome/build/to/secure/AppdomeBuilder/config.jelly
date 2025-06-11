@@ -39,6 +39,18 @@
 
     <f:block>
         <table>
+            <f:optionalBlock name="dynamicCertificate" title="Dynamic Certificate" field="dynamicCertificate">
+                <f:entry field="item" description="Path to zip file containing dynamic certificates for certificate pinning">
+                    <f:textbox/>
+                </f:entry>
+            </f:optionalBlock>
+        </table>
+    </f:block>
+
+
+
+    <f:block>
+        <table>
             <f:optionalBlock name="buildToTest" title="Build To Test" field="selectedVendor">
                 <f:entry field="buildToTest">
                     <f:entry title="Vendors" field="selectedVendor">
