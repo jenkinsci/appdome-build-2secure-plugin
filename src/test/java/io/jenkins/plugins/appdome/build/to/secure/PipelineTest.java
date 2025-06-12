@@ -2,8 +2,6 @@ package io.jenkins.plugins.appdome.build.to.secure;
 
 import java.io.File;
 
-import hudson.EnvVars;
-import hudson.slaves.EnvironmentVariablesNodeProperty;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.Crashlytics;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.Datadog;
 import org.junit.Before;
@@ -19,7 +17,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.appdome.build.to.secure.Tests.PLUGIN_TMP_OUTPUT;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class PipelineTest {
@@ -214,7 +211,7 @@ public class PipelineTest {
     private void checkFilesExist(List<StringWarp> filePaths, String description) {
         if (filePaths != null && !filePaths.isEmpty()) {
             for (StringWarp filePathWarp : filePaths) {
-                String filePath = filePathWarp.getItem().toString();
+                String filePath = filePathWarp.getItem();
                 checkFileExists(filePath, description);
             }
         } else {
@@ -230,7 +227,7 @@ public class PipelineTest {
      * @return A list of StringWarp objects.
      */
     private List<StringWarp> convertCsvToListStringWarp(String csv) {
-        return Arrays.asList(csv.split(",")).stream()
+        return Arrays.stream(csv.split(","))
                 .map(StringWarp::new)
                 .collect(Collectors.toList());
     }

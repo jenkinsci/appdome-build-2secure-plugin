@@ -13,14 +13,11 @@ import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.m
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.AutoSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.PrivateSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
-import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.assertTrue;
 
 public class Tests {
 
@@ -39,11 +36,7 @@ public class Tests {
         if (fingerprint != null) {
             autoGoogleSign = new AutoGoogleSign(fingerprint);
         }
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
-
+        boolean isSecondOutput = secondOutput != null;
 
         AutoSign autoSign =
                 new AutoSign(keystoreFilePath,
@@ -82,10 +75,7 @@ public class Tests {
         String output_location = PLUGIN_TMP_OUTPUT + outputName + "." + getFileExtension(appPath);
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
+        boolean isSecondOutput = secondOutput != null;
         // Create configuration objects
         PrivateSign privateSign = new PrivateSign(fingerprint);
         privateSign.setGoogleSigning(googleSigning);
@@ -116,10 +106,7 @@ public class Tests {
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
         // Create configuration objects
-        Boolean isSecondOutput = false;
-        if (secondOutput != null) {
-            isSecondOutput = true;
-        }
+        boolean isSecondOutput = secondOutput != null;
 
         AutoDevSign autoDevSign = new AutoDevSign(fingerprint);
         if (googleSigning == null) {
