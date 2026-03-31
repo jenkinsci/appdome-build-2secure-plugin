@@ -5,15 +5,16 @@ import hudson.util.ListBoxModel;
 public class VendorManager {
 
     public enum Vendor {
-        SAUCELABS,
+        AWS_DEVICE_FARM,
         BITBAR,
-        LAMBDATEST,
         BROWSERSTACK,
-        PERFECTO,
         FIREBASE,
         KATALON,
-        TOSCA,
-        AWS_DEVICE_FARM
+        KOBITON,
+        LAMBDATEST,
+        PERFECTO,
+        SAUCELABS,
+        TRICENTIS_DEVICE_CLOUD
     }
 
     private static final VendorManager instance = new VendorManager();

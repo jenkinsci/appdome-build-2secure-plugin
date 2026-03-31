@@ -120,7 +120,7 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.apkApp1Path);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null, null);
 
         appdomeBuilder.setBuildToTest(null);
         appdomeBuilder.setBuildWithLogs(true);
@@ -138,7 +138,7 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(privateSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.aabAppPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null, null);
 
         appdomeBuilder.setBuildToTest(null);
         appdomeBuilder.setBuildWithLogs(true);
@@ -157,7 +157,7 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.apkApp2Path);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(false);
@@ -175,7 +175,7 @@ public class AppdomeBuilderTest {
         AndroidPlatform androidPlatform = new AndroidPlatform(autoDevSign);
         androidPlatform.setFusionSetId(androidFusionSet);
         androidPlatform.setAppPath(this.aabAppPath);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, androidPlatform, null, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(false);
@@ -201,7 +201,7 @@ public class AppdomeBuilderTest {
 
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform, null,null);
+                androidPlatform, null, null);
 
         appdomeBuilder.setBuildToTest(null);
 
@@ -230,7 +230,7 @@ public class AppdomeBuilderTest {
         String secondOutputPath = secondOutputLocation.getPath() + File.separator + "second_output.apk";
 
         AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId,
-                androidPlatform, new StringWarp(secondOutputPath),null);
+                androidPlatform, new StringWarp(secondOutputPath), null);
 
         appdomeBuilder.setBuildToTest(null);
 
@@ -260,7 +260,7 @@ public class AppdomeBuilderTest {
         IosPlatform iosPlatform = new IosPlatform(autoSign);
         iosPlatform.setFusionSetId(iosFusionSet);
         iosPlatform.setAppPath(this.ipaApp2Path);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.SAUCELABS.name());
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(true);
@@ -299,7 +299,7 @@ public class AppdomeBuilderTest {
         IosPlatform iosPlatform = new IosPlatform(privateSign);
         iosPlatform.setFusionSetId(iosFusionSet);
         iosPlatform.setAppPath(this.ipaApp1Path);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null, null);
         BuildToTest buildToTest = new BuildToTest(VendorManager.Vendor.BROWSERSTACK.name());
         appdomeBuilder.setBuildToTest(buildToTest);
         appdomeBuilder.setBuildWithLogs(false);
@@ -324,7 +324,7 @@ public class AppdomeBuilderTest {
         IosPlatform iosPlatform = new IosPlatform(autoDevSign);
         iosPlatform.setFusionSetId(iosFusionSet);
         iosPlatform.setAppPath(this.ipaApp3Path);
-        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null,null);
+        AppdomeBuilder appdomeBuilder = new AppdomeBuilder(Secret.fromString(token), teamId, iosPlatform, null, null);
 
         project.getBuildersList().add(appdomeBuilder);
         checkingResults(project, false);

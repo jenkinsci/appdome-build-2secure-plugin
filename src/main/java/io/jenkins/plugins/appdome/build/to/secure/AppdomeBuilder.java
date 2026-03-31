@@ -8,6 +8,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.*;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
+import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -145,19 +147,19 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
     private int ExecuteAppdomeApi(TaskListener listener, FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher) throws Exception {
         FilePath scriptPath = appdomeWorkspace.child("appdome-api-bash");
-        String command = ComposeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
-        List<String> filteredCommandList = Stream.of(command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
+        ComposedCommandOutcome composed = composeAppdomeCommand(appdomeWorkspace, agentWorkspace, env, launcher, listener);
+        List<String> filteredCommandList = Stream.of(composed.command.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
                 .filter(s -> !s.isEmpty()).map(s -> s.replaceAll("\"", ""))
                 .collect(Collectors.toList());
-        // Add the APPDOME_CLIENT_HEADER environment variable to the subprocess
         env.put(APPDOME_HEADER_ENV_NAME, APPDOME_BUILDE2SECURE_VERSION);
-//        String debugMode = env.get("ACTIONS_STEP_DEBUG");
-//        listener.getLogger().println("[debug] command : " + command);
-//
-//        if ("true".equalsIgnoreCase(debugMode)) {
-//            listener.getLogger().println("[debug] command : " + command);
-//        }
+        logAppdomeConfiguration(listener, env, composed.resolvedAppPath);
         listener.getLogger().println("Launching Appdome engine");
+        logAppdomeOutputArtifacts(
+                listener,
+                composed.resolvedOutputPath,
+                composed.outputDirPrefix,
+                composed.workflowLogsEnabled,
+                composed.secondOutputLogged);
         return launcher.launch()
                 .cmds(filteredCommandList)
                 .pwd(scriptPath)
@@ -168,7 +170,31 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 .join();
     }
 
-    private String ComposeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
+    private static final class ComposedCommandOutcome {
+        final String command;
+        final String resolvedAppPath;
+        final String resolvedOutputPath;
+        final String outputDirPrefix;
+        final boolean workflowLogsEnabled;
+        final String secondOutputLogged;
+
+        ComposedCommandOutcome(
+                String command,
+                String resolvedAppPath,
+                String resolvedOutputPath,
+                String outputDirPrefix,
+                boolean workflowLogsEnabled,
+                String secondOutputLogged) {
+            this.command = command;
+            this.resolvedAppPath = resolvedAppPath;
+            this.resolvedOutputPath = resolvedOutputPath;
+            this.outputDirPrefix = outputDirPrefix;
+            this.workflowLogsEnabled = workflowLogsEnabled;
+            this.secondOutputLogged = secondOutputLogged;
+        }
+    }
+
+    private ComposedCommandOutcome composeAppdomeCommand(FilePath appdomeWorkspace, FilePath agentWorkspace, EnvVars env, Launcher launcher, TaskListener listener) throws Exception {
         //common:
         StringBuilder command = new StringBuilder("./appdome_api.sh");
         command.append(KEY_FLAG)
@@ -185,9 +211,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String appPath = "";
         //concatenate the app path if it is not empty:
         if (!(Util.fixEmptyAndTrim(this.platform.getAppPath()) == null)) {
-            appPath = DownloadFilesOrContinue(this.platform.getAppPath(), appdomeWorkspace, launcher);
+            appPath = DownloadFilesOrContinue(env, this.platform.getAppPath(), appdomeWorkspace, launcher);
         } else {
-            appPath = DownloadFilesOrContinue(UseEnvironmentVariable(env, APP_PATH,
+            appPath = DownloadFilesOrContinue(env, UseEnvironmentVariable(env, APP_PATH,
                     appPath, APP_FLAG.trim().substring(2)), appdomeWorkspace, launcher);
         }
         switch (platform.getPlatformType()) {
@@ -198,7 +224,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 ComposeIosCommand(command, env, appdomeWorkspace, launcher);
                 break;
             default:
-                return null;
+                throw new IllegalStateException("Unsupported platform: " + platform.getPlatformType());
         }
 
         if (appPath.isEmpty()) {
@@ -218,27 +244,36 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
 
         String basename = new File(appPath).getName();
-        ArgumentListBuilder args;
         FilePath output_location;
 
+        final String resolvedOutputPath;
+        final String outputDirPrefix;
+        final boolean workflowLogsEnabled = this.workflowOutputLogs != null && this.workflowOutputLogs;
+        String secondOutputLogged = null;
 
         if (!(Util.fixEmptyAndTrim(this.outputLocation) == null)) {
-            setOutputLocation(checkExtension(this.outputLocation, basename, this.isAutoDevPrivateSign, false));
+            String expandedOutputLocation = env.expand(this.outputLocation);
+            if (Util.fixEmptyAndTrim(expandedOutputLocation) == null) {
+                throw new InputMismatchException(
+                        "Output location expanded to an empty value; check environment variables in the output path.");
+            }
+            resolvedOutputPath = checkExtension(expandedOutputLocation.trim(), basename, this.isAutoDevPrivateSign, false);
 
             command.append(OUTPUT_FLAG)
-                    .append(getOutputLocation());
+                    .append(resolvedOutputPath);
+            outputDirPrefix = directoryPrefixWithFinalSeparator(resolvedOutputPath);
             command.append(CERTIFIED_SECURE_PDF_FLAG)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(outputDirPrefix)
                     .append("Certified_Secure.pdf");
             command.append(CERTIFIED_SECURE_JSON_FLAG)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(outputDirPrefix)
                     .append("Certified_Secure.json");
             command.append(DEOBFUSCATION_OUTPUT)
-                    .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                    .append(outputDirPrefix)
                     .append("Deobfuscation_Mapping_Files.zip");
-            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+            if (workflowLogsEnabled) {
                 command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
-                        .append(getOutputLocation().substring(0, this.outputLocation.lastIndexOf("/") + 1))
+                        .append(outputDirPrefix)
                         .append("workflow_output_logs.log");
             }
 
@@ -248,11 +283,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             output_location = agentWorkspace.child("output");
             output_location.mkdirs();
 
-            setOutputLocation(checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false));
+            resolvedOutputPath = checkExtension(String.valueOf(output_location + "/"), "Appdome_Protected_" + basename, this.isAutoDevPrivateSign, false);
 
 
             command.append(OUTPUT_FLAG)
-                    .append(getOutputLocation());
+                    .append(resolvedOutputPath);
+
+            outputDirPrefix = directoryPrefixWithFinalSeparator(resolvedOutputPath);
 
             command.append(CERTIFIED_SECURE_PDF_FLAG)
                     .append(output_location.getRemote())
@@ -269,7 +306,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                     .append(File.separator)
                     .append("Deobfuscation_Mapping_Files.zip");
 
-            if (this.workflowOutputLogs != null && this.workflowOutputLogs) {
+            if (workflowLogsEnabled) {
 
                 command.append(WORKFLOW_OUTPUT_LOGS_FLAG)
                         .append(output_location.getRemote())
@@ -278,62 +315,177 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
             }
         }
 
-        if (!(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
-            String secondOutputVar = this.getSecondOutput();
+        if (platform.getPlatformType() == PlatformType.ANDROID
+                && !(Util.fixEmptyAndTrim(this.getSecondOutput()) == null)) {
+            String secondOutputVar = env.expand(this.getSecondOutput());
+            if (Util.fixEmptyAndTrim(secondOutputVar) == null) {
+                throw new InputMismatchException(
+                        "Second output expanded to an empty value; check environment variables in that path.");
+            }
+            secondOutputVar = secondOutputVar.trim();
             secondOutputVar = checkExtension(secondOutputVar, new File(secondOutputVar).getName(), false, true);
+            secondOutputLogged = secondOutputVar;
             command.append(SECOND_OUTPUT).append(secondOutputVar);
         }
 
 
         if (!(Util.fixEmptyAndTrim(this.getDynamicCertificate()) == null)) {
-            command.append(DYNAMIC_CERTIFICATE).append(DownloadFilesOrContinue(this.getDynamicCertificate(), appdomeWorkspace, launcher));
+            command.append(DYNAMIC_CERTIFICATE)
+                    .append(DownloadFilesOrContinue(env, this.getDynamicCertificate(), appdomeWorkspace, launcher));
         }
-        return command.toString();
+
+        return new ComposedCommandOutcome(
+                command.toString(), appPath, resolvedOutputPath, outputDirPrefix, workflowLogsEnabled, secondOutputLogged);
+    }
+
+    private void logAppdomeConfiguration(TaskListener listener, EnvVars env, String resolvedAppPath) {
+        PrintStream log = listener.getLogger();
+        log.println("--- Appdome Build2Secure configuration ---");
+        log.println("Platform: " + platform.getPlatformType().name());
+        String fusion = Util.fixEmptyAndTrim(platform.getFusionSetId());
+        log.println("Fusion set ID: " + (fusion != null ? env.expand(fusion) : "(not set)"));
+        String team = Util.fixEmptyAndTrim(this.teamId);
+        log.println("Team ID: " + (team != null ? env.expand(team) : "(not set)"));
+        log.println("Sign method: " + describeSignMethod());
+        log.println("Application path (resolved on agent): " + resolvedAppPath);
+        String outLoc = Util.fixEmptyAndTrim(this.outputLocation);
+        log.println(
+                "Output location (configured): "
+                        + (outLoc != null ? env.expand(outLoc) : "(default: workspace/output/)"));
+        log.println("Build with logs: " + (Boolean.TRUE.equals(this.buildWithLogs) ? "yes" : "no"));
+        if (this.buildToTest != null) {
+            log.println("Build to test vendor: " + this.buildToTest.getSelectedVendor());
+        } else {
+            log.println("Build to test: (not set)");
+        }
+        log.println("Workflow output logs: " + (Boolean.TRUE.equals(this.workflowOutputLogs) ? "yes" : "no"));
+        String second = Util.fixEmptyAndTrim(this.getSecondOutput());
+        log.println(
+                "Second output (configured): "
+                        + (second != null ? env.expand(second) : "(not set)"));
+        log.println(
+                "Dynamic certificate: "
+                        + (Util.fixEmptyAndTrim(this.getDynamicCertificate()) != null ? "configured" : "(not set)"));
+        log.println("---");
+    }
+
+    private String describeSignMethod() {
+        try {
+            if (platform instanceof AndroidPlatform) {
+                return ((AndroidPlatform) platform).getCertificateMethod().getSignType().name();
+            }
+            if (platform instanceof IosPlatform) {
+                return ((IosPlatform) platform).getCertificateMethod().getSignType().name();
+            }
+        } catch (RuntimeException ignored) {
+            // fall through
+        }
+        return "UNKNOWN";
+    }
+
+    private static void logAppdomeOutputArtifacts(
+            TaskListener listener,
+            String resolvedOutputPath,
+            String outputDirPrefix,
+            boolean workflowLogsEnabled,
+            String secondOutputPath) {
+        PrintStream log = listener.getLogger();
+        log.println("Appdome output artifacts (expected paths on agent):");
+        log.println("  Protected application: " + resolvedOutputPath);
+        log.println("  Certified_Secure.pdf: " + outputDirPrefix + "Certified_Secure.pdf");
+        log.println("  Certified_Secure.json: " + outputDirPrefix + "Certified_Secure.json");
+        log.println("  Deobfuscation_Mapping_Files.zip: " + outputDirPrefix + "Deobfuscation_Mapping_Files.zip");
+        if (workflowLogsEnabled) {
+            log.println("  workflow_output_logs.log: " + outputDirPrefix + "workflow_output_logs.log");
+        }
+        if (!(Util.fixEmptyAndTrim(secondOutputPath) == null)) {
+            log.println("  Second output: " + secondOutputPath);
+        }
+    }
+
+    private static String directoryPrefixWithFinalSeparator(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        int f = path.lastIndexOf('/');
+        int b = path.lastIndexOf('\\');
+        int i = Math.max(f, b);
+        return i >= 0 ? path.substring(0, i + 1) : "";
+    }
+
+    /**
+     * Extension the protected app artifact should use (.apk / .aab / .ipa from input app, .sh for AutoDev, .apk for second output).
+     */
+    private static String targetArtifactExtension(String basename, Boolean isThisAutoDevPrivate, Boolean isThisSecondOutput) {
+        if (Boolean.TRUE.equals(isThisSecondOutput)) {
+            return "apk";
+        }
+        if (Boolean.TRUE.equals(isThisAutoDevPrivate)) {
+            return "sh";
+        }
+        int dot = basename.lastIndexOf('.');
+        return (dot != -1) ? basename.substring(dot + 1) : "";
     }
 
     private String checkExtension(String outputLocation, String basename, Boolean isThisAutoDevPrivate, Boolean isThisSecondOutput) {
-        int dotIndex = basename.lastIndexOf('.');
+        final String path = outputLocation == null ? "" : outputLocation.trim();
 
-        // Extract the extension from basename, if present
-        String extensionFromBaseName = (dotIndex != -1) ? basename.substring(dotIndex + 1) : "";
-
-        // Extract the basename without the extension
-        String basenameWithoutExtension = (dotIndex != -1) ? basename.substring(0, dotIndex) : basename;
-
-        String extension = extensionFromBaseName;
-        String outputName = "";
-
-
-        // Check if outputLocation ends with a known extension and if so, remove that extension from outputLocation
-        if (outputLocation.endsWith(".ipa") || outputLocation.endsWith(".aab") || outputLocation.endsWith(".apk") || outputLocation.endsWith(".sh")) {
-            dotIndex = outputLocation.lastIndexOf('.');
-            outputLocation = outputLocation.substring(0, dotIndex); // Remove the extension from outputLocation
-        } else if (!outputLocation.endsWith("/")) {
-            outputName = new File(outputLocation).getName().toString();
-            outputLocation = new File(outputLocation).getParent().toString();
-        }
-
-        // Overwrite the extension based on the provided booleans
-        if (isThisSecondOutput) {
-            extension = "apk";
-        } else if (isThisAutoDevPrivate) {
-            extension = "sh";
-        }
-
-        // Construct the final output location string
-        String finalOutputLocation;
-        if (outputLocation.endsWith("/")) {
-            finalOutputLocation = outputLocation + basenameWithoutExtension + "." + extension;
-        } else {
-            if (!outputName.isEmpty()) {
-                finalOutputLocation = outputLocation + "/" + outputName + "/" + basenameWithoutExtension + "." + extension;
-            } else {
-                finalOutputLocation = outputLocation + "." + extension;
-
+        // Explicit output *file* (last path segment has a real extension): keep configured stem + directory;
+        // normalize extension to match build output (.apk vs mistaken .zip, AutoDev -> .sh, etc.).
+        boolean trailingSlash = path.endsWith("/") || path.endsWith(File.separator);
+        if (!trailingSlash) {
+            File outFileForKind = new File(path);
+            String nameForKind = outFileForKind.getName().trim();
+            int lastDot = nameForKind.lastIndexOf('.');
+            if (lastDot > 0 && lastDot < nameForKind.length() - 1) {
+                String userExt = nameForKind.substring(lastDot + 1).trim();
+                if (!userExt.isEmpty()) {
+                    String targetExt = targetArtifactExtension(basename, isThisAutoDevPrivate, isThisSecondOutput);
+                    if (!targetExt.isEmpty() && !userExt.equalsIgnoreCase(targetExt)) {
+                        String stem = nameForKind.substring(0, lastDot);
+                        File parentFile = outFileForKind.getParentFile();
+                        String normalizedName = stem + "." + targetExt;
+                        return parentFile != null ? new File(parentFile, normalizedName).getPath() : normalizedName;
+                    }
+                    return path;
+                }
             }
         }
 
-        return finalOutputLocation;
+        // App artifact: basename without extension for directory-style output naming
+        int dotIndex = basename.lastIndexOf('.');
+        String basenameWithoutExtension = (dotIndex != -1) ? basename.substring(0, dotIndex) : basename;
+
+        String outputName = "";
+        String workLocation;
+
+        // Directory-style configured path: trailing slash, or parent + last segment as folder name
+        if (trailingSlash) {
+            workLocation = path;
+        } else {
+            File outFile = new File(path);
+            outputName = outFile.getName().trim();
+            String parent = outFile.getParent();
+            workLocation = parent != null ? parent : "";
+        }
+
+        String dirSuffixExtension = targetArtifactExtension(basename, isThisAutoDevPrivate, isThisSecondOutput);
+
+        // Under a directory: basename only when app has no extension; else basename.suffix
+        String dirStyleFileName;
+        if (dirSuffixExtension.isEmpty()) {
+            dirStyleFileName = basenameWithoutExtension;
+        } else {
+            dirStyleFileName = basenameWithoutExtension + "." + dirSuffixExtension;
+        }
+
+        if (workLocation.endsWith("/")) {
+            return workLocation + dirStyleFileName;
+        }
+        if (!outputName.isEmpty()) {
+            return workLocation + "/" + outputName + "/" + dirStyleFileName;
+        }
+        return dirSuffixExtension.isEmpty() ? workLocation : workLocation + "." + dirSuffixExtension;
     }
 
 
@@ -361,24 +513,24 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(KEYSTORE_FLAG)
                         .append(autoSign.getKeystorePath() == null
                                 || autoSign.getKeystorePath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
                                 KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
+                                : DownloadFilesOrContinue(env, autoSign.getKeystorePath(), appdomeWorkspace, launcher))
                         .append(KEYSTORE_PASS_FLAG)
                         .append(autoSign.getKeystorePassword())
                         .append(PROVISION_PROFILES_FLAG)
                         .append(autoSign.getProvisioningProfilesPath() == null
                                 || autoSign.getProvisioningProfilesPath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 autoSign.getProvisioningProfilesPath(),
                                 PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
+                                : DownloadFilesOrContinue(env, autoSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
                         .append(ENTITLEMENTS_FLAG)
                         .append(autoSign.getEntitlementsPath() == null
                                 || autoSign.getEntitlementsPath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoSign.getEntitlementsPath(),
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoSign.getEntitlementsPath(),
                                 ENTITLEMENTS_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoSign.getEntitlementsPath(), appdomeWorkspace, launcher));
+                                : DownloadFilesOrContinue(env, autoSign.getEntitlementsPath(), appdomeWorkspace, launcher));
                 break;
             case PRIVATE:
                 PrivateSign privateSign = (PrivateSign) iosPlatform.getCertificateMethod();
@@ -386,10 +538,10 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(PROVISION_PROFILES_FLAG)
                         .append(privateSign.getProvisioningProfilesPath() == null
                                 || privateSign.getProvisioningProfilesPath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 privateSign.getProvisioningProfilesPath(),
                                 PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(privateSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher));
+                                : DownloadFilesOrContinue(env, privateSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher));
                 break;
             case AUTODEV:
                 isAutoDevPrivateSign = true;
@@ -397,15 +549,15 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
                         .append(PROVISION_PROFILES_FLAG).append(autoDevSign.getProvisioningProfilesPath() == null
                                 || autoDevSign.getProvisioningProfilesPath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, MOBILE_PROVISION_PROFILE_PATHS_ENV,
                                 autoDevSign.getProvisioningProfilesPath(),
                                 PROVISION_PROFILES_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoDevSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
+                                : DownloadFilesOrContinue(env, autoDevSign.getProvisioningProfilesPath(), appdomeWorkspace, launcher))
                         .append(ENTITLEMENTS_FLAG).append(autoDevSign.getEntitlementsPath() == null
                                 || autoDevSign.getEntitlementsPath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoDevSign.getEntitlementsPath(),
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, ENTITLEMENTS_PATHS_ENV, autoDevSign.getEntitlementsPath(),
                                 ENTITLEMENTS_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoDevSign.getEntitlementsPath(), appdomeWorkspace, launcher));
+                                : DownloadFilesOrContinue(env, autoDevSign.getEntitlementsPath(), appdomeWorkspace, launcher));
                 break;
             case NONE:
             default:
@@ -452,9 +604,9 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                 command.append(SIGN_ON_APPDOME_FLAG)
                         .append(KEYSTORE_FLAG)
                         .append(autoSign.getKeystorePath() == null || autoSign.getKeystorePath().isEmpty()
-                                ? DownloadFilesOrContinue(UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
+                                ? DownloadFilesOrContinue(env, UseEnvironmentVariable(env, KEYSTORE_PATH_ENV, autoSign.getKeystorePath(),
                                 KEYSTORE_FLAG.trim().substring(2)), appdomeWorkspace, launcher)
-                                : DownloadFilesOrContinue(autoSign.getKeystorePath(), appdomeWorkspace, launcher))
+                                : DownloadFilesOrContinue(env, autoSign.getKeystorePath(), appdomeWorkspace, launcher))
                         .append(KEYSTORE_PASS_FLAG)
                         .append(autoSign.getKeystorePassword())
                         .append(KEYSOTRE_ALIAS_FLAG)
@@ -572,7 +724,7 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Null value is expected and handled elsewhere")
-    private static String DownloadFilesOrContinue(String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
+    private static String DownloadFilesOrContinue(EnvVars env, String paths, FilePath agentWorkspace, Launcher launcher) throws Exception {
         if (paths == null) {
             return "NULL";
         }
@@ -582,14 +734,18 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         String[] splitPathFiles = paths.split(",");
 
         for (String singlePath : splitPathFiles) {
-            if (!isHttpUrl(singlePath)) {
-                pathsToFilesOnAgent.append(singlePath).append(',');
+            String resolvedPath = singlePath.trim();
+            if (!isHttpUrl(resolvedPath)) {
+                resolvedPath = env.expand(singlePath).trim();
+            }
+            if (!isHttpUrl(resolvedPath)) {
+                pathsToFilesOnAgent.append(resolvedPath).append(',');
             } else {
 
                 try {
                     userFilesPath = agentWorkspace.child("user_files");
                     userFilesPath.mkdirs();
-                    pathsToFilesOnAgent.append(DownloadFiles(userFilesPath, launcher, singlePath)).append(',');
+                    pathsToFilesOnAgent.append(DownloadFiles(userFilesPath, launcher, resolvedPath)).append(',');
 
                 } catch (IOException | InterruptedException e) {
                     // Handle exceptions
@@ -670,6 +826,13 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
 
     public Platform getPlatform() {
         return platform;
+    }
+
+    /**
+     * Second Output applies to Android only (e.g. Universal APK from AAB). Used by config UI visibility.
+     */
+    public boolean isSecondOutputSectionVisible() {
+        return platform == null || platform.getPlatformType() == PlatformType.ANDROID;
     }
 
     public DescriptorExtensionList<Platform, Descriptor<Platform>> getPlatformDescriptors() {

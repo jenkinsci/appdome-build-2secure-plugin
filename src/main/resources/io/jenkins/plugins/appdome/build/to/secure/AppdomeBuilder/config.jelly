@@ -2,15 +2,13 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
+    <div class="appdome-builder-config">
+
     <f:entry title="Token" field="token">
         <div style="align-items: center;">
             <f:password/>
         </div>
 
-        <!-- TODO: Adding a validate button to check if the token is valid
-                <f:validateButton title="Validate Token" progress="Validate..."
-                                  method="nameofyourmethod"
-                                  with="the parameters it should receive"/>-->
     </f:entry>
 
 
@@ -26,14 +24,17 @@
     </f:entry>
 
     <f:block>
-        <table>
-            <f:optionalBlock name="secondOutput" title="Second Output" field="secondOutput">
-                <f:entry field="item" description="To generate a Universal.apk file,
-                please note that this applies exclusively to .aab app formats.">
-                    <f:textbox/>
-                </f:entry>
-            </f:optionalBlock>
-        </table>
+        <div class="appdome-second-output-wrapper"
+             style="${it.secondOutputSectionVisible ? '' : 'display: none;'}">
+            <table>
+                <f:optionalBlock name="secondOutput" title="Second Output" field="secondOutput">
+                    <f:entry field="item" description="To generate a Universal.apk file,
+                    please note that this applies exclusively to .aab app formats.">
+                        <f:textbox/>
+                    </f:entry>
+                </f:optionalBlock>
+            </table>
+        </div>
     </f:block>
 
 
@@ -71,7 +72,32 @@
         <f:checkbox name="workflowOutputLogs" field="workflowOutputLogs" default="false"/>
     </f:entry>
 
+    <script type="text/javascript"><![CDATA[
+(function () {
+  if (window.__appdomeSecondOutputPlatformListener) {
+    return;
+  }
+  window.__appdomeSecondOutputPlatformListener = true;
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t || t.tagName !== 'SELECT' || !t.name || t.name.indexOf('platform') < 0) {
+      return;
+    }
+    var root = t.closest('.appdome-builder-config');
+    if (!root) {
+      return;
+    }
+    var wrap = root.querySelector('.appdome-second-output-wrapper');
+    if (!wrap) {
+      return;
+    }
+    var v = t.value || '';
+    var android = v.indexOf('AndroidPlatform') >= 0;
+    wrap.style.display = android ? '' : 'none';
+  }, true);
+})();
+]]></script>
 
-
+    </div>
 
 </j:jelly>
