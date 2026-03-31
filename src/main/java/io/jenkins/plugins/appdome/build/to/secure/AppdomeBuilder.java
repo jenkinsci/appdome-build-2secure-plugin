@@ -10,6 +10,7 @@ import hudson.util.*;
 import io.jenkins.plugins.appdome.build.to.secure.platform.Platform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.PlatformType;
 import io.jenkins.plugins.appdome.build.to.secure.platform.android.AndroidPlatform;
+import io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.TrustedSigningFingerprintsConfig;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.IosPlatform;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoDevSign;
 import io.jenkins.plugins.appdome.build.to.secure.platform.ios.certificate.method.AutoSign;
@@ -366,7 +367,28 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         log.println(
                 "Dynamic certificate: "
                         + (Util.fixEmptyAndTrim(this.getDynamicCertificate()) != null ? "configured" : "(not set)"));
+        if (platform instanceof AndroidPlatform) {
+            logAndroidTrustedSigningFingerprints((AndroidPlatform) platform, listener.getLogger(), env);
+        }
         log.println("---");
+    }
+
+    private void logAndroidTrustedSigningFingerprints(AndroidPlatform androidPlatform, PrintStream log, EnvVars env) {
+        io.jenkins.plugins.appdome.build.to.secure.platform.android.certificate.method.CertificateMethod cm =
+                androidPlatform.getCertificateMethod();
+        if (!(cm instanceof TrustedSigningFingerprintsConfig)) {
+            return;
+        }
+        TrustedSigningFingerprintsConfig t = (TrustedSigningFingerprintsConfig) cm;
+        if (Boolean.TRUE.equals(t.getTrustedSigningFingerprintsFile())) {
+            String expanded = Util.fixEmptyAndTrim(
+                    env.expand(t.getSigningFingerprintListPath() == null ? "" : t.getSigningFingerprintListPath()));
+            log.println(
+                    "Trusted signing fingerprints file: yes"
+                            + (expanded != null ? " (" + expanded + ")" : " (path not set)"));
+        } else {
+            log.println("Trusted signing fingerprints file: no");
+        }
     }
 
     private String describeSignMethod() {
@@ -590,6 +612,27 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
+    private static boolean usesTrustedSigningFingerprintList(TrustedSigningFingerprintsConfig cfg) {
+        return Boolean.TRUE.equals(cfg.getTrustedSigningFingerprintsFile());
+    }
+
+    private static String expandedTrustedSigningFingerprintListPath(EnvVars env, TrustedSigningFingerprintsConfig cfg) {
+        return Util.fixEmptyAndTrim(
+                env.expand(cfg.getSigningFingerprintListPath() == null ? "" : cfg.getSigningFingerprintListPath()));
+    }
+
+    private static void appendSigningFingerprintListIfPath(
+            StringBuilder command,
+            EnvVars env,
+            String expandedListPath,
+            FilePath appdomeWorkspace,
+            Launcher launcher) throws Exception {
+        if (expandedListPath != null) {
+            command.append(SIGNING_FINGERPRINT_LIST_FLAG)
+                    .append(DownloadFilesOrContinue(env, expandedListPath, appdomeWorkspace, launcher));
+        }
+    }
+
     private void ComposeAndroidCommand(StringBuilder command, EnvVars env, FilePath appdomeWorkspace, Launcher launcher, TaskListener listener) throws Exception {
         AndroidPlatform androidPlatform = ((AndroidPlatform) platform);
 
@@ -614,7 +657,14 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         .append(KEY_PASS_FLAG)
                         .append(autoSign.getKeyPass());
 
-                if (autoSign.getIsEnableGoogleSign()) {
+                if (usesTrustedSigningFingerprintList(autoSign)) {
+                    appendSigningFingerprintListIfPath(
+                            command,
+                            env,
+                            expandedTrustedSigningFingerprintListPath(env, autoSign),
+                            appdomeWorkspace,
+                            launcher);
+                } else if (autoSign.getIsEnableGoogleSign()) {
                     String signFingerPrint = autoSign.getGoogleSignFingerPrint();
                     command.append(GOOGLE_PLAY_SIGN_FLAG);
                     if (Util.fixEmptyAndTrim(signFingerPrint) != null) {
@@ -629,11 +679,21 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         (io.jenkins.plugins.appdome.build.to.secure.platform
                                 .android.certificate.method.PrivateSign)
                                 androidPlatform.getCertificateMethod();
-                command.append(PRIVATE_SIGN_FLAG)
-                        .append(FINGERPRINT_FLAG)
-                        .append(privateSign.getFingerprint());
-                if (privateSign.getGoogleSigning() != null ? privateSign.getGoogleSigning() : false) {
-                    command.append(GOOGLE_PLAY_SIGN_FLAG);
+                if (usesTrustedSigningFingerprintList(privateSign)) {
+                    command.append(PRIVATE_SIGN_FLAG);
+                    appendSigningFingerprintListIfPath(
+                            command,
+                            env,
+                            expandedTrustedSigningFingerprintListPath(env, privateSign),
+                            appdomeWorkspace,
+                            launcher);
+                } else {
+                    command.append(PRIVATE_SIGN_FLAG)
+                            .append(FINGERPRINT_FLAG)
+                            .append(privateSign.getFingerprint());
+                    if (privateSign.getGoogleSigning() != null ? privateSign.getGoogleSigning() : false) {
+                        command.append(GOOGLE_PLAY_SIGN_FLAG);
+                    }
                 }
                 break;
             case AUTODEV:
@@ -643,11 +703,21 @@ public class AppdomeBuilder extends Builder implements SimpleBuildStep {
                         (io.jenkins.plugins.appdome.build.to.secure.platform
                                 .android.certificate.method.AutoDevSign)
                                 androidPlatform.getCertificateMethod();
-                command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
-                        .append(FINGERPRINT_FLAG)
-                        .append(autoDev.getFingerprint());
-                if (autoDev.getGoogleSigning()) {
-                    command.append(GOOGLE_PLAY_SIGN_FLAG);
+                if (usesTrustedSigningFingerprintList(autoDev)) {
+                    command.append(AUTO_DEV_PRIVATE_SIGN_FLAG);
+                    appendSigningFingerprintListIfPath(
+                            command,
+                            env,
+                            expandedTrustedSigningFingerprintListPath(env, autoDev),
+                            appdomeWorkspace,
+                            launcher);
+                } else {
+                    command.append(AUTO_DEV_PRIVATE_SIGN_FLAG)
+                            .append(FINGERPRINT_FLAG)
+                            .append(autoDev.getFingerprint());
+                    if (Boolean.TRUE.equals(autoDev.getGoogleSigning())) {
+                        command.append(GOOGLE_PLAY_SIGN_FLAG);
+                    }
                 }
                 break;
             case NONE:

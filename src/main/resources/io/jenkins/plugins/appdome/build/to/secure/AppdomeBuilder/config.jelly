@@ -96,6 +96,80 @@
     wrap.style.display = android ? '' : 'none';
   }, true);
 })();
+
+(function () {
+  if (window.__appdomeTrustedSigningFpUi) {
+    return;
+  }
+  window.__appdomeTrustedSigningFpUi = true;
+
+  function syncRoot(root) {
+    if (!root || !root.classList || !root.classList.contains('appdome-trusted-signing-fp-root')) {
+      return;
+    }
+    var fpGroup = root.querySelector('.appdome-android-fp-google-group, .appdome-android-autosign-google-group');
+    var pathWrap = root.querySelector('.appdome-signing-fingerprint-list-path');
+    var cb = root.querySelector('input[type="checkbox"][name*="trustedSigningFingerprintsFile"]');
+    if (!cb || !fpGroup || !pathWrap) {
+      return;
+    }
+    var on = cb.checked;
+    fpGroup.style.display = on ? 'none' : '';
+    pathWrap.style.display = on ? '' : 'none';
+  }
+
+  function syncAllUnder(container) {
+    if (!container || !container.querySelectorAll) {
+      return;
+    }
+    var roots = container.querySelectorAll('.appdome-trusted-signing-fp-root');
+    for (var i = 0; i < roots.length; i++) {
+      syncRoot(roots[i]);
+    }
+  }
+
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t || t.type !== 'checkbox' || !t.name || t.name.indexOf('trustedSigningFingerprintsFile') < 0) {
+      return;
+    }
+    var root = t.closest && t.closest('.appdome-trusted-signing-fp-root');
+    if (root) {
+      syncRoot(root);
+    }
+  }, true);
+
+  function observeConfig(container) {
+    if (!container || !window.MutationObserver) {
+      return;
+    }
+    if (container.getAttribute('data-appdome-trusted-fp-observed') === '1') {
+      return;
+    }
+    container.setAttribute('data-appdome-trusted-fp-observed', '1');
+    var obs = new MutationObserver(function () {
+      syncAllUnder(container);
+    });
+    obs.observe(container, { childList: true, subtree: true });
+  }
+
+  function boot() {
+    var configs = document.querySelectorAll('.appdome-builder-config');
+    for (var c = 0; c < configs.length; c++) {
+      observeConfig(configs[c]);
+      syncAllUnder(configs[c]);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  [0, 100, 500, 1500].forEach(function (ms) {
+    setTimeout(boot, ms);
+  });
+})();
 ]]></script>
 
     </div>

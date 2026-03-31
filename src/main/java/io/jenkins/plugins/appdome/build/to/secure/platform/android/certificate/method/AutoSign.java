@@ -12,7 +12,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-public class AutoSign extends CertificateMethod {
+public class AutoSign extends CertificateMethod implements TrustedSigningFingerprintsConfig {
 
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private final String keystorePath;
@@ -21,6 +21,8 @@ public class AutoSign extends CertificateMethod {
     private final Secret keyPass;
     private AutoGoogleSign googleSignFingerPrint;
     private Boolean isEnableGoogleSign;
+    private Boolean trustedSigningFingerprintsFile;
+    private String signingFingerprintListPath;
 
     @DataBoundConstructor
     public AutoSign(String keystorePath, Secret keystorePassword, Secret keystoreAlias, Secret keyPass, AutoGoogleSign googleSignFingerPrint) {
@@ -74,6 +76,24 @@ public class AutoSign extends CertificateMethod {
             return googleSignFingerPrint.getIsEnableGoogleSign();
         }
         return false;
+    }
+
+    public Boolean getTrustedSigningFingerprintsFile() {
+        return trustedSigningFingerprintsFile;
+    }
+
+    @DataBoundSetter
+    public void setTrustedSigningFingerprintsFile(Boolean trustedSigningFingerprintsFile) {
+        this.trustedSigningFingerprintsFile = trustedSigningFingerprintsFile;
+    }
+
+    public String getSigningFingerprintListPath() {
+        return signingFingerprintListPath;
+    }
+
+    @DataBoundSetter
+    public void setSigningFingerprintListPath(String signingFingerprintListPath) {
+        this.signingFingerprintListPath = signingFingerprintListPath;
     }
 
 
@@ -131,15 +151,19 @@ public class AutoSign extends CertificateMethod {
 
 
         @POST
-        public FormValidation doCheckGoogleSignFingerPrint(@QueryParameter String googleSignFingerPrint) {
-            Jenkins.get().checkPermission(Jenkins.READ);
-            if (googleSignFingerPrint != null && Util.fixEmptyAndTrim(googleSignFingerPrint) == null) {
-                return FormValidation.error("If Google Sign is enabled, fingerprint must be provided.");
-            }else if (googleSignFingerPrint != null && googleSignFingerPrint.contains(" ")) {
-                return FormValidation.error("White spaces are not allowed in FingerPrint.");
-            }
-            // Perform any additional validation here
-            return FormValidation.ok();
+        public FormValidation doCheckGoogleSignFingerPrint(
+                @QueryParameter String googleSignFingerPrint,
+                @QueryParameter("trustedSigningFingerprintsFile") String trustedSigningFingerprintsFile) {
+            return TrustedSigningFingerprintsFormValidation.validateGoogleFingerprintUnlessTrusted(
+                    googleSignFingerPrint, trustedSigningFingerprintsFile);
+        }
+
+        @POST
+        public FormValidation doCheckSigningFingerprintListPath(
+                @QueryParameter String signingFingerprintListPath,
+                @QueryParameter("trustedSigningFingerprintsFile") String trustedSigningFingerprintsFile) {
+            return TrustedSigningFingerprintsFormValidation.validateListPath(
+                    signingFingerprintListPath, trustedSigningFingerprintsFile);
         }
 
         @Override
