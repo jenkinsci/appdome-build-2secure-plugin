@@ -24,16 +24,31 @@
             <f:password/>
         </div>
     </f:entry>
-    <f:block>
-        <table>
-            <f:optionalBlock name="googleSignFingerPrint" title="Enable Google signing" field="isEnableGoogleSign">
-                <f:entry  title="${%Fingerprint}" field="googleSignFingerPrint">
-                    <f:textbox field="googleSignFingerPrint" name="googleSignFingerPrint" placeholder="Fingerprint SHA1 for Google Signing"/>
-                </f:entry>
-            </f:optionalBlock>
-        </table>
-    </f:block>
-    <hr/>
-    <br/>
+    <div class="appdome-android-autosign-trusted-fp appdome-trusted-signing-fp-root">
+        <div class="appdome-android-autosign-google-group"
+             style="${(instance != null &amp;&amp; instance.trustedSigningFingerprintsFile) ? 'display:none;' : ''}">
+            <f:block>
+                <table>
+                    <f:optionalBlock name="googleSignFingerPrint" title="Enable Google signing" field="isEnableGoogleSign">
+                        <f:entry  title="${%Fingerprint}" field="googleSignFingerPrint">
+                            <f:textbox field="googleSignFingerPrint" name="googleSignFingerPrint" placeholder="Fingerprint SHA1 for Google Signing"/>
+                        </f:entry>
+                    </f:optionalBlock>
+                </table>
+            </f:block>
+        </div>
+        <hr/>
+        <br/>
+        <f:entry title="Trusted Signing Fingerprints File" field="trustedSigningFingerprintsFile">
+            <f:checkbox/>
+        </f:entry>
+        <div class="appdome-signing-fingerprint-list-path"
+             style="${(instance != null &amp;&amp; instance.trustedSigningFingerprintsFile) ? '' : 'display:none;'}">
+            <f:entry field="signingFingerprintListPath"
+                     description="Path to json file containing array of fingerprint objects">
+                <f:textbox/>
+            </f:entry>
+        </div>
+    </div>
 
 </j:jelly>

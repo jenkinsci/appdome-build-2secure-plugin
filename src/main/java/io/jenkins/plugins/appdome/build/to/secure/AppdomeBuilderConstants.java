@@ -9,7 +9,7 @@ public interface AppdomeBuilderConstants {
     String MOBILE_PROVISION_PROFILE_PATHS_ENV = "MOBILE_PROVISION_PROFILE_PATHS";
     String ENTITLEMENTS_PATHS_ENV = "ENTITLEMENTS_PATHS";
     String APPDOME_HEADER_ENV_NAME = "APPDOME_CLIENT_HEADER";
-    String APPDOME_BUILDE2SECURE_VERSION = "Jenkins/1.3.0";
+    String APPDOME_BUILDE2SECURE_VERSION = "Jenkins/1.3.1";
 
     /**
      * FLAGS
@@ -31,6 +31,7 @@ public interface AppdomeBuilderConstants {
     String AUTO_DEV_PRIVATE_SIGN_FLAG = " --auto_dev_private_signing ";
     String GOOGLE_PLAY_SIGN_FLAG = " --google_play_signing ";
     String FINGERPRINT_FLAG = " --signing_fingerprint ";
+    String SIGNING_FINGERPRINT_LIST_FLAG = " --signing_fingerprint_list ";
     String CERTIFIED_SECURE_PDF_FLAG = " --certificate_output ";
     String CERTIFIED_SECURE_JSON_FLAG = " --certificate_json ";
     String BUILD_WITH_LOGS = " --build_logs ";

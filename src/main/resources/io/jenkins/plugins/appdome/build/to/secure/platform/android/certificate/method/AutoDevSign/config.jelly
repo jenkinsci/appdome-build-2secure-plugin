@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry title="${%Fingerprint}" field="fingerprint">
-        <div style="display: flex; align-items: center;">
-            <f:textbox placeholder="Your SHA1 FINGERPRINT"/>
+    <div class="appdome-android-autodev-sign-trusted-fp appdome-trusted-signing-fp-root">
+        <div class="appdome-android-fp-google-group"
+             style="${(instance != null &amp;&amp; instance.trustedSigningFingerprintsFile) ? 'display:none;' : ''}">
+            <f:entry title="${%Fingerprint}" field="fingerprint">
+                <div style="display: flex; align-items: center;">
+                    <f:textbox placeholder="Your SHA256 FINGERPRINT"/>
+                </div>
+            </f:entry>
+            <f:entry title="${%Google Signing}" field="googleSigning">
+                <f:checkbox/>
+            </f:entry>
         </div>
-    </f:entry>
-    <f:entry title="${%Google signing}" field="googleSigning">
-        <f:checkbox/>
-    </f:entry>
+        <f:entry title="Trusted Signing Fingerprints File" field="trustedSigningFingerprintsFile">
+            <f:checkbox/>
+        </f:entry>
+        <div class="appdome-signing-fingerprint-list-path"
+             style="${(instance != null &amp;&amp; instance.trustedSigningFingerprintsFile) ? '' : 'display:none;'}">
+            <f:entry field="signingFingerprintListPath"
+                     description="Path to json file containing array of fingerprint objects">
+                <f:textbox/>
+            </f:entry>
+        </div>
+    </div>
 </j:jelly>
